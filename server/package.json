@@ -1,0 +1,19 @@
+{
+	"name": "fynmanai",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"dev": "bun --watch index.ts",
+		"start": "bun index.ts"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/express": "^5.0.6"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"express": "^5.2.1"
+	}
+}
