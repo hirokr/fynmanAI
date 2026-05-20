@@ -3,8 +3,6 @@ node_modules
 .env.development
 .env.production
 .neon_local/
-/src/generated/prisma
 /logs
 /prisma/migrations
 /prisma/generated
-/src/generated
