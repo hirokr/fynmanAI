@@ -31,6 +31,7 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
 } from '#src/utils/mail/sendMail.ts';
+import { sendApiError, sendApiSuccess } from '#src/utils/api-response.ts';
 
 // TODO: Fix The Refresh Token Race Condition
 export const refresh = async (req: Request, res: Response) => {
@@ -39,13 +40,13 @@ export const refresh = async (req: Request, res: Response) => {
 
   // Validate refresh token
   if (!refreshToken) {
-    return res.status(401).json({ message: 'Refresh token missing' });
+    return sendApiError(res, { status: 401, message: 'Refresh token missing' });
   }
 
   // Checking the refreshes token validity from the token itself
   const userId: string | null = await verifyRefreshToken(refreshToken);
   if (!userId) {
-    return res.status(401).json({ message: 'Invalid refresh token' });
+    return sendApiError(res, { status: 401, message: 'Invalid refresh token' });
   }
 
   // Check if refresh token exists in DB and is active
@@ -53,7 +54,7 @@ export const refresh = async (req: Request, res: Response) => {
   const storedToken = await findRefreshToken(hashRT);
 
   if (!storedToken) {
-    return res.status(401).json({ message: 'Invalid Refresh Token' });
+    return sendApiError(res, { status: 401, message: 'Invalid Refresh Token' });
   }
 
   // Revoking old refresh token and session
@@ -82,7 +83,7 @@ export const refresh = async (req: Request, res: Response) => {
   );
 
   await saveToCookie(res, newRefreshToken, accessToken);
-  res.status(200).json({ message: 'Token refreshed' });
+  sendApiSuccess(res, { message: 'Token refreshed' });
 };
 
 export const signup = async (req: Request, res: Response) => {
@@ -90,14 +91,15 @@ export const signup = async (req: Request, res: Response) => {
     const { email, password, name } = req.body;
 
     if (!email || !password || !name) {
-      return res
-        .status(400)
-        .json({ message: 'Email, password and name are required' });
+      return sendApiError(res, {
+        status: 400,
+        message: 'Email, password and name are required',
+      });
     }
 
     const user = await findUserByEmail(email);
     if (user) {
-      return res.status(400).json({ message: 'User already exists' });
+      return sendApiError(res, { status: 400, message: 'User already exists' });
     }
 
     const hashedPassword = await hashing(password);
@@ -119,12 +121,14 @@ export const signup = async (req: Request, res: Response) => {
       console.error('Verification email failed (non-fatal):', err)
     );
 
-    res
-      .status(201)
-      .json({ message: 'User registered successfully', user: newUser });
+    sendApiSuccess(res, {
+      status: 201,
+      message: 'User registered successfully',
+      data: { user: newUser },
+    });
   } catch (error) {
     // console.error('Error in signup:', error);
-    res.status(500).json({ message: 'user creation failed' });
+    sendApiError(res, { status: 500, message: 'user creation failed' });
   }
 };
 
@@ -132,14 +136,20 @@ export const signin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const { ip, 'user-agent': userAgent } = req.headers;
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    return sendApiError(res, {
+      status: 400,
+      message: 'Email and password are required',
+    });
   }
 
   const user = await findUserByEmail(email);
 
   // Normalize response to avoid user enumeration (don't reveal whether email exists)
   if (!user) {
-    return res.status(400).json({ message: 'Invalid email or password' });
+    return sendApiError(res, {
+      status: 400,
+      message: 'Invalid email or password',
+    });
   }
 
   const isPasswordValid = await verifyHash(
@@ -147,7 +157,10 @@ export const signin = async (req: Request, res: Response) => {
     password
   );
   if (!isPasswordValid) {
-    return res.status(400).json({ message: 'Invalid email or password' });
+    return sendApiError(res, {
+      status: 400,
+      message: 'Invalid email or password',
+    });
   }
 
   const sessionId = createRandomToken();
@@ -179,14 +192,20 @@ export const signin = async (req: Request, res: Response) => {
     age: user.age || undefined,
   };
 
-  res.status(200).json({ message: 'Signin successful', user: secureUser });
+  sendApiSuccess(res, {
+    message: 'Signin successful',
+    data: { user: secureUser },
+  });
 };
 
 // @desc    Signout user and invalidate refresh token
 // @route   GET /auth/signout
 export const signout = async (req: AuthRequest, res: Response) => {
   if (!req.userId) {
-    return res.status(401).json({ message: 'User not authenticated' });
+    return sendApiError(res, {
+      status: 401,
+      message: 'User not authenticated',
+    });
   }
   const { userId, sessionId } = req;
 
@@ -204,9 +223,14 @@ export const signout = async (req: AuthRequest, res: Response) => {
   await clearTokens(res);
 
   req.logout(err => {
-    if (err) return res.sendStatus(500);
+    if (err)
+      return sendApiError(res, { status: 500, message: 'Signout failed' });
     req.session.destroy(err => {
-      res.send('Signout Success!');
+      if (err) {
+        return sendApiError(res, { status: 500, message: 'Signout failed' });
+      }
+
+      sendApiSuccess(res, { message: 'Signout success' });
     });
   });
 };
@@ -230,7 +254,10 @@ export const googleAuthCallback = [
       const { ip, 'user-agent': userAgent } = req.headers;
 
       if (!user) {
-        return res.status(401).json({ message: 'Authentication failed' });
+        return sendApiError(res, {
+          status: 401,
+          message: 'Authentication failed',
+        });
       }
 
       const newSessionId = createRandomToken();

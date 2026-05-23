@@ -11,7 +11,7 @@ import passport from 'passport';
 
 import authRoutes from './routes/auth.route.ts';
 import usersRoutes from './routes/user.route.ts';
-
+import { sendApiError, sendApiSuccess } from '#src/utils/api-response.ts';
 
 const app = express();
 app.use(helmet());
@@ -19,7 +19,7 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'http://localhost:5173'
+  'http://localhost:5173',
 ];
 
 app.use(
@@ -61,15 +61,17 @@ app.get('/', (req, res) => {
 });
 
 app.head('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
+  sendApiSuccess(res, {
+    data: {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    },
   });
 });
 
 app.get('/api', (req, res) => {
-  res.status(200).json({ message: 'Tryora API is running!' });
+  sendApiSuccess(res, { message: 'Tryora API is running!' });
 });
 
 app.use('/api/auth', authRoutes);
@@ -86,7 +88,7 @@ export const redisClient = redis.createClient({
 });
 
 app.use((req, res) => {
-  res.status(404).json({ succes: false, error: 'Route not found' });
+  sendApiError(res, { status: 404, message: 'Route not found' });
 });
 
 export default app;

@@ -5,6 +5,7 @@ import { AuthRequest } from '#src/types/authRequest.js';
 import { getSetCache, makeUserSessionCacheKey } from '#src/utils/redis.ts';
 import { isValidSession } from '#src/services/token.service.ts';
 import { z, ZodError } from 'zod/v3';
+import { sendApiError } from '#src/utils/api-response.ts';
 
 export const authMiddleware = async (
   req: AuthRequest,
@@ -15,7 +16,7 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return sendApiError(res, { status: 401, message: 'Unauthorized' });
     }
 
     const token = authHeader.split(' ')[1];
@@ -24,7 +25,10 @@ export const authMiddleware = async (
     const { userId, sessionId } = getData || {};
 
     if (!userId || !sessionId) {
-      return res.status(401).json({ message: 'Invalid token payload' });
+      return sendApiError(res, {
+        status: 401,
+        message: 'Invalid token payload',
+      });
     }
 
     const cacheKey = makeUserSessionCacheKey(userId, sessionId);
@@ -33,14 +37,20 @@ export const authMiddleware = async (
     );
 
     if (!isActiveSession) {
-      return res.status(401).json({ message: 'Invalid or expired session' });
+      return sendApiError(res, {
+        status: 401,
+        message: 'Invalid or expired session',
+      });
     }
 
     (req as AuthRequest).userId = userId;
     (req as AuthRequest).sessionId = sessionId;
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    return sendApiError(res, {
+      status: 401,
+      message: 'Invalid or expired token',
+    });
   }
 };
 
@@ -56,7 +66,8 @@ export const validateRequest =
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        res.status(400).json({
+        sendApiError(res, {
+          status: 400,
           message: error.errors[0]?.message || 'Validation error',
           errors: error.flatten().fieldErrors,
         });
