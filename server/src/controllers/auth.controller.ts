@@ -97,7 +97,7 @@ export const signup = async (req: Request, res: Response) => {
 
     const user = await findUserByEmail(email);
     if (user) {
-      return res.status(409).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await hashing(password);
@@ -139,7 +139,7 @@ export const signin = async (req: Request, res: Response) => {
 
   // Normalize response to avoid user enumeration (don't reveal whether email exists)
   if (!user) {
-    return res.status(401).json({ message: 'Invalid email or password' });
+    return res.status(400).json({ message: 'Invalid email or password' });
   }
 
   const isPasswordValid = await verifyHash(
@@ -147,7 +147,7 @@ export const signin = async (req: Request, res: Response) => {
     password
   );
   if (!isPasswordValid) {
-    return res.status(401).json({ message: 'Invalid email or password' });
+    return res.status(400).json({ message: 'Invalid email or password' });
   }
 
   const sessionId = createRandomToken();

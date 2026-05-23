@@ -17,7 +17,8 @@ export const getSetRedis = (key: string, cb: any) => {
       const data = await redisClient.get(key);
       if (data) {
         await redisClient.quit();
-        return resolve(JSON.parse(data));
+        const raw = typeof data === 'string' ? data : data.toString();
+        return resolve(JSON.parse(raw));
       }
 
       const freshData = await cb();
@@ -52,7 +53,8 @@ export const getSetCache = async <T>(
   const data = await redisClient.get(key);
 
   if (data !== null) {
-    return JSON.parse(data);
+    const raw = typeof data === 'string' ? data : data.toString();
+    return JSON.parse(raw);
   }
 
   const freshData = await cb();
@@ -85,7 +87,9 @@ export const invalidateCache = async (
 // DONE: Create a utility function to get cache without setting it
 export const getCache = async (key: string): Promise<any> => {
   const data = await redisClient.get(key);
-  return data ? JSON.parse(data) : null;
+  if (!data) return null;
+  const raw = typeof data === 'string' ? data : data.toString();
+  return JSON.parse(raw);
 };
 
 // DONE: Create a utility function to set cache with expiration
@@ -109,7 +113,8 @@ export const getProductIdsByIntent = async (
   }
 
   try {
-    const parsed = JSON.parse(data);
+    const raw = typeof data === 'string' ? data : data.toString();
+    const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) {
       return null;
     }
@@ -156,8 +161,16 @@ export const deleteUserCache = async (userId: string): Promise<void> => {
   const indexKey = `user-session-index:${userId}`;
   const sessionKeys = await redisClient.sMembers(indexKey);
 
-  if (sessionKeys.length > 0) {
-    await redisClient.del(sessionKeys);
+  // ensure sessionKeys is an array
+  const keysArray = Array.isArray(sessionKeys)
+    ? sessionKeys
+    : Array.from(sessionKeys as Set<string>);
+
+  if (keysArray.length > 0) {
+    // Delete keys individually to avoid typing issues with spread arguments
+    for (const k of keysArray) {
+      await redisClient.del(k);
+    }
   }
   await redisClient.del(indexKey);
 };

@@ -33,6 +33,7 @@ jest.unstable_mockModule('#src/services/user.service.ts', () => ({
   findUserByEmail: mockFindUserByEmail,
   createUser: mockCreateUser,
   findUserById: jest.fn(),
+  findUserByVerificationToken: jest.fn(),
   updateUserProfile: jest.fn(),
   updateUserPassword: jest.fn(),
   verifyUserEmail: jest.fn(),
@@ -66,6 +67,7 @@ jest.unstable_mockModule('#src/utils/redis.ts', () => ({
   getSetCache: mockGetSetCache,
   setCache: mockSetCache,
   invalidateCache: mockInvalidateCache,
+  deleteUserCache: jest.fn(),
   makeUserSessionCacheKey: (userId: string, sessionId: string) =>
     `user-session:${userId}:${sessionId}`,
 }));
