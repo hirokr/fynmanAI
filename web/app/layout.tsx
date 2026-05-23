@@ -36,7 +36,7 @@ export default async function RootLayout({
 			<body
 				className={
 					inter.className +
-					" bg-white text-black dark:bg-black dark:text-white dark"
+					" bg-white text-black dark:bg-black dark:text-white dark overflow-x-hidden"
 				}
 			>
 				<MainProvider initialUser={session?.user ?? null}>

@@ -15,13 +15,13 @@ const Header = async () => {
 				<Link href='/' className='flex items-center' style={{ gap: "7px" }}>
 					<Image
 						src='/icon0.svg'
-						alt='Tryora Icon'
+						alt='Template Icon'
 						width={24}
 						height={24}
 						style={{ width: "2rem", height: "2rem" }}
 					/>
 					<h2 className='font-serif text-2xl font-bold tracking-tight text-white italic'>
-						Tryora
+						Template
 					</h2>
 				</Link>
 				<nav className='hidden md:flex items-center gap-10'>

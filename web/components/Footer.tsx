@@ -1,4 +1,3 @@
-import { Camera, Globe, Sparkles } from "lucide-react";
 import React from "react";
 
 const Footer = () => {
@@ -9,7 +8,7 @@ const Footer = () => {
             <div className="text-primary">
               <span className="material-symbols-outlined" style={{ fontSize: "1.875rem" }}>electric_bike</span>
             </div>
-            <h2 className="font-serif text-xl font-bold text-white italic">Tryora</h2>
+            <h2 className="font-serif text-xl font-bold text-white italic">Template</h2>
           </div>
           <div className="flex gap-8 text-slate-500 text-sm">
             <a className="hover:text-primary transition-colors" href="#">Twitter</a>
