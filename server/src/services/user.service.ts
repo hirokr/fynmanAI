@@ -18,8 +18,14 @@ function toPrismaGender(gender: string): Gender | undefined {
 
 export async function findUserByEmail(email: string) {
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: normalizedEmail,
+          mode: 'insensitive',
+        },
+      },
     });
     // returned user (no debug logging)
 
@@ -79,7 +85,7 @@ export async function createUser(data: CreateUserDto): Promise<ReturnUserDto> {
     const { email, name, passwordHash } = data;
     const user = await prisma.user.create({
       data: {
-        email,
+        email: email.trim().toLowerCase(),
         name,
         passwordHash,
         verificationToken: data.verificationToken,
