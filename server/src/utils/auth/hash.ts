@@ -10,6 +10,7 @@ export const verifyHash = async (hashedPassword: string, password: string) => {
     const isValid = await verify(hashedPassword, password);
     return isValid;
   } catch (err) {
-    return null;
+    // Return false on error to simplify callers expecting a boolean
+    return false;
   }
 };

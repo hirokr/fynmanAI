@@ -21,7 +21,7 @@ export async function findUserByEmail(email: string) {
     const user = await prisma.user.findUnique({
       where: { email },
     });
-    console.log('first');
+    // returned user (no debug logging)
 
     return user;
   } catch (err) {
@@ -173,7 +173,7 @@ export async function verifyUserEmail(
 
 export async function findUserByVerificationToken(token: any) {
   try {
-    const user = prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
         verificationToken: token,
         deletedAt: null,

@@ -131,10 +131,15 @@ export const signup = async (req: Request, res: Response) => {
 export const signin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const { ip, 'user-agent': userAgent } = req.headers;
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
   const user = await findUserByEmail(email);
 
+  // Normalize response to avoid user enumeration (don't reveal whether email exists)
   if (!user) {
-    return res.status(400).json({ message: 'Invalid email or password' });
+    return res.status(401).json({ message: 'Invalid email or password' });
   }
 
   const isPasswordValid = await verifyHash(
@@ -145,18 +150,18 @@ export const signin = async (req: Request, res: Response) => {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
 
-  const getSessionId = createRandomToken();
+  const sessionId = createRandomToken();
 
   const { accessToken, refreshToken } = await generateTokens(
     user.id,
-    getSessionId
+    sessionId
   );
   const hashedRefreshToken = hashTokenCrypto(refreshToken);
 
   await saveRefreshToken(
     user.id,
     hashedRefreshToken,
-    getSessionId,
+    sessionId,
     userAgent,
     ip as string
   );
@@ -252,9 +257,8 @@ export const googleAuthCallback = [
 
       const frontend = process.env.FRONTEND_URL || 'http://localhost:3000';
 
-
       const existingUser = await findUserByEmail(user.email);
-      
+
       if (!existingUser) {
         return res.redirect(
           `${frontend}/api/auth/google/callback?id=${user.id}&email=${user.email}&name=${user.name}&avatar=${user.avatar || ''}&emailVerified=${user.emailVerified}&isActive=${user.isActive}&accessToken=${accessToken}&refreshToken=${refreshToken}&userBodyImageUrl=${user.userBodyImageUrl || ''}&age=${user.age || ''}`

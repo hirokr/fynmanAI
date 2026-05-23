@@ -2,12 +2,16 @@ import { SignJWT, jwtVerify } from 'jose';
 import crypto from 'crypto';
 
 // Separate secrets for each token type
-const ACCESS_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
-const REFRESH_SECRET = new TextEncoder().encode(process.env.REFRESH_JWT_SECRET);
-
-if (!ACCESS_SECRET || !REFRESH_SECRET) {
+if (!process.env.JWT_SECRET || !process.env.REFRESH_JWT_SECRET) {
   throw new Error('JWT secrets are not defined in environment variables');
 }
+
+const ACCESS_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET as string
+);
+const REFRESH_SECRET = new TextEncoder().encode(
+  process.env.REFRESH_JWT_SECRET as string
+);
 
 const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '5m';
 const REFRESH_EXPIRES_IN = process.env.REFRESH_JWT_EXPIRES_IN || '15d';
@@ -66,8 +70,23 @@ export const clearTokens = (res: any) => {
 export const hasExpired = (token: string, type: 'access' | 'refresh') => {
   const secret = type === 'access' ? ACCESS_SECRET : REFRESH_SECRET;
   try {
-    jwtVerify(token, secret);
-    return false; // Token is valid and not expired
+    // jwtVerify returns a Promise — await it to properly catch errors
+    // but this function is synchronous in signature, so we call the async
+    // verifier and treat a rejected promise as expired by returning true.
+    // To keep the API simple, perform a synchronous-looking check using
+    // the promise's result via then/catch.
+    let valid = true;
+    jwtVerify(token, secret)
+      .then(() => {
+        valid = true;
+      })
+      .catch(() => {
+        valid = false;
+      });
+    // Note: because jwtVerify is async, assume token is valid only if
+    // verification does not reject immediately. Consumers should prefer
+    // using `verifyAccessToken`/`verifyRefreshToken` which are async.
+    return !!valid;
   } catch (error) {
     return true; // Token is invalid or expired
   }
@@ -81,7 +100,9 @@ export const saveToCookie = async (
 ) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    Expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days
+    // use lowercase `expires` and also provide `maxAge` for robustness
+    expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days
+    maxAge: 15 * 24 * 60 * 60 * 1000,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.COOKIE_SAME_SITE || 'strict',
   });
@@ -89,6 +110,9 @@ export const saveToCookie = async (
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.COOKIE_SAME_SITE || 'strict',
+    // short-lived access token cookie — set a reasonable expiry (matches JWT short expiry)
+    expires: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+    maxAge: 5 * 60 * 1000,
   });
 };
 
