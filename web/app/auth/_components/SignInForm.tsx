@@ -106,7 +106,7 @@ export default function SignInForm() {
 					leadingIcon={fieldIcon.password}
 					actionSlot={
 						<Link
-							href='/auth/forgot_pass'
+							href='/auth/forgot-pass'
 							className='text-[11px] text-[#928ea1] transition-colors hover:text-primary'
 						>
 							Forgot password?

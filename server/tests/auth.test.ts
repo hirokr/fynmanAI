@@ -305,7 +305,11 @@ describe('Auth routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('message', 'Signin successful');
-      expect(response.body.user.passwordHash).toBeUndefined();
+      expect(response.body.data.user.passwordHash).toBeUndefined();
+      expect(response.body.data).toMatchObject({
+        accessToken: 'access-1',
+        refreshToken: 'refresh-1',
+      });
 
       // FIXED: We now accept undefined for the last two arguments (IP and UserAgent)
       expect(mockSaveRefreshToken).toHaveBeenCalledWith(
@@ -344,7 +348,7 @@ describe('Auth routes', () => {
         .post('/auth/signin')
         .send({ email: 'test@example.com', password: 'Password1!' });
 
-      expect(response.body.user).toEqual({
+      expect(response.body.data.user).toEqual({
         id: 'user-1',
         email: 'test@example.com',
         name: 'John Doe',

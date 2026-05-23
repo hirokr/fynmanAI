@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 type VerificationCodeCardProps = {
 	code: string[];
 	onChangeDigit: (value: string, idx: number) => void;
@@ -8,6 +6,7 @@ type VerificationCodeCardProps = {
 		idx: number,
 	) => void;
 	setInputRef: (element: HTMLInputElement | null, index: number) => void;
+	onSubmit: (token: string) => void;
 };
 
 export function VerificationCodeCard({
@@ -15,6 +14,7 @@ export function VerificationCodeCard({
 	onChangeDigit,
 	onKeyDownDigit,
 	setInputRef,
+	onSubmit,
 }: VerificationCodeCardProps) {
 	return (
 		<div className='w-full max-w-sm rounded-2xl border border-border bg-card/90 p-7 shadow-2xl shadow-primary/10 backdrop-blur'>
@@ -38,9 +38,11 @@ export function VerificationCodeCard({
 				))}
 			</div>
 
-			<Link
-				href='/auth/reset_pass'
-				className='mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5 hover:opacity-95'
+			<button
+				type='button'
+				onClick={() => onSubmit(code.join(""))}
+				disabled={code.some((d) => d === "")}
+				className='mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5 hover:opacity-95 disabled:opacity-60'
 			>
 				<svg
 					width='16'
@@ -55,7 +57,7 @@ export function VerificationCodeCard({
 					<path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' />
 				</svg>
 				Verify Account
-			</Link>
+			</button>
 
 			<p className='text-center text-xs text-muted-foreground'>
 				Didn&apos;t receive the email?{" "}

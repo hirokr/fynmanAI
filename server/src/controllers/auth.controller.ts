@@ -115,7 +115,7 @@ export const signup = async (req: Request, res: Response) => {
     sendVerificationEmail({
       to: newUser.email,
       userName: newUser.name,
-      verificationLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`,
+      verificationLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/verify-email?token=${verificationToken}`,
       expiryMinutes: 1440, // 24 hours
     }).catch(err =>
       console.error('Verification email failed (non-fatal):', err)
@@ -194,7 +194,11 @@ export const signin = async (req: Request, res: Response) => {
 
   sendApiSuccess(res, {
     message: 'Signin successful',
-    data: { user: secureUser },
+    data: {
+      user: secureUser,
+      accessToken,
+      refreshToken,
+    },
   });
 };
 

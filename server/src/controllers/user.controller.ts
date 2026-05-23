@@ -174,7 +174,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     await sendPasswordResetEmail({
       to: user.email,
       userName: user.name,
-      resetLink: `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`,
+      resetLink: `${process.env.FRONTEND_URL}/auth/reset-pass?token=${resetToken}`,
       verificationLink: '',
       expiryMinutes: 60,
     });
@@ -242,14 +242,27 @@ export const verifyEmail = async (req: Request, res: Response) => {
   try {
     const { token, userId } = req.body;
 
-    if (!token || !userId) {
+    if (!token) {
       return sendApiError(res, {
         status: 400,
-        message: 'Verification token and user ID are required',
+        message: 'Verification token is required',
       });
     }
 
-    await verifyUserEmail(userId, token);
+    let resolvedUserId = userId;
+    // If userId not provided, try to find the user by token (token-only links)
+    if (!resolvedUserId) {
+      const userByToken = await findUserByVerificationToken(token);
+      if (!userByToken) {
+        return sendApiError(res, {
+          status: 400,
+          message: 'Invalid or expired token',
+        });
+      }
+      resolvedUserId = userByToken.id;
+    }
+
+    await verifyUserEmail(resolvedUserId, token);
 
     return sendApiSuccess(res, { message: 'Email verified successfully' });
   } catch (error) {
@@ -296,7 +309,7 @@ export const resendVerificationEmail = async (
     });
 
     // Build verification link
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${newToken}`;
+    const verificationLink = `${process.env.FRONTEND_URL}/auth/verify-email?token=${newToken}`;
 
     await sendVerificationEmail({
       to: user.email,
