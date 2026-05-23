@@ -41,7 +41,7 @@ export default async function RootLayout({
 			>
 				<MainProvider initialUser={session?.user ?? null}>
 					<Header />
-					<main className='pt-20'>{children}</main>
+					<main className=''>{children}</main>
 					<Footer />
 				</MainProvider>
 			</body>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { AuthPageShell } from "../_components/AuthPageShell";
 import { ForgotPasswordCard } from "./_components/ForgotPasswordCard";
 
 export default function ForgotPasswordPage() {
@@ -10,7 +11,7 @@ export default function ForgotPasswordPage() {
 	const [email, setEmail] = useState("");
 
 	return (
-		<div className="flex min-h-full items-center justify-center px-2 py-6">
+		<AuthPageShell>
 			<ForgotPasswordCard
 				email={email}
 				onEmailChange={setEmail}
@@ -20,9 +21,11 @@ export default function ForgotPasswordPage() {
 					if (trimmedEmail) {
 						sessionStorage.setItem("authEmail", trimmedEmail);
 					}
-					router.push(`/auth/email_verify?email=${encodeURIComponent(trimmedEmail)}`);
+					router.push(
+						`/auth/email_verify?email=${encodeURIComponent(trimmedEmail)}`,
+					);
 				}}
 			/>
-		</div>
+		</AuthPageShell>
 	);
 }
