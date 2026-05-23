@@ -2,9 +2,7 @@ import GSAPProvider from "./gsapProvider";
 import { ThemeProvider } from "./theme-provider";
 import UploaderLayout from "./UploadThing-provider";
 import { Toaster } from "@/components/ui/sonner";
-import TryonJobStatusPanel from "@/components/utility/tryon/TryonJobStatusPanel";
 import { AuthProvider } from "@/context/auth.context";
-import { TryonSocketProvider } from "@/context/tryonSocket.context";
 import { Session } from "@/types/auth";
 
 export default function MainProvider({
@@ -17,8 +15,7 @@ export default function MainProvider({
 	return (
 		<>
 			<AuthProvider initialUser={initialUser}>
-				<TryonSocketProvider>
-					<UploaderLayout>
+=					<UploaderLayout>
 						<ThemeProvider
 							attribute='class'
 							defaultTheme='system'
@@ -27,11 +24,10 @@ export default function MainProvider({
 						>
 							<GSAPProvider />
 							<Toaster richColors position='top-right' />
-							<TryonJobStatusPanel />
 							{children}
 						</ThemeProvider>
 					</UploaderLayout>
-				</TryonSocketProvider>
+
 			</AuthProvider>
 		</>
 	);

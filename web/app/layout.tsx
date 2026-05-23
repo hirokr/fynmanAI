@@ -10,8 +10,8 @@ import { getSession } from "@/lib/auth/session";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "Tryora - Future of Digital Fashion",
-	description: "AI-driven 3D reconstruction and cinematic try-on experiences.",
+	title: "template",
+	description: "template description",
 };
 
 export default async function RootLayout({

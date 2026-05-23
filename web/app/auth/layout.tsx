@@ -1,7 +1,5 @@
 import React, { PropsWithChildren } from "react";
 
-import { AuthFamilyFooter } from "./_components/AuthFamilyFooter";
-import { AuthFamilyHeader } from "./_components/AuthFamilyHeader";
 
 const AuthLayout = ({ children }: PropsWithChildren) => {
 	return (
@@ -12,9 +10,7 @@ const AuthLayout = ({ children }: PropsWithChildren) => {
 					"radial-gradient(1200px 600px at 20% 0%, #22103a 0%, #140b24 45%, #0d0b18 100%)",
 			}}
 		>
-			<AuthFamilyHeader />
 			<main className='flex-1 px-4 py-6 md:px-6 md:py-8'>{children}</main>
-			<AuthFamilyFooter />
 		</div>
 	);
 };

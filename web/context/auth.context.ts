@@ -17,7 +17,15 @@ type AuthUser = Session["user"];
 type AuthSessionResponse = {
 	isAuthenticated: boolean;
 	user: AuthUser | null;
+	accessToken?: string;
 	error?: string;
+};
+
+type ApiEnvelope<T> = {
+	success: boolean;
+	message?: string;
+	data?: T;
+	errors?: unknown;
 };
 
 type AuthContextValue = {
@@ -46,11 +54,27 @@ const readSession = async (): Promise<AuthSessionResponse> => {
 		};
 	}
 
-	return (await response.json().catch(() => ({
+	const payload = (await response.json().catch(() => null)) as
+		| AuthSessionResponse
+		| ApiEnvelope<AuthSessionResponse>
+		| null;
+
+	if (payload && typeof payload === "object" && "data" in payload) {
+		return {
+			isAuthenticated: Boolean(payload.data?.isAuthenticated),
+			user: payload.data?.user ?? null,
+			accessToken: payload.data?.accessToken,
+			error: payload.success
+				? payload.message
+				: (payload.message ?? "Unable to verify session"),
+		};
+	}
+
+	return (payload ?? {
 		isAuthenticated: false,
 		user: null,
 		error: "Unable to verify session",
-	}))) as AuthSessionResponse;
+	}) as AuthSessionResponse;
 };
 
 export function AuthProvider({

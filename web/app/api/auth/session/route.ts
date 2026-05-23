@@ -3,25 +3,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { refreshToken } from "@/lib/auth/auth";
 import { getSession, updateTokens } from "@/lib/auth/session";
 import { Session } from "@/types/auth";
+import { sendApiError, sendApiSuccess } from "@/lib/api-response";
 
 type SessionApiResponse = {
 	isAuthenticated: boolean;
 	user: Session["user"] | null;
 	accessToken?: string;
-	error?: string;
 };
 
 const createUnauthResponse = (error?: string) => {
-	const payload: SessionApiResponse = {
-		isAuthenticated: false,
-		user: null,
-	};
-
-	if (error) {
-		payload.error = error;
-	}
-
-	return NextResponse.json(payload, { status: 200 });
+	return sendApiSuccess({
+		message: error || "No active session",
+		data: {
+			isAuthenticated: false,
+			user: null,
+		},
+	});
 };
 
 export async function GET(request: NextRequest) {
@@ -59,8 +56,13 @@ export async function GET(request: NextRequest) {
 			accessToken: session.accessToken,
 		};
 
-		return NextResponse.json(payload, { status: 200 });
+		return sendApiSuccess({
+			data: payload,
+		});
 	} catch {
-		return createUnauthResponse("Unable to verify session");
+		return sendApiError({
+			status: 500,
+			message: "Unable to verify session",
+		});
 	}
 }
