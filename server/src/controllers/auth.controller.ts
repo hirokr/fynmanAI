@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import passport from 'passport';
 import '../config/google.config.ts';
-import { createUser, findUserByEmail } from '#src/services/user.service.ts';
+import {
+  createUser,
+  findUserByEmail,
+  updateUserPassword,
+} from '#src/services/user.service.ts';
 
 import {
   clearTokens,
@@ -99,7 +103,35 @@ export const signup = async (req: Request, res: Response) => {
 
     const user = await findUserByEmail(email);
     if (user) {
-      return sendApiError(res, { status: 400, message: 'User already exists' });
+      const hasPassword = Boolean(user.passwordHash?.trim());
+
+      if (hasPassword) {
+        return sendApiError(res, {
+          status: 400,
+          message: 'User already exists',
+        });
+      }
+
+      const hashedPassword = await hashing(password);
+      await updateUserPassword(user.id, hashedPassword);
+
+      sendApiSuccess(res, {
+        message: 'Account linked successfully',
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            avatar: user.avatarUrl || undefined,
+            emailVerified: user.emailVerified,
+            isActive: user.isActive,
+            userBodyImageUrl: user.userBodyImageUrl || undefined,
+            age: user.age || undefined,
+          },
+        },
+      });
+
+      return;
     }
 
     const hashedPassword = await hashing(password);

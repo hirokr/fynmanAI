@@ -1,8 +1,7 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import passport from 'passport';
-import prisma from './database.ts';
 import { CreateGoogleUser } from '#src/services/google.service.ts';
-import { findUserByEmail, findUserById } from '#src/services/user.service.ts';
+import { findUserById } from '#src/services/user.service.ts';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -32,11 +31,7 @@ passport.use(
       done: any
     ) => {
       try {
-        let user = await findUserByEmail(profile.emails[0].value);
-
-        if (!user) {
-          user = await CreateGoogleUser(profile); // Create user if not found, you can also return the created user here
-        }
+        const user = await CreateGoogleUser(profile);
         return done(null, user);
       } catch (err) {
         return done(err, null);

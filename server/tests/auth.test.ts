@@ -4,6 +4,7 @@ import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 // 1. We cast mocks to <any> to prevent "Argument of type X is not assignable to parameter of type never" errors.
 const mockFindUserByEmail = jest.fn<any>();
 const mockCreateUser = jest.fn<any>();
+const mockUpdateUserPassword = jest.fn<any>();
 const mockVerifyHash = jest.fn<any>();
 const mockHashing = jest.fn<any>();
 
@@ -32,10 +33,10 @@ jest.unstable_mockModule('#src/config/google.config.ts', () => ({}));
 jest.unstable_mockModule('#src/services/user.service.ts', () => ({
   findUserByEmail: mockFindUserByEmail,
   createUser: mockCreateUser,
+  updateUserPassword: mockUpdateUserPassword,
   findUserById: jest.fn(),
   findUserByVerificationToken: jest.fn(),
   updateUserProfile: jest.fn(),
-  updateUserPassword: jest.fn(),
   verifyUserEmail: jest.fn(),
 }));
 
@@ -165,7 +166,10 @@ describe('Auth routes', () => {
     });
 
     it('returns 400 when user already exists', async () => {
-      mockFindUserByEmail.mockResolvedValue({ id: 'user-1' });
+      mockFindUserByEmail.mockResolvedValue({
+        id: 'user-1',
+        passwordHash: 'hashed-pass',
+      });
 
       const response = await request(app).post('/auth/signup').send({
         email: 'test@example.com',
@@ -207,6 +211,36 @@ describe('Auth routes', () => {
           passwordHash: 'hashed-pass',
         })
       );
+    });
+
+    it('links a password to an existing google account', async () => {
+      mockFindUserByEmail.mockResolvedValue({
+        id: 'user-1',
+        email: 'test@example.com',
+        name: 'John Doe',
+        passwordHash: ' ',
+        emailVerified: true,
+        isActive: true,
+      });
+      mockHashing.mockResolvedValue('linked-hashed-pass');
+      mockUpdateUserPassword.mockResolvedValue(undefined);
+
+      const response = await request(app).post('/auth/signup').send({
+        email: 'test@example.com',
+        password: 'Password1!',
+        name: 'John Doe',
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        'message',
+        'Account linked successfully'
+      );
+      expect(mockUpdateUserPassword).toHaveBeenCalledWith(
+        'user-1',
+        'linked-hashed-pass'
+      );
+      expect(mockCreateUser).not.toHaveBeenCalled();
     });
 
     it('returns 500 when user creation fails', async () => {
