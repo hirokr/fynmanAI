@@ -2,7 +2,7 @@ import app, { redisClient } from './app.ts';
 import logger from './config/logger.ts';
 
 const PORT = process.env.PORT || 8000;
-const SHUTDOWN_TIMEOUT_MS = 10_000;
+let isShuttingDown = false;
 
 redisClient
   .connect()
@@ -13,17 +13,35 @@ redisClient
     logger.error(`Failed to connect to Redis: ${String(err)}`);
   });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log('start');
 });
 
 const shutdown = async (signal: string) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   logger.info(`Received ${signal}, shutting down API server`);
 
-  setTimeout(() => {
-    logger.error('Forced API shutdown timeout reached');
+  const closeServer = () =>
+    new Promise<void>((resolve, reject) => {
+      server.close(err => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+
+  try {
+    const redisShutdown = redisClient.isOpen ? redisClient.quit() : undefined;
+    await Promise.allSettled([closeServer(), redisShutdown]);
+    logger.info('API server shut down cleanly');
+    process.exit(0);
+  } catch (err) {
+    logger.error(`Shutdown failed: ${String(err)}`);
     process.exit(1);
-  }, SHUTDOWN_TIMEOUT_MS).unref();
+  }
 };
 
 process.on('SIGINT', () => {
