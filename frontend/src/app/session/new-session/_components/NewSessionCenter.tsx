@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import AuthActionButton from "@/components/auth/AuthActionButton";
+import AuthGuardAction from "@/components/auth/AuthActionButton";
 
 type Step = "upload" | "processing" | "brief";
 
@@ -75,7 +76,7 @@ export default function NewSessionCenter() {
             </div>
           </div>
           <div className="pt-6 flex justify-end">
-            <AuthActionButton
+            <AuthGuardAction
               className="bg-accent text-on-background py-2 px-8 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all flex items-center gap-2"
               onAuthenticatedClick={() => setStep("processing")}
             >
@@ -83,7 +84,7 @@ export default function NewSessionCenter() {
               <span className="material-symbols-outlined text-[18px]">
                 forward
               </span>
-            </AuthActionButton>
+            </AuthGuardAction>
           </div>
         </div>
       )}
@@ -194,21 +195,22 @@ export default function NewSessionCenter() {
             </div>
           </div>
           <div className="pt-6 flex justify-end gap-4 mb-8 md:mb-0">
-            <AuthActionButton
+            <AuthGuardAction
               className="border border-outline-variant text-on-surface-variant py-2 px-8 rounded-lg font-label-md text-label-md hover:text-on-surface hover:bg-surface-container-high transition-all"
               onAuthenticatedClick={() => setStep("upload")}
             >
               Reset Session
-            </AuthActionButton>
+            </AuthGuardAction>
             <Link
               href="/session/active-session"
               className="bg-accent text-on-background py-2 px-8 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all flex items-center gap-2">
-            <AuthActionButton className="bg-accent text-on-background py-2 px-8 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all flex items-center gap-2">
+            <AuthGuardAction className="bg-accent text-on-background py-2 px-8 rounded-lg font-label-md text-label-md hover:brightness-110 transition-all flex items-center gap-2"
+            >
               Begin Session
               <span className="material-symbols-outlined text-[18px]">
                 forward
               </span>
-            </AuthActionButton>
+            </AuthGuardAction>
               </Link>
           </div>
         </div>
