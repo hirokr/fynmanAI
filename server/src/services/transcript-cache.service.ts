@@ -40,7 +40,8 @@ export const getTranscriptWindow = async (
   return entries
     .map(entry => {
       try {
-        return JSON.parse(entry) as TranscriptCacheItem;
+        const value = Buffer.isBuffer(entry) ? entry.toString('utf8') : entry;
+        return JSON.parse(value) as TranscriptCacheItem;
       } catch {
         return null;
       }
