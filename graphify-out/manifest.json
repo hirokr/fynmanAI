@@ -1,0 +1,372 @@
+{
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/server.ts": {
+    "mtime": 1779967145.3031976,
+    "ast_hash": "06d3ae95d0b0245a76ad8784cb4c6e5c",
+    "semantic_hash": "06d3ae95d0b0245a76ad8784cb4c6e5c"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/worker.ts": {
+    "mtime": 1779303552.1306977,
+    "ast_hash": "7e793e28263e4c2326a26ebb86416ff3",
+    "semantic_hash": "7e793e28263e4c2326a26ebb86416ff3"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/app.ts": {
+    "mtime": 1779977470.8834686,
+    "ast_hash": "d649e1efcb1d8a48e7d166a54d640d9a",
+    "semantic_hash": "d649e1efcb1d8a48e7d166a54d640d9a"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/constant.ts": {
+    "mtime": 1779519518.5290487,
+    "ast_hash": "947abb14cbe8fd3063a02c7061a339b0",
+    "semantic_hash": "947abb14cbe8fd3063a02c7061a339b0"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/index.ts": {
+    "mtime": 1770754278.646829,
+    "ast_hash": "833f58fe1db6ac9d64eb10dbd499cf42",
+    "semantic_hash": "833f58fe1db6ac9d64eb10dbd499cf42"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/validations/resource.validation.ts": {
+    "mtime": 1779967145.334349,
+    "ast_hash": "bbb310ed00f142fa0009daf037482563",
+    "semantic_hash": "bbb310ed00f142fa0009daf037482563"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/validations/session.validation.ts": {
+    "mtime": 1779967145.3693488,
+    "ast_hash": "15da190b076dab3b03a97a0d1def6248",
+    "semantic_hash": "15da190b076dab3b03a97a0d1def6248"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/validations/auth.validation.ts": {
+    "mtime": 1771187080.7400572,
+    "ast_hash": "07d2be2ab828e6095bf84791e22712f1",
+    "semantic_hash": "07d2be2ab828e6095bf84791e22712f1"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/validations/user.validation.ts": {
+    "mtime": 1776841662.3913612,
+    "ast_hash": "f793381e84a1262e1cfe4bf141d9014c",
+    "semantic_hash": "f793381e84a1262e1cfe4bf141d9014c"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/queues/queue.ts": {
+    "mtime": 1779520598.4858682,
+    "ast_hash": "04a392c844c51f221d868c7976da8249",
+    "semantic_hash": "04a392c844c51f221d868c7976da8249"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/queues/base.queue.ts": {
+    "mtime": 1776774502.0500681,
+    "ast_hash": "0d7664b5fd85f4b130c151df7d01b529",
+    "semantic_hash": "0d7664b5fd85f4b130c151df7d01b529"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/queues/bullmq.connection.ts": {
+    "mtime": 1776287167.7773628,
+    "ast_hash": "e9c6a7ead584be508c8aab5bf582092f",
+    "semantic_hash": "e9c6a7ead584be508c8aab5bf582092f"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/env.ts": {
+    "mtime": 1779976944.619204,
+    "ast_hash": "9304bf5da252527649467336f945562d",
+    "semantic_hash": "9304bf5da252527649467336f945562d"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/logger.ts": {
+    "mtime": 1771626751.4067624,
+    "ast_hash": "c7e31e4b63d9e5615cbe668a00dac2ff",
+    "semantic_hash": "c7e31e4b63d9e5615cbe668a00dac2ff"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/database.ts": {
+    "mtime": 1779519551.697482,
+    "ast_hash": "35a69c7eda1cf1190e7cc6d39108d5bc",
+    "semantic_hash": "35a69c7eda1cf1190e7cc6d39108d5bc"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/s3.config.ts": {
+    "mtime": 1779962558.2517924,
+    "ast_hash": "91593dd6dccf83b63064b7ed40e41392",
+    "semantic_hash": "91593dd6dccf83b63064b7ed40e41392"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/arcjet.ts": {
+    "mtime": 1772660806.3526337,
+    "ast_hash": "4043a97185acf39c807364d23f8ccc85",
+    "semantic_hash": "4043a97185acf39c807364d23f8ccc85"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/nodemailer.config.ts": {
+    "mtime": 1772879481.8699594,
+    "ast_hash": "e0c8e5b750842bff74202f593a06b13e",
+    "semantic_hash": "e0c8e5b750842bff74202f593a06b13e"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/config/google.config.ts": {
+    "mtime": 1779529277.6457798,
+    "ast_hash": "e106ef9d30376c2e719bd77bc4f0762b",
+    "semantic_hash": "e106ef9d30376c2e719bd77bc4f0762b"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models.ts": {
+    "mtime": 1779967247.1432004,
+    "ast_hash": "ed3c19e8235ec0e3bfd3590e3b361771",
+    "semantic_hash": "ed3c19e8235ec0e3bfd3590e3b361771"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/enums.ts": {
+    "mtime": 1779967247.1432004,
+    "ast_hash": "7a9b037a6ecac447471799fc16508aae",
+    "semantic_hash": "7a9b037a6ecac447471799fc16508aae"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/client.ts": {
+    "mtime": 1779967247.1422088,
+    "ast_hash": "e18b274eecdae6b457fe4a48a85ef199",
+    "semantic_hash": "e18b274eecdae6b457fe4a48a85ef199"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/commonInputTypes.ts": {
+    "mtime": 1779967247.1432004,
+    "ast_hash": "0cfb4e94f4c34e0a8188ab67c38511bd",
+    "semantic_hash": "0cfb4e94f4c34e0a8188ab67c38511bd"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/browser.ts": {
+    "mtime": 1779967247.1432004,
+    "ast_hash": "4c0e997159291d6f94fa4c346983a94b",
+    "semantic_hash": "4c0e997159291d6f94fa4c346983a94b"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/User.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "9e402f0c142d182f802cf1d7d65a4b1d",
+    "semantic_hash": "9e402f0c142d182f802cf1d7d65a4b1d"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/RefreshToken.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "822f5b132264e03f253c9fe16a8f87b6",
+    "semantic_hash": "822f5b132264e03f253c9fe16a8f87b6"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/Session.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "af45472633c37c93c32ebf588cc919ae",
+    "semantic_hash": "af45472633c37c93c32ebf588cc919ae"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/ResourceChunk.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "70c03317bc678b324916c3853830a71d",
+    "semantic_hash": "70c03317bc678b324916c3853830a71d"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/Resource.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "174dd3e15c70a293148c75027b8a8d40",
+    "semantic_hash": "174dd3e15c70a293148c75027b8a8d40"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/Evaluation.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "fbe567f7b1b0ae01cc63682737b691be",
+    "semantic_hash": "fbe567f7b1b0ae01cc63682737b691be"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/SessionResource.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "4e33f3ab2deb3d431becb963f4186896",
+    "semantic_hash": "4e33f3ab2deb3d431becb963f4186896"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/models/TranscriptChunk.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "edf1cda46cf2c980635fc03ba437c5de",
+    "semantic_hash": "edf1cda46cf2c980635fc03ba437c5de"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/internal/prismaNamespaceBrowser.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "49e477292d998c4b00efddf62eb7046f",
+    "semantic_hash": "49e477292d998c4b00efddf62eb7046f"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/internal/prismaNamespace.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "f21f9241e301e25e749815bb9cfac74d",
+    "semantic_hash": "f21f9241e301e25e749815bb9cfac74d"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/generated/internal/class.ts": {
+    "mtime": 1779967247.1472085,
+    "ast_hash": "35816b049635e0c9ea2bb865bb03afb7",
+    "semantic_hash": "35816b049635e0c9ea2bb865bb03afb7"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/socket/realtime.socket.ts": {
+    "mtime": 1779967145.4423485,
+    "ast_hash": "d68af2c5673088325f1be6d48eca2fd1",
+    "semantic_hash": "d68af2c5673088325f1be6d48eca2fd1"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/document-parser.service.ts": {
+    "mtime": 1779977471.2194688,
+    "ast_hash": "cf5a0384b14695f7ddff3006c65a8027",
+    "semantic_hash": "cf5a0384b14695f7ddff3006c65a8027"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/transcript-cache.service.ts": {
+    "mtime": 1779976099.7072744,
+    "ast_hash": "05200ee94bb08859a680f757b4ad4e39",
+    "semantic_hash": "05200ee94bb08859a680f757b4ad4e39"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/session.service.ts": {
+    "mtime": 1779967145.30478,
+    "ast_hash": "49dc1d35fe39539756fd3b1158e7ff16",
+    "semantic_hash": "49dc1d35fe39539756fd3b1158e7ff16"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/document-parser.types.ts": {
+    "mtime": 1779977471.0494688,
+    "ast_hash": "721b1cb69e794364f0f5bc2ab854a488",
+    "semantic_hash": "721b1cb69e794364f0f5bc2ab854a488"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/evaluation.service.ts": {
+    "mtime": 1779967145.3693488,
+    "ast_hash": "1f13328cd00da514b97bf6d1436a3561",
+    "semantic_hash": "1f13328cd00da514b97bf6d1436a3561"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/stt.service.ts": {
+    "mtime": 1779966847.0878415,
+    "ast_hash": "90e48b14469cea1ff4a4394c0613a9a8",
+    "semantic_hash": "90e48b14469cea1ff4a4394c0613a9a8"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/google.service.ts": {
+    "mtime": 1779529278.0664685,
+    "ast_hash": "dc5262a18ba46d080068eda992474bdd",
+    "semantic_hash": "dc5262a18ba46d080068eda992474bdd"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/storage.service.ts": {
+    "mtime": 1779966847.0918415,
+    "ast_hash": "374eeb5c161726a24ae5ced27e4310ae",
+    "semantic_hash": "374eeb5c161726a24ae5ced27e4310ae"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/resource.service.ts": {
+    "mtime": 1779967145.3038745,
+    "ast_hash": "68cae2e436bedc786bc6d0ecdcca2d93",
+    "semantic_hash": "68cae2e436bedc786bc6d0ecdcca2d93"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/qdrant.service.ts": {
+    "mtime": 1779966846.2402382,
+    "ast_hash": "8867987fb141bdd0caa9abca7a122b72",
+    "semantic_hash": "8867987fb141bdd0caa9abca7a122b72"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/retrieval.service.ts": {
+    "mtime": 1779966846.4918444,
+    "ast_hash": "44982b89fc90607823a809a1a4ea6ac5",
+    "semantic_hash": "44982b89fc90607823a809a1a4ea6ac5"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/user.service.ts": {
+    "mtime": 1779529409.3333957,
+    "ast_hash": "9aa195b4a6f707670ce3c12ea89a5b7c",
+    "semantic_hash": "9aa195b4a6f707670ce3c12ea89a5b7c"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/resource-ingest.service.ts": {
+    "mtime": 1779967145.3031976,
+    "ast_hash": "d06375f7c10ad7abd83a254627070a4e",
+    "semantic_hash": "d06375f7c10ad7abd83a254627070a4e"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/document-parser.constants.ts": {
+    "mtime": 1779977471.1412387,
+    "ast_hash": "cf2af230567d66610570f8386a1ef4f9",
+    "semantic_hash": "cf2af230567d66610570f8386a1ef4f9"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/python/parse_document.py": {
+    "mtime": 1779977470.6754684,
+    "ast_hash": "74a90979fd326b0f2b6b7966ed55b652",
+    "semantic_hash": "74a90979fd326b0f2b6b7966ed55b652"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/services/ai/ai.service.ts": {
+    "mtime": 1779965749.3633993,
+    "ast_hash": "6fdd61b4e4386b91af3052ddbb89b96c",
+    "semantic_hash": "6fdd61b4e4386b91af3052ddbb89b96c"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/types/authRequest.d.ts": {
+    "mtime": 1779977471.2528043,
+    "ast_hash": "3a9632f96b12e87340563ab9ef0977ec",
+    "semantic_hash": "3a9632f96b12e87340563ab9ef0977ec"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/types/express.d.ts": {
+    "mtime": 1779977471.220996,
+    "ast_hash": "b0a558cc47528c22cd8152ba4d8d6c4e",
+    "semantic_hash": "b0a558cc47528c22cd8152ba4d8d6c4e"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/types/user.d.ts": {
+    "mtime": 1776841662.3911133,
+    "ast_hash": "1f9b21f8dbd8b3762b9cfe40febe7679",
+    "semantic_hash": "1f9b21f8dbd8b3762b9cfe40febe7679"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/session.route.ts": {
+    "mtime": 1779967145.4423485,
+    "ast_hash": "981471b20574e273565beeb46340586c",
+    "semantic_hash": "981471b20574e273565beeb46340586c"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/auth.route.ts": {
+    "mtime": 1776894993.0374193,
+    "ast_hash": "b5f0597549811998ceaa5dbccb5961e8",
+    "semantic_hash": "b5f0597549811998ceaa5dbccb5961e8"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/resource.route.ts": {
+    "mtime": 1779967145.4393485,
+    "ast_hash": "5f701de2401cb1e4492800d04cf0e220",
+    "semantic_hash": "5f701de2401cb1e4492800d04cf0e220"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/user.route.ts": {
+    "mtime": 1779519675.461108,
+    "ast_hash": "503e642db733b1ab4612b32a0d91c5e5",
+    "semantic_hash": "503e642db733b1ab4612b32a0d91c5e5"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/document-parser.route.ts": {
+    "mtime": 1779977471.181469,
+    "ast_hash": "6e7d4ae5e526358368f2c3238a911fb1",
+    "semantic_hash": "6e7d4ae5e526358368f2c3238a911fb1"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/middlewares/cleanup.middleware.ts": {
+    "mtime": 1779976938.361794,
+    "ast_hash": "4add48e619ebd0531bdc6c6e47a0010e",
+    "semantic_hash": "4add48e619ebd0531bdc6c6e47a0010e"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/middlewares/authenticate.middleware.ts": {
+    "mtime": 1779521082.0858245,
+    "ast_hash": "a651990f25aae3322f4f1fe1474f9668",
+    "semantic_hash": "a651990f25aae3322f4f1fe1474f9668"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/controllers/document-parser.controller.ts": {
+    "mtime": 1779977588.0380821,
+    "ast_hash": "c1b422e1e62649bbf5c07a13be8851fc",
+    "semantic_hash": "c1b422e1e62649bbf5c07a13be8851fc"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/controllers/user.controller.ts": {
+    "mtime": 1779527197.6188567,
+    "ast_hash": "81a4c94f5c6cffaa41659afa79bba6a0",
+    "semantic_hash": "81a4c94f5c6cffaa41659afa79bba6a0"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/controllers/session.controller.ts": {
+    "mtime": 1779967145.420298,
+    "ast_hash": "725d081f04a9c51708855ac1f3da8990",
+    "semantic_hash": "725d081f04a9c51708855ac1f3da8990"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/controllers/resource.controller.ts": {
+    "mtime": 1779967145.37611,
+    "ast_hash": "01b8a58a71f0372709ecca957de68321",
+    "semantic_hash": "01b8a58a71f0372709ecca957de68321"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/controllers/auth.controller.ts": {
+    "mtime": 1779529277.6454513,
+    "ast_hash": "889478549eaec735b644d7b74b786c16",
+    "semantic_hash": "889478549eaec735b644d7b74b786c16"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/uploadthings.ts": {
+    "mtime": 1778087874.363345,
+    "ast_hash": "17b7d58497b7bcfa82b2ec8090ea3934",
+    "semantic_hash": "17b7d58497b7bcfa82b2ec8090ea3934"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/api-response.ts": {
+    "mtime": 1779521082.1437879,
+    "ast_hash": "668412f2fd30e6d8072d93c0ca7a547c",
+    "semantic_hash": "668412f2fd30e6d8072d93c0ca7a547c"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/redis.ts": {
+    "mtime": 1779520499.5460956,
+    "ast_hash": "a51c0346fd389a990a12663221e8d338",
+    "semantic_hash": "a51c0346fd389a990a12663221e8d338"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/file-system.ts": {
+    "mtime": 1779977471.2289538,
+    "ast_hash": "5b74f5e31224e446182c29bbe30e4599",
+    "semantic_hash": "5b74f5e31224e446182c29bbe30e4599"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/mail/mailTemplates.ts": {
+    "mtime": 1776153002.4293115,
+    "ast_hash": "9c3605857b7b9c3463dd8ec1d9578c64",
+    "semantic_hash": "9c3605857b7b9c3463dd8ec1d9578c64"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/mail/sendMail.ts": {
+    "mtime": 1776153002.4293115,
+    "ast_hash": "047c7d2c6a712f96bef437415db6e763",
+    "semantic_hash": "047c7d2c6a712f96bef437415db6e763"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/utils/auth/hash.ts": {
+    "mtime": 1779520151.5737574,
+    "ast_hash": "28c00fe1846d5d47bf3793d31b49e9c0",
+    "semantic_hash": "28c00fe1846d5d47bf3793d31b49e9c0"
+  }
+}
