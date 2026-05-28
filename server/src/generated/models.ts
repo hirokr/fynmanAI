@@ -10,4 +10,10 @@
  */
 export type * from './models/User.ts'
 export type * from './models/RefreshToken.ts'
+export type * from './models/Resource.ts'
+export type * from './models/ResourceChunk.ts'
+export type * from './models/Session.ts'
+export type * from './models/TranscriptChunk.ts'
+export type * from './models/Evaluation.ts'
+export type * from './models/SessionResource.ts'
 export type * from './commonInputTypes.ts'

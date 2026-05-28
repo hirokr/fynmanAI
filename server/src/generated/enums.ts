@@ -16,3 +16,38 @@ export const Gender = {
 } as const
 
 export type Gender = (typeof Gender)[keyof typeof Gender]
+
+
+export const ResourceType = {
+  TEXT: 'TEXT',
+  UPLOAD: 'UPLOAD',
+  URL: 'URL'
+} as const
+
+export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
+
+
+export const ResourceStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  READY: 'READY',
+  FAILED: 'FAILED'
+} as const
+
+export type ResourceStatus = (typeof ResourceStatus)[keyof typeof ResourceStatus]
+
+
+export const SessionStatus = {
+  ACTIVE: 'ACTIVE',
+  ENDED: 'ENDED'
+} as const
+
+export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus]
+
+
+export const EvaluationType = {
+  ROLLING: 'ROLLING',
+  FINAL: 'FINAL'
+} as const
+
+export type EvaluationType = (typeof EvaluationType)[keyof typeof EvaluationType]

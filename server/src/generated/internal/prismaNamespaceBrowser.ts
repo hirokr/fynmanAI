@@ -52,7 +52,13 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Resource: 'Resource',
+  ResourceChunk: 'ResourceChunk',
+  Session: 'Session',
+  TranscriptChunk: 'TranscriptChunk',
+  Evaluation: 'Evaluation',
+  SessionResource: 'SessionResource'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -111,12 +117,106 @@ export const RefreshTokenScalarFieldEnum = {
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
 
 
+export const ResourceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  sourceType: 'sourceType',
+  mimeType: 'mimeType',
+  sourceUrl: 'sourceUrl',
+  storageKey: 'storageKey',
+  status: 'status',
+  subject: 'subject',
+  topic: 'topic',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]
+
+
+export const ResourceChunkScalarFieldEnum = {
+  id: 'id',
+  resourceId: 'resourceId',
+  chunkIndex: 'chunkIndex',
+  text: 'text',
+  embeddingModel: 'embeddingModel',
+  vectorId: 'vectorId',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type ResourceChunkScalarFieldEnum = (typeof ResourceChunkScalarFieldEnum)[keyof typeof ResourceChunkScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  subject: 'subject',
+  topic: 'topic',
+  goal: 'goal',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const TranscriptChunkScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  sequence: 'sequence',
+  text: 'text',
+  startTimeMs: 'startTimeMs',
+  endTimeMs: 'endTimeMs',
+  createdAt: 'createdAt'
+} as const
+
+export type TranscriptChunkScalarFieldEnum = (typeof TranscriptChunkScalarFieldEnum)[keyof typeof TranscriptChunkScalarFieldEnum]
+
+
+export const EvaluationScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  type: 'type',
+  content: 'content',
+  provider: 'provider',
+  model: 'model',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type EvaluationScalarFieldEnum = (typeof EvaluationScalarFieldEnum)[keyof typeof EvaluationScalarFieldEnum]
+
+
+export const SessionResourceScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  resourceId: 'resourceId',
+  createdAt: 'createdAt'
+} as const
+
+export type SessionResourceScalarFieldEnum = (typeof SessionResourceScalarFieldEnum)[keyof typeof SessionResourceScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -133,4 +233,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

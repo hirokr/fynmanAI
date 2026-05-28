@@ -27,3 +27,33 @@ export type User = Prisma.UserModel
  * 
  */
 export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model Resource
+ * 
+ */
+export type Resource = Prisma.ResourceModel
+/**
+ * Model ResourceChunk
+ * 
+ */
+export type ResourceChunk = Prisma.ResourceChunkModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
+ * Model TranscriptChunk
+ * 
+ */
+export type TranscriptChunk = Prisma.TranscriptChunkModel
+/**
+ * Model Evaluation
+ * 
+ */
+export type Evaluation = Prisma.EvaluationModel
+/**
+ * Model SessionResource
+ * 
+ */
+export type SessionResource = Prisma.SessionResourceModel
