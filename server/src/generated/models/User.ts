@@ -327,6 +327,7 @@ export type UserWhereInput = {
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   resources?: Prisma.ResourceListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  analyticsEvents?: Prisma.AnalyticsEventListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -352,6 +353,7 @@ export type UserOrderByWithRelationInput = {
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
   resources?: Prisma.ResourceOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
+  analyticsEvents?: Prisma.AnalyticsEventOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -381,6 +383,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   resources?: Prisma.ResourceListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  analyticsEvents?: Prisma.AnalyticsEventListRelationFilter
 }, "id" | "email" | "oauthProvider_oauthId">
 
 export type UserOrderByWithAggregationInput = {
@@ -458,6 +461,7 @@ export type UserCreateInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -483,6 +487,7 @@ export type UserUncheckedCreateInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -508,6 +513,7 @@ export type UserUpdateInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -533,6 +539,7 @@ export type UserUncheckedUpdateInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -691,6 +698,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type UserCreateinterestsInput = {
   set: string[]
 }
@@ -774,6 +786,22 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
 }
 
+export type UserCreateNestedOneWithoutAnalyticsEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsEventsInput, Prisma.UserUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnalyticsEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAnalyticsEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsEventsInput, Prisma.UserUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnalyticsEventsInput
+  upsert?: Prisma.UserUpsertWithoutAnalyticsEventsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAnalyticsEventsInput, Prisma.UserUpdateWithoutAnalyticsEventsInput>, Prisma.UserUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
 export type UserCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
@@ -796,6 +824,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   deletedAt?: Date | string | null
   resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -820,6 +849,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   deletedAt?: Date | string | null
   resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -860,6 +890,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -884,6 +915,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutResourcesInput = {
@@ -908,6 +940,7 @@ export type UserCreateWithoutResourcesInput = {
   deletedAt?: Date | string | null
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutResourcesInput = {
@@ -932,6 +965,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   deletedAt?: Date | string | null
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutResourcesInput = {
@@ -972,6 +1006,7 @@ export type UserUpdateWithoutResourcesInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourcesInput = {
@@ -996,6 +1031,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1020,6 +1056,7 @@ export type UserCreateWithoutSessionsInput = {
   deletedAt?: Date | string | null
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1044,6 +1081,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   deletedAt?: Date | string | null
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1084,6 +1122,7 @@ export type UserUpdateWithoutSessionsInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1108,6 +1147,123 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name: string
+  avatarUrl?: string | null
+  userBodyImageUrl?: string | null
+  age?: number | null
+  ethnicity?: string | null
+  gender?: $Enums.Gender
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  location?: string | null
+  verificationToken?: string | null
+  emailVerified?: boolean
+  isActive?: boolean
+  oauthProvider?: string | null
+  oauthId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  name: string
+  avatarUrl?: string | null
+  userBodyImageUrl?: string | null
+  age?: number | null
+  ethnicity?: string | null
+  gender?: $Enums.Gender
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  location?: string | null
+  verificationToken?: string | null
+  emailVerified?: boolean
+  isActive?: boolean
+  oauthProvider?: string | null
+  oauthId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAnalyticsEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsEventsInput, Prisma.UserUncheckedCreateWithoutAnalyticsEventsInput>
+}
+
+export type UserUpsertWithoutAnalyticsEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAnalyticsEventsInput, Prisma.UserUncheckedUpdateWithoutAnalyticsEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsEventsInput, Prisma.UserUncheckedCreateWithoutAnalyticsEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAnalyticsEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAnalyticsEventsInput, Prisma.UserUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
+export type UserUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userBodyImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oauthProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userBodyImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ethnicity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oauthProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  oauthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1119,12 +1275,14 @@ export type UserCountOutputType = {
   refreshTokens: number
   resources: number
   sessions: number
+  analyticsEvents: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
   resources?: boolean | UserCountOutputTypeCountResourcesArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+  analyticsEvents?: boolean | UserCountOutputTypeCountAnalyticsEventsArgs
 }
 
 /**
@@ -1158,6 +1316,13 @@ export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.SessionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAnalyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AnalyticsEventWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1182,6 +1347,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   resources?: boolean | Prisma.User$resourcesArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.User$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1256,6 +1422,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   resources?: boolean | Prisma.User$resourcesArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.User$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1267,6 +1434,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
     resources: Prisma.$ResourcePayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
+    analyticsEvents: Prisma.$AnalyticsEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1685,6 +1853,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resources<T extends Prisma.User$resourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  analyticsEvents<T extends Prisma.User$analyticsEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$analyticsEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalyticsEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2195,6 +2364,30 @@ export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
+}
+
+/**
+ * User.analyticsEvents
+ */
+export type User$analyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AnalyticsEvent
+   */
+  select?: Prisma.AnalyticsEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AnalyticsEvent
+   */
+  omit?: Prisma.AnalyticsEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnalyticsEventInclude<ExtArgs> | null
+  where?: Prisma.AnalyticsEventWhereInput
+  orderBy?: Prisma.AnalyticsEventOrderByWithRelationInput | Prisma.AnalyticsEventOrderByWithRelationInput[]
+  cursor?: Prisma.AnalyticsEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AnalyticsEventScalarFieldEnum | Prisma.AnalyticsEventScalarFieldEnum[]
 }
 
 /**

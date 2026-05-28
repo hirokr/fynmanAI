@@ -1,4 +1,5 @@
 import prisma from '#src/config/database.ts';
+import { Prisma } from '#src/generated/client.ts';
 import logger from '#config/logger.ts';
 import { env } from '#config/env.ts';
 
@@ -22,7 +23,7 @@ export const trackAnalyticsEvent = async (
         event: input.event,
         userId: input.userId,
         sessionId: input.sessionId,
-        payload: input.payload ?? undefined,
+        payload: input.payload as Prisma.InputJsonValue | undefined,
       },
     });
   } catch (error) {

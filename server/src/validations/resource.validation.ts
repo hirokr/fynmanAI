@@ -10,7 +10,7 @@ export const CreateResourceSchema = z
     storageKey: z.string().optional(),
     subject: z.string().optional(),
     topic: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
   })
   .superRefine((value, ctx) => {
     if (value.sourceType === 'TEXT' && !value.text?.trim()) {

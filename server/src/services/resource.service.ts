@@ -1,4 +1,5 @@
 import prisma from '#src/config/database.ts';
+import { Prisma } from '#src/generated/client.ts';
 
 export type CreateResourceInput = {
   userId: string;
@@ -25,7 +26,7 @@ export const createResource = async (data: CreateResourceInput) => {
       storageKey: data.storageKey,
       subject: data.subject,
       topic: data.topic,
-      metadata: data.metadata ?? undefined,
+      metadata: data.metadata as Prisma.InputJsonValue | undefined,
     },
   });
 };
@@ -52,7 +53,7 @@ export const updateResourceFields = async (params: {
       parsedText: params.parsedText ?? undefined,
       filePath: params.filePath ?? undefined,
       storageKey: params.storageKey ?? undefined,
-      metadata: params.metadata ?? undefined,
+      metadata: params.metadata as Prisma.InputJsonValue | undefined,
     },
   });
 
@@ -97,7 +98,7 @@ export const createResourceChunk = async (params: {
       text: params.text,
       embeddingModel: params.embeddingModel,
       vectorId: params.vectorId,
-      metadata: params.metadata ?? undefined,
+      metadata: params.metadata as Prisma.InputJsonValue | undefined,
     },
   });
 

@@ -237,6 +237,7 @@ export type ResourceChunkWhereInput = {
   metadata?: Prisma.JsonNullableFilter<"ResourceChunk">
   createdAt?: Prisma.DateTimeFilter<"ResourceChunk"> | Date | string
   resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
+  embeddings?: Prisma.EmbeddingListRelationFilter
 }
 
 export type ResourceChunkOrderByWithRelationInput = {
@@ -249,6 +250,7 @@ export type ResourceChunkOrderByWithRelationInput = {
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   resource?: Prisma.ResourceOrderByWithRelationInput
+  embeddings?: Prisma.EmbeddingOrderByRelationAggregateInput
 }
 
 export type ResourceChunkWhereUniqueInput = Prisma.AtLeast<{
@@ -264,6 +266,7 @@ export type ResourceChunkWhereUniqueInput = Prisma.AtLeast<{
   metadata?: Prisma.JsonNullableFilter<"ResourceChunk">
   createdAt?: Prisma.DateTimeFilter<"ResourceChunk"> | Date | string
   resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
+  embeddings?: Prisma.EmbeddingListRelationFilter
 }, "id">
 
 export type ResourceChunkOrderByWithAggregationInput = {
@@ -305,6 +308,7 @@ export type ResourceChunkCreateInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   resource: Prisma.ResourceCreateNestedOneWithoutChunksInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutResourceChunkInput
 }
 
 export type ResourceChunkUncheckedCreateInput = {
@@ -316,6 +320,7 @@ export type ResourceChunkUncheckedCreateInput = {
   vectorId?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutResourceChunkInput
 }
 
 export type ResourceChunkUpdateInput = {
@@ -327,6 +332,7 @@ export type ResourceChunkUpdateInput = {
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resource?: Prisma.ResourceUpdateOneRequiredWithoutChunksNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutResourceChunkNestedInput
 }
 
 export type ResourceChunkUncheckedUpdateInput = {
@@ -338,6 +344,7 @@ export type ResourceChunkUncheckedUpdateInput = {
   vectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutResourceChunkNestedInput
 }
 
 export type ResourceChunkCreateManyInput = {
@@ -421,6 +428,11 @@ export type ResourceChunkSumOrderByAggregateInput = {
   chunkIndex?: Prisma.SortOrder
 }
 
+export type ResourceChunkNullableScalarRelationFilter = {
+  is?: Prisma.ResourceChunkWhereInput | null
+  isNot?: Prisma.ResourceChunkWhereInput | null
+}
+
 export type ResourceChunkCreateNestedManyWithoutResourceInput = {
   create?: Prisma.XOR<Prisma.ResourceChunkCreateWithoutResourceInput, Prisma.ResourceChunkUncheckedCreateWithoutResourceInput> | Prisma.ResourceChunkCreateWithoutResourceInput[] | Prisma.ResourceChunkUncheckedCreateWithoutResourceInput[]
   connectOrCreate?: Prisma.ResourceChunkCreateOrConnectWithoutResourceInput | Prisma.ResourceChunkCreateOrConnectWithoutResourceInput[]
@@ -471,6 +483,22 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type ResourceChunkCreateNestedOneWithoutEmbeddingsInput = {
+  create?: Prisma.XOR<Prisma.ResourceChunkCreateWithoutEmbeddingsInput, Prisma.ResourceChunkUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.ResourceChunkCreateOrConnectWithoutEmbeddingsInput
+  connect?: Prisma.ResourceChunkWhereUniqueInput
+}
+
+export type ResourceChunkUpdateOneWithoutEmbeddingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceChunkCreateWithoutEmbeddingsInput, Prisma.ResourceChunkUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.ResourceChunkCreateOrConnectWithoutEmbeddingsInput
+  upsert?: Prisma.ResourceChunkUpsertWithoutEmbeddingsInput
+  disconnect?: Prisma.ResourceChunkWhereInput | boolean
+  delete?: Prisma.ResourceChunkWhereInput | boolean
+  connect?: Prisma.ResourceChunkWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceChunkUpdateToOneWithWhereWithoutEmbeddingsInput, Prisma.ResourceChunkUpdateWithoutEmbeddingsInput>, Prisma.ResourceChunkUncheckedUpdateWithoutEmbeddingsInput>
+}
+
 export type ResourceChunkCreateWithoutResourceInput = {
   id?: string
   chunkIndex: number
@@ -479,6 +507,7 @@ export type ResourceChunkCreateWithoutResourceInput = {
   vectorId?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutResourceChunkInput
 }
 
 export type ResourceChunkUncheckedCreateWithoutResourceInput = {
@@ -489,6 +518,7 @@ export type ResourceChunkUncheckedCreateWithoutResourceInput = {
   vectorId?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutResourceChunkInput
 }
 
 export type ResourceChunkCreateOrConnectWithoutResourceInput = {
@@ -531,6 +561,66 @@ export type ResourceChunkScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ResourceChunk"> | Date | string
 }
 
+export type ResourceChunkCreateWithoutEmbeddingsInput = {
+  id?: string
+  chunkIndex: number
+  text: string
+  embeddingModel?: string | null
+  vectorId?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  resource: Prisma.ResourceCreateNestedOneWithoutChunksInput
+}
+
+export type ResourceChunkUncheckedCreateWithoutEmbeddingsInput = {
+  id?: string
+  resourceId: string
+  chunkIndex: number
+  text: string
+  embeddingModel?: string | null
+  vectorId?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type ResourceChunkCreateOrConnectWithoutEmbeddingsInput = {
+  where: Prisma.ResourceChunkWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceChunkCreateWithoutEmbeddingsInput, Prisma.ResourceChunkUncheckedCreateWithoutEmbeddingsInput>
+}
+
+export type ResourceChunkUpsertWithoutEmbeddingsInput = {
+  update: Prisma.XOR<Prisma.ResourceChunkUpdateWithoutEmbeddingsInput, Prisma.ResourceChunkUncheckedUpdateWithoutEmbeddingsInput>
+  create: Prisma.XOR<Prisma.ResourceChunkCreateWithoutEmbeddingsInput, Prisma.ResourceChunkUncheckedCreateWithoutEmbeddingsInput>
+  where?: Prisma.ResourceChunkWhereInput
+}
+
+export type ResourceChunkUpdateToOneWithWhereWithoutEmbeddingsInput = {
+  where?: Prisma.ResourceChunkWhereInput
+  data: Prisma.XOR<Prisma.ResourceChunkUpdateWithoutEmbeddingsInput, Prisma.ResourceChunkUncheckedUpdateWithoutEmbeddingsInput>
+}
+
+export type ResourceChunkUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  chunkIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resource?: Prisma.ResourceUpdateOneRequiredWithoutChunksNestedInput
+}
+
+export type ResourceChunkUncheckedUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  resourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  chunkIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ResourceChunkCreateManyResourceInput = {
   id?: string
   chunkIndex: number
@@ -549,6 +639,7 @@ export type ResourceChunkUpdateWithoutResourceInput = {
   vectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutResourceChunkNestedInput
 }
 
 export type ResourceChunkUncheckedUpdateWithoutResourceInput = {
@@ -559,6 +650,7 @@ export type ResourceChunkUncheckedUpdateWithoutResourceInput = {
   vectorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutResourceChunkNestedInput
 }
 
 export type ResourceChunkUncheckedUpdateManyWithoutResourceInput = {
@@ -572,6 +664,35 @@ export type ResourceChunkUncheckedUpdateManyWithoutResourceInput = {
 }
 
 
+/**
+ * Count Type ResourceChunkCountOutputType
+ */
+
+export type ResourceChunkCountOutputType = {
+  embeddings: number
+}
+
+export type ResourceChunkCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  embeddings?: boolean | ResourceChunkCountOutputTypeCountEmbeddingsArgs
+}
+
+/**
+ * ResourceChunkCountOutputType without action
+ */
+export type ResourceChunkCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResourceChunkCountOutputType
+   */
+  select?: Prisma.ResourceChunkCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ResourceChunkCountOutputType without action
+ */
+export type ResourceChunkCountOutputTypeCountEmbeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmbeddingWhereInput
+}
+
 
 export type ResourceChunkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -583,6 +704,8 @@ export type ResourceChunkSelect<ExtArgs extends runtime.Types.Extensions.Interna
   metadata?: boolean
   createdAt?: boolean
   resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  embeddings?: boolean | Prisma.ResourceChunk$embeddingsArgs<ExtArgs>
+  _count?: boolean | Prisma.ResourceChunkCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resourceChunk"]>
 
 export type ResourceChunkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -623,6 +746,8 @@ export type ResourceChunkSelectScalar = {
 export type ResourceChunkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resourceId" | "chunkIndex" | "text" | "embeddingModel" | "vectorId" | "metadata" | "createdAt", ExtArgs["result"]["resourceChunk"]>
 export type ResourceChunkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  embeddings?: boolean | Prisma.ResourceChunk$embeddingsArgs<ExtArgs>
+  _count?: boolean | Prisma.ResourceChunkCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResourceChunkIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
@@ -635,6 +760,7 @@ export type $ResourceChunkPayload<ExtArgs extends runtime.Types.Extensions.Inter
   name: "ResourceChunk"
   objects: {
     resource: Prisma.$ResourcePayload<ExtArgs>
+    embeddings: Prisma.$EmbeddingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1040,6 +1166,7 @@ readonly fields: ResourceChunkFieldRefs;
 export interface Prisma__ResourceChunkClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   resource<T extends Prisma.ResourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceDefaultArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  embeddings<T extends Prisma.ResourceChunk$embeddingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceChunk$embeddingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1475,6 +1602,30 @@ export type ResourceChunkDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many ResourceChunks to delete.
    */
   limit?: number
+}
+
+/**
+ * ResourceChunk.embeddings
+ */
+export type ResourceChunk$embeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Embedding
+   */
+  select?: Prisma.EmbeddingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Embedding
+   */
+  omit?: Prisma.EmbeddingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmbeddingInclude<ExtArgs> | null
+  where?: Prisma.EmbeddingWhereInput
+  orderBy?: Prisma.EmbeddingOrderByWithRelationInput | Prisma.EmbeddingOrderByWithRelationInput[]
+  cursor?: Prisma.EmbeddingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmbeddingScalarFieldEnum | Prisma.EmbeddingScalarFieldEnum[]
 }
 
 /**

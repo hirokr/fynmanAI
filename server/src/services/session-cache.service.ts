@@ -42,7 +42,8 @@ export const getSessionMetadata = async (
   }
 
   try {
-    return JSON.parse(value) as SessionMetadata;
+    const json = Buffer.isBuffer(value) ? value.toString('utf-8') : value;
+    return JSON.parse(json) as SessionMetadata;
   } catch {
     return null;
   }

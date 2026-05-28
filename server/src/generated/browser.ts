@@ -53,6 +53,16 @@ export type TranscriptChunk = Prisma.TranscriptChunkModel
  */
 export type Evaluation = Prisma.EvaluationModel
 /**
+ * Model Embedding
+ * 
+ */
+export type Embedding = Prisma.EmbeddingModel
+/**
+ * Model AnalyticsEvent
+ * 
+ */
+export type AnalyticsEvent = Prisma.AnalyticsEventModel
+/**
  * Model SessionResource
  * 
  */

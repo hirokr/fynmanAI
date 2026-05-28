@@ -32,6 +32,8 @@ export type ResourceMinAggregateOutputType = {
   mimeType: string | null
   sourceUrl: string | null
   storageKey: string | null
+  filePath: string | null
+  parsedText: string | null
   status: $Enums.ResourceStatus | null
   subject: string | null
   topic: string | null
@@ -47,6 +49,8 @@ export type ResourceMaxAggregateOutputType = {
   mimeType: string | null
   sourceUrl: string | null
   storageKey: string | null
+  filePath: string | null
+  parsedText: string | null
   status: $Enums.ResourceStatus | null
   subject: string | null
   topic: string | null
@@ -62,6 +66,8 @@ export type ResourceCountAggregateOutputType = {
   mimeType: number
   sourceUrl: number
   storageKey: number
+  filePath: number
+  parsedText: number
   status: number
   subject: number
   topic: number
@@ -80,6 +86,8 @@ export type ResourceMinAggregateInputType = {
   mimeType?: true
   sourceUrl?: true
   storageKey?: true
+  filePath?: true
+  parsedText?: true
   status?: true
   subject?: true
   topic?: true
@@ -95,6 +103,8 @@ export type ResourceMaxAggregateInputType = {
   mimeType?: true
   sourceUrl?: true
   storageKey?: true
+  filePath?: true
+  parsedText?: true
   status?: true
   subject?: true
   topic?: true
@@ -110,6 +120,8 @@ export type ResourceCountAggregateInputType = {
   mimeType?: true
   sourceUrl?: true
   storageKey?: true
+  filePath?: true
+  parsedText?: true
   status?: true
   subject?: true
   topic?: true
@@ -199,6 +211,8 @@ export type ResourceGroupByOutputType = {
   mimeType: string | null
   sourceUrl: string | null
   storageKey: string | null
+  filePath: string | null
+  parsedText: string | null
   status: $Enums.ResourceStatus
   subject: string | null
   topic: string | null
@@ -236,6 +250,8 @@ export type ResourceWhereInput = {
   mimeType?: Prisma.StringNullableFilter<"Resource"> | string | null
   sourceUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
   storageKey?: Prisma.StringNullableFilter<"Resource"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Resource"> | string | null
+  parsedText?: Prisma.StringNullableFilter<"Resource"> | string | null
   status?: Prisma.EnumResourceStatusFilter<"Resource"> | $Enums.ResourceStatus
   subject?: Prisma.StringNullableFilter<"Resource"> | string | null
   topic?: Prisma.StringNullableFilter<"Resource"> | string | null
@@ -245,6 +261,7 @@ export type ResourceWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   chunks?: Prisma.ResourceChunkListRelationFilter
   sessions?: Prisma.SessionResourceListRelationFilter
+  embeddings?: Prisma.EmbeddingListRelationFilter
 }
 
 export type ResourceOrderByWithRelationInput = {
@@ -255,6 +272,8 @@ export type ResourceOrderByWithRelationInput = {
   mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   storageKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  parsedText?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   subject?: Prisma.SortOrderInput | Prisma.SortOrder
   topic?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -264,6 +283,7 @@ export type ResourceOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   chunks?: Prisma.ResourceChunkOrderByRelationAggregateInput
   sessions?: Prisma.SessionResourceOrderByRelationAggregateInput
+  embeddings?: Prisma.EmbeddingOrderByRelationAggregateInput
 }
 
 export type ResourceWhereUniqueInput = Prisma.AtLeast<{
@@ -277,6 +297,8 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   mimeType?: Prisma.StringNullableFilter<"Resource"> | string | null
   sourceUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
   storageKey?: Prisma.StringNullableFilter<"Resource"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Resource"> | string | null
+  parsedText?: Prisma.StringNullableFilter<"Resource"> | string | null
   status?: Prisma.EnumResourceStatusFilter<"Resource"> | $Enums.ResourceStatus
   subject?: Prisma.StringNullableFilter<"Resource"> | string | null
   topic?: Prisma.StringNullableFilter<"Resource"> | string | null
@@ -286,6 +308,7 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   chunks?: Prisma.ResourceChunkListRelationFilter
   sessions?: Prisma.SessionResourceListRelationFilter
+  embeddings?: Prisma.EmbeddingListRelationFilter
 }, "id">
 
 export type ResourceOrderByWithAggregationInput = {
@@ -296,6 +319,8 @@ export type ResourceOrderByWithAggregationInput = {
   mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   storageKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  parsedText?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   subject?: Prisma.SortOrderInput | Prisma.SortOrder
   topic?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -318,6 +343,8 @@ export type ResourceScalarWhereWithAggregatesInput = {
   mimeType?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   sourceUrl?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   storageKey?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
+  filePath?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
+  parsedText?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   status?: Prisma.EnumResourceStatusWithAggregatesFilter<"Resource"> | $Enums.ResourceStatus
   subject?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   topic?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
@@ -333,6 +360,8 @@ export type ResourceCreateInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -342,6 +371,7 @@ export type ResourceCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutResourcesInput
   chunks?: Prisma.ResourceChunkCreateNestedManyWithoutResourceInput
   sessions?: Prisma.SessionResourceCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateInput = {
@@ -352,6 +382,8 @@ export type ResourceUncheckedCreateInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -360,6 +392,7 @@ export type ResourceUncheckedCreateInput = {
   updatedAt?: Date | string
   chunks?: Prisma.ResourceChunkUncheckedCreateNestedManyWithoutResourceInput
   sessions?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUpdateInput = {
@@ -369,6 +402,8 @@ export type ResourceUpdateInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -378,6 +413,7 @@ export type ResourceUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutResourcesNestedInput
   chunks?: Prisma.ResourceChunkUpdateManyWithoutResourceNestedInput
   sessions?: Prisma.SessionResourceUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateInput = {
@@ -388,6 +424,8 @@ export type ResourceUncheckedUpdateInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -396,6 +434,7 @@ export type ResourceUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.ResourceChunkUncheckedUpdateManyWithoutResourceNestedInput
   sessions?: Prisma.SessionResourceUncheckedUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceCreateManyInput = {
@@ -406,6 +445,8 @@ export type ResourceCreateManyInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -421,6 +462,8 @@ export type ResourceUpdateManyMutationInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -437,6 +480,8 @@ export type ResourceUncheckedUpdateManyInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -463,6 +508,8 @@ export type ResourceCountOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
+  parsedText?: Prisma.SortOrder
   status?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   topic?: Prisma.SortOrder
@@ -479,6 +526,8 @@ export type ResourceMaxOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
+  parsedText?: Prisma.SortOrder
   status?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   topic?: Prisma.SortOrder
@@ -494,6 +543,8 @@ export type ResourceMinOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   storageKey?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
+  parsedText?: Prisma.SortOrder
   status?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   topic?: Prisma.SortOrder
@@ -504,6 +555,11 @@ export type ResourceMinOrderByAggregateInput = {
 export type ResourceScalarRelationFilter = {
   is?: Prisma.ResourceWhereInput
   isNot?: Prisma.ResourceWhereInput
+}
+
+export type ResourceNullableScalarRelationFilter = {
+  is?: Prisma.ResourceWhereInput | null
+  isNot?: Prisma.ResourceWhereInput | null
 }
 
 export type ResourceCreateNestedManyWithoutUserInput = {
@@ -570,6 +626,22 @@ export type ResourceUpdateOneRequiredWithoutChunksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutChunksInput, Prisma.ResourceUpdateWithoutChunksInput>, Prisma.ResourceUncheckedUpdateWithoutChunksInput>
 }
 
+export type ResourceCreateNestedOneWithoutEmbeddingsInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutEmbeddingsInput, Prisma.ResourceUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutEmbeddingsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+}
+
+export type ResourceUpdateOneWithoutEmbeddingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutEmbeddingsInput, Prisma.ResourceUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutEmbeddingsInput
+  upsert?: Prisma.ResourceUpsertWithoutEmbeddingsInput
+  disconnect?: Prisma.ResourceWhereInput | boolean
+  delete?: Prisma.ResourceWhereInput | boolean
+  connect?: Prisma.ResourceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutEmbeddingsInput, Prisma.ResourceUpdateWithoutEmbeddingsInput>, Prisma.ResourceUncheckedUpdateWithoutEmbeddingsInput>
+}
+
 export type ResourceCreateNestedOneWithoutSessionsInput = {
   create?: Prisma.XOR<Prisma.ResourceCreateWithoutSessionsInput, Prisma.ResourceUncheckedCreateWithoutSessionsInput>
   connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutSessionsInput
@@ -591,6 +663,8 @@ export type ResourceCreateWithoutUserInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -599,6 +673,7 @@ export type ResourceCreateWithoutUserInput = {
   updatedAt?: Date | string
   chunks?: Prisma.ResourceChunkCreateNestedManyWithoutResourceInput
   sessions?: Prisma.SessionResourceCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutUserInput = {
@@ -608,6 +683,8 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -616,6 +693,7 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   chunks?: Prisma.ResourceChunkUncheckedCreateNestedManyWithoutResourceInput
   sessions?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutUserInput = {
@@ -655,6 +733,8 @@ export type ResourceScalarWhereInput = {
   mimeType?: Prisma.StringNullableFilter<"Resource"> | string | null
   sourceUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
   storageKey?: Prisma.StringNullableFilter<"Resource"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Resource"> | string | null
+  parsedText?: Prisma.StringNullableFilter<"Resource"> | string | null
   status?: Prisma.EnumResourceStatusFilter<"Resource"> | $Enums.ResourceStatus
   subject?: Prisma.StringNullableFilter<"Resource"> | string | null
   topic?: Prisma.StringNullableFilter<"Resource"> | string | null
@@ -670,6 +750,8 @@ export type ResourceCreateWithoutChunksInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -678,6 +760,7 @@ export type ResourceCreateWithoutChunksInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutResourcesInput
   sessions?: Prisma.SessionResourceCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutChunksInput = {
@@ -688,6 +771,8 @@ export type ResourceUncheckedCreateWithoutChunksInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -695,6 +780,7 @@ export type ResourceUncheckedCreateWithoutChunksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutChunksInput = {
@@ -720,6 +806,8 @@ export type ResourceUpdateWithoutChunksInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -728,6 +816,7 @@ export type ResourceUpdateWithoutChunksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutResourcesNestedInput
   sessions?: Prisma.SessionResourceUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutChunksInput = {
@@ -738,12 +827,111 @@ export type ResourceUncheckedUpdateWithoutChunksInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionResourceUncheckedUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceCreateWithoutEmbeddingsInput = {
+  id?: string
+  title: string
+  sourceType: $Enums.ResourceType
+  mimeType?: string | null
+  sourceUrl?: string | null
+  storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
+  status?: $Enums.ResourceStatus
+  subject?: string | null
+  topic?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutResourcesInput
+  chunks?: Prisma.ResourceChunkCreateNestedManyWithoutResourceInput
+  sessions?: Prisma.SessionResourceCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceUncheckedCreateWithoutEmbeddingsInput = {
+  id?: string
+  userId: string
+  title: string
+  sourceType: $Enums.ResourceType
+  mimeType?: string | null
+  sourceUrl?: string | null
+  storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
+  status?: $Enums.ResourceStatus
+  subject?: string | null
+  topic?: string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chunks?: Prisma.ResourceChunkUncheckedCreateNestedManyWithoutResourceInput
+  sessions?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceCreateOrConnectWithoutEmbeddingsInput = {
+  where: Prisma.ResourceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutEmbeddingsInput, Prisma.ResourceUncheckedCreateWithoutEmbeddingsInput>
+}
+
+export type ResourceUpsertWithoutEmbeddingsInput = {
+  update: Prisma.XOR<Prisma.ResourceUpdateWithoutEmbeddingsInput, Prisma.ResourceUncheckedUpdateWithoutEmbeddingsInput>
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutEmbeddingsInput, Prisma.ResourceUncheckedCreateWithoutEmbeddingsInput>
+  where?: Prisma.ResourceWhereInput
+}
+
+export type ResourceUpdateToOneWithWhereWithoutEmbeddingsInput = {
+  where?: Prisma.ResourceWhereInput
+  data: Prisma.XOR<Prisma.ResourceUpdateWithoutEmbeddingsInput, Prisma.ResourceUncheckedUpdateWithoutEmbeddingsInput>
+}
+
+export type ResourceUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutResourcesNestedInput
+  chunks?: Prisma.ResourceChunkUpdateManyWithoutResourceNestedInput
+  sessions?: Prisma.SessionResourceUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceUncheckedUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chunks?: Prisma.ResourceChunkUncheckedUpdateManyWithoutResourceNestedInput
   sessions?: Prisma.SessionResourceUncheckedUpdateManyWithoutResourceNestedInput
 }
 
@@ -754,6 +942,8 @@ export type ResourceCreateWithoutSessionsInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -762,6 +952,7 @@ export type ResourceCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutResourcesInput
   chunks?: Prisma.ResourceChunkCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutSessionsInput = {
@@ -772,6 +963,8 @@ export type ResourceUncheckedCreateWithoutSessionsInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -779,6 +972,7 @@ export type ResourceUncheckedCreateWithoutSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.ResourceChunkUncheckedCreateNestedManyWithoutResourceInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutSessionsInput = {
@@ -804,6 +998,8 @@ export type ResourceUpdateWithoutSessionsInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -812,6 +1008,7 @@ export type ResourceUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutResourcesNestedInput
   chunks?: Prisma.ResourceChunkUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutSessionsInput = {
@@ -822,6 +1019,8 @@ export type ResourceUncheckedUpdateWithoutSessionsInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -829,6 +1028,7 @@ export type ResourceUncheckedUpdateWithoutSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.ResourceChunkUncheckedUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceCreateManyUserInput = {
@@ -838,6 +1038,8 @@ export type ResourceCreateManyUserInput = {
   mimeType?: string | null
   sourceUrl?: string | null
   storageKey?: string | null
+  filePath?: string | null
+  parsedText?: string | null
   status?: $Enums.ResourceStatus
   subject?: string | null
   topic?: string | null
@@ -853,6 +1055,8 @@ export type ResourceUpdateWithoutUserInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -861,6 +1065,7 @@ export type ResourceUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.ResourceChunkUpdateManyWithoutResourceNestedInput
   sessions?: Prisma.SessionResourceUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutUserInput = {
@@ -870,6 +1075,8 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -878,6 +1085,7 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.ResourceChunkUncheckedUpdateManyWithoutResourceNestedInput
   sessions?: Prisma.SessionResourceUncheckedUpdateManyWithoutResourceNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateManyWithoutUserInput = {
@@ -887,6 +1095,8 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   storageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parsedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumResourceStatusFieldUpdateOperationsInput | $Enums.ResourceStatus
   subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -903,11 +1113,13 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
 export type ResourceCountOutputType = {
   chunks: number
   sessions: number
+  embeddings: number
 }
 
 export type ResourceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   chunks?: boolean | ResourceCountOutputTypeCountChunksArgs
   sessions?: boolean | ResourceCountOutputTypeCountSessionsArgs
+  embeddings?: boolean | ResourceCountOutputTypeCountEmbeddingsArgs
 }
 
 /**
@@ -934,6 +1146,13 @@ export type ResourceCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.SessionResourceWhereInput
 }
 
+/**
+ * ResourceCountOutputType without action
+ */
+export type ResourceCountOutputTypeCountEmbeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmbeddingWhereInput
+}
+
 
 export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -943,6 +1162,8 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   mimeType?: boolean
   sourceUrl?: boolean
   storageKey?: boolean
+  filePath?: boolean
+  parsedText?: boolean
   status?: boolean
   subject?: boolean
   topic?: boolean
@@ -952,6 +1173,7 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   chunks?: boolean | Prisma.Resource$chunksArgs<ExtArgs>
   sessions?: boolean | Prisma.Resource$sessionsArgs<ExtArgs>
+  embeddings?: boolean | Prisma.Resource$embeddingsArgs<ExtArgs>
   _count?: boolean | Prisma.ResourceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resource"]>
 
@@ -963,6 +1185,8 @@ export type ResourceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   mimeType?: boolean
   sourceUrl?: boolean
   storageKey?: boolean
+  filePath?: boolean
+  parsedText?: boolean
   status?: boolean
   subject?: boolean
   topic?: boolean
@@ -980,6 +1204,8 @@ export type ResourceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   mimeType?: boolean
   sourceUrl?: boolean
   storageKey?: boolean
+  filePath?: boolean
+  parsedText?: boolean
   status?: boolean
   subject?: boolean
   topic?: boolean
@@ -997,6 +1223,8 @@ export type ResourceSelectScalar = {
   mimeType?: boolean
   sourceUrl?: boolean
   storageKey?: boolean
+  filePath?: boolean
+  parsedText?: boolean
   status?: boolean
   subject?: boolean
   topic?: boolean
@@ -1005,11 +1233,12 @@ export type ResourceSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "sourceType" | "mimeType" | "sourceUrl" | "storageKey" | "status" | "subject" | "topic" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "sourceType" | "mimeType" | "sourceUrl" | "storageKey" | "filePath" | "parsedText" | "status" | "subject" | "topic" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   chunks?: boolean | Prisma.Resource$chunksArgs<ExtArgs>
   sessions?: boolean | Prisma.Resource$sessionsArgs<ExtArgs>
+  embeddings?: boolean | Prisma.Resource$embeddingsArgs<ExtArgs>
   _count?: boolean | Prisma.ResourceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResourceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1025,6 +1254,7 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     user: Prisma.$UserPayload<ExtArgs>
     chunks: Prisma.$ResourceChunkPayload<ExtArgs>[]
     sessions: Prisma.$SessionResourcePayload<ExtArgs>[]
+    embeddings: Prisma.$EmbeddingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1034,6 +1264,8 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     mimeType: string | null
     sourceUrl: string | null
     storageKey: string | null
+    filePath: string | null
+    parsedText: string | null
     status: $Enums.ResourceStatus
     subject: string | null
     topic: string | null
@@ -1437,6 +1669,7 @@ export interface Prisma__ResourceClient<T, Null = never, ExtArgs extends runtime
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   chunks<T extends Prisma.Resource$chunksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$chunksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.Resource$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  embeddings<T extends Prisma.Resource$embeddingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$embeddingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1473,6 +1706,8 @@ export interface ResourceFieldRefs {
   readonly mimeType: Prisma.FieldRef<"Resource", 'String'>
   readonly sourceUrl: Prisma.FieldRef<"Resource", 'String'>
   readonly storageKey: Prisma.FieldRef<"Resource", 'String'>
+  readonly filePath: Prisma.FieldRef<"Resource", 'String'>
+  readonly parsedText: Prisma.FieldRef<"Resource", 'String'>
   readonly status: Prisma.FieldRef<"Resource", 'ResourceStatus'>
   readonly subject: Prisma.FieldRef<"Resource", 'String'>
   readonly topic: Prisma.FieldRef<"Resource", 'String'>
@@ -1925,6 +2160,30 @@ export type Resource$sessionsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.SessionResourceScalarFieldEnum | Prisma.SessionResourceScalarFieldEnum[]
+}
+
+/**
+ * Resource.embeddings
+ */
+export type Resource$embeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Embedding
+   */
+  select?: Prisma.EmbeddingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Embedding
+   */
+  omit?: Prisma.EmbeddingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmbeddingInclude<ExtArgs> | null
+  where?: Prisma.EmbeddingWhereInput
+  orderBy?: Prisma.EmbeddingOrderByWithRelationInput | Prisma.EmbeddingOrderByWithRelationInput[]
+  cursor?: Prisma.EmbeddingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmbeddingScalarFieldEnum | Prisma.EmbeddingScalarFieldEnum[]
 }
 
 /**

@@ -391,6 +391,8 @@ export const ModelName = {
   Session: 'Session',
   TranscriptChunk: 'TranscriptChunk',
   Evaluation: 'Evaluation',
+  Embedding: 'Embedding',
+  AnalyticsEvent: 'AnalyticsEvent',
   SessionResource: 'SessionResource'
 } as const
 
@@ -407,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "resource" | "resourceChunk" | "session" | "transcriptChunk" | "evaluation" | "sessionResource"
+    modelProps: "user" | "refreshToken" | "resource" | "resourceChunk" | "session" | "transcriptChunk" | "evaluation" | "embedding" | "analyticsEvent" | "sessionResource"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -929,6 +931,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Embedding: {
+      payload: Prisma.$EmbeddingPayload<ExtArgs>
+      fields: Prisma.EmbeddingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmbeddingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmbeddingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>
+        }
+        findFirst: {
+          args: Prisma.EmbeddingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmbeddingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>
+        }
+        findMany: {
+          args: Prisma.EmbeddingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>[]
+        }
+        create: {
+          args: Prisma.EmbeddingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>
+        }
+        createMany: {
+          args: Prisma.EmbeddingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmbeddingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>[]
+        }
+        delete: {
+          args: Prisma.EmbeddingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>
+        }
+        update: {
+          args: Prisma.EmbeddingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmbeddingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmbeddingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmbeddingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmbeddingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmbeddingPayload>
+        }
+        aggregate: {
+          args: Prisma.EmbeddingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmbedding>
+        }
+        groupBy: {
+          args: Prisma.EmbeddingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmbeddingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmbeddingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmbeddingCountAggregateOutputType> | number
+        }
+      }
+    }
+    AnalyticsEvent: {
+      payload: Prisma.$AnalyticsEventPayload<ExtArgs>
+      fields: Prisma.AnalyticsEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnalyticsEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnalyticsEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        findFirst: {
+          args: Prisma.AnalyticsEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnalyticsEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        findMany: {
+          args: Prisma.AnalyticsEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>[]
+        }
+        create: {
+          args: Prisma.AnalyticsEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        createMany: {
+          args: Prisma.AnalyticsEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnalyticsEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>[]
+        }
+        delete: {
+          args: Prisma.AnalyticsEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        update: {
+          args: Prisma.AnalyticsEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnalyticsEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnalyticsEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnalyticsEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnalyticsEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        aggregate: {
+          args: Prisma.AnalyticsEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnalyticsEvent>
+        }
+        groupBy: {
+          args: Prisma.AnalyticsEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalyticsEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnalyticsEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalyticsEventCountAggregateOutputType> | number
+        }
+      }
+    }
     SessionResource: {
       payload: Prisma.$SessionResourcePayload<ExtArgs>
       fields: Prisma.SessionResourceFieldRefs
@@ -1090,6 +1240,8 @@ export const ResourceScalarFieldEnum = {
   mimeType: 'mimeType',
   sourceUrl: 'sourceUrl',
   storageKey: 'storageKey',
+  filePath: 'filePath',
+  parsedText: 'parsedText',
   status: 'status',
   subject: 'subject',
   topic: 'topic',
@@ -1149,6 +1301,13 @@ export const EvaluationScalarFieldEnum = {
   sessionId: 'sessionId',
   type: 'type',
   content: 'content',
+  summary: 'summary',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  missedConcepts: 'missedConcepts',
+  followUp: 'followUp',
+  confidenceScore: 'confidenceScore',
+  topicDrift: 'topicDrift',
   provider: 'provider',
   model: 'model',
   metadata: 'metadata',
@@ -1156,6 +1315,31 @@ export const EvaluationScalarFieldEnum = {
 } as const
 
 export type EvaluationScalarFieldEnum = (typeof EvaluationScalarFieldEnum)[keyof typeof EvaluationScalarFieldEnum]
+
+
+export const EmbeddingScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  resourceId: 'resourceId',
+  resourceChunkId: 'resourceChunkId',
+  vector: 'vector',
+  model: 'model',
+  createdAt: 'createdAt'
+} as const
+
+export type EmbeddingScalarFieldEnum = (typeof EmbeddingScalarFieldEnum)[keyof typeof EmbeddingScalarFieldEnum]
+
+
+export const AnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sessionId: 'sessionId',
+  event: 'event',
+  payload: 'payload',
+  createdAt: 'createdAt'
+} as const
+
+export type AnalyticsEventScalarFieldEnum = (typeof AnalyticsEventScalarFieldEnum)[keyof typeof AnalyticsEventScalarFieldEnum]
 
 
 export const SessionResourceScalarFieldEnum = {
@@ -1182,6 +1366,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1478,6 +1669,8 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   transcriptChunk?: Prisma.TranscriptChunkOmit
   evaluation?: Prisma.EvaluationOmit
+  embedding?: Prisma.EmbeddingOmit
+  analyticsEvent?: Prisma.AnalyticsEventOmit
   sessionResource?: Prisma.SessionResourceOmit
 }
 

@@ -226,6 +226,8 @@ export type SessionWhereInput = {
   transcriptChunks?: Prisma.TranscriptChunkListRelationFilter
   evaluations?: Prisma.EvaluationListRelationFilter
   resources?: Prisma.SessionResourceListRelationFilter
+  embeddings?: Prisma.EmbeddingListRelationFilter
+  analyticsEvents?: Prisma.AnalyticsEventListRelationFilter
 }
 
 export type SessionOrderByWithRelationInput = {
@@ -243,6 +245,8 @@ export type SessionOrderByWithRelationInput = {
   transcriptChunks?: Prisma.TranscriptChunkOrderByRelationAggregateInput
   evaluations?: Prisma.EvaluationOrderByRelationAggregateInput
   resources?: Prisma.SessionResourceOrderByRelationAggregateInput
+  embeddings?: Prisma.EmbeddingOrderByRelationAggregateInput
+  analyticsEvents?: Prisma.AnalyticsEventOrderByRelationAggregateInput
 }
 
 export type SessionWhereUniqueInput = Prisma.AtLeast<{
@@ -263,6 +267,8 @@ export type SessionWhereUniqueInput = Prisma.AtLeast<{
   transcriptChunks?: Prisma.TranscriptChunkListRelationFilter
   evaluations?: Prisma.EvaluationListRelationFilter
   resources?: Prisma.SessionResourceListRelationFilter
+  embeddings?: Prisma.EmbeddingListRelationFilter
+  analyticsEvents?: Prisma.AnalyticsEventListRelationFilter
 }, "id">
 
 export type SessionOrderByWithAggregationInput = {
@@ -311,6 +317,8 @@ export type SessionCreateInput = {
   transcriptChunks?: Prisma.TranscriptChunkCreateNestedManyWithoutSessionInput
   evaluations?: Prisma.EvaluationCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateInput = {
@@ -327,6 +335,8 @@ export type SessionUncheckedCreateInput = {
   transcriptChunks?: Prisma.TranscriptChunkUncheckedCreateNestedManyWithoutSessionInput
   evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUpdateInput = {
@@ -343,6 +353,8 @@ export type SessionUpdateInput = {
   transcriptChunks?: Prisma.TranscriptChunkUpdateManyWithoutSessionNestedInput
   evaluations?: Prisma.EvaluationUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateInput = {
@@ -359,6 +371,8 @@ export type SessionUncheckedUpdateInput = {
   transcriptChunks?: Prisma.TranscriptChunkUncheckedUpdateManyWithoutSessionNestedInput
   evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUncheckedUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionCreateManyInput = {
@@ -453,6 +467,11 @@ export type SessionScalarRelationFilter = {
   isNot?: Prisma.SessionWhereInput
 }
 
+export type SessionNullableScalarRelationFilter = {
+  is?: Prisma.SessionWhereInput | null
+  isNot?: Prisma.SessionWhereInput | null
+}
+
 export type SessionCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.SessionCreateWithoutUserInput, Prisma.SessionUncheckedCreateWithoutUserInput> | Prisma.SessionCreateWithoutUserInput[] | Prisma.SessionUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.SessionCreateOrConnectWithoutUserInput | Prisma.SessionCreateOrConnectWithoutUserInput[]
@@ -527,6 +546,38 @@ export type SessionUpdateOneRequiredWithoutEvaluationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SessionUpdateToOneWithWhereWithoutEvaluationsInput, Prisma.SessionUpdateWithoutEvaluationsInput>, Prisma.SessionUncheckedUpdateWithoutEvaluationsInput>
 }
 
+export type SessionCreateNestedOneWithoutEmbeddingsInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutEmbeddingsInput, Prisma.SessionUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutEmbeddingsInput
+  connect?: Prisma.SessionWhereUniqueInput
+}
+
+export type SessionUpdateOneWithoutEmbeddingsNestedInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutEmbeddingsInput, Prisma.SessionUncheckedCreateWithoutEmbeddingsInput>
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutEmbeddingsInput
+  upsert?: Prisma.SessionUpsertWithoutEmbeddingsInput
+  disconnect?: Prisma.SessionWhereInput | boolean
+  delete?: Prisma.SessionWhereInput | boolean
+  connect?: Prisma.SessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SessionUpdateToOneWithWhereWithoutEmbeddingsInput, Prisma.SessionUpdateWithoutEmbeddingsInput>, Prisma.SessionUncheckedUpdateWithoutEmbeddingsInput>
+}
+
+export type SessionCreateNestedOneWithoutAnalyticsEventsInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutAnalyticsEventsInput, Prisma.SessionUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutAnalyticsEventsInput
+  connect?: Prisma.SessionWhereUniqueInput
+}
+
+export type SessionUpdateOneWithoutAnalyticsEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.SessionCreateWithoutAnalyticsEventsInput, Prisma.SessionUncheckedCreateWithoutAnalyticsEventsInput>
+  connectOrCreate?: Prisma.SessionCreateOrConnectWithoutAnalyticsEventsInput
+  upsert?: Prisma.SessionUpsertWithoutAnalyticsEventsInput
+  disconnect?: Prisma.SessionWhereInput | boolean
+  delete?: Prisma.SessionWhereInput | boolean
+  connect?: Prisma.SessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SessionUpdateToOneWithWhereWithoutAnalyticsEventsInput, Prisma.SessionUpdateWithoutAnalyticsEventsInput>, Prisma.SessionUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
 export type SessionCreateNestedOneWithoutResourcesInput = {
   create?: Prisma.XOR<Prisma.SessionCreateWithoutResourcesInput, Prisma.SessionUncheckedCreateWithoutResourcesInput>
   connectOrCreate?: Prisma.SessionCreateOrConnectWithoutResourcesInput
@@ -554,6 +605,8 @@ export type SessionCreateWithoutUserInput = {
   transcriptChunks?: Prisma.TranscriptChunkCreateNestedManyWithoutSessionInput
   evaluations?: Prisma.EvaluationCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateWithoutUserInput = {
@@ -569,6 +622,8 @@ export type SessionUncheckedCreateWithoutUserInput = {
   transcriptChunks?: Prisma.TranscriptChunkUncheckedCreateNestedManyWithoutSessionInput
   evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionCreateOrConnectWithoutUserInput = {
@@ -626,6 +681,8 @@ export type SessionCreateWithoutTranscriptChunksInput = {
   user: Prisma.UserCreateNestedOneWithoutSessionsInput
   evaluations?: Prisma.EvaluationCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateWithoutTranscriptChunksInput = {
@@ -641,6 +698,8 @@ export type SessionUncheckedCreateWithoutTranscriptChunksInput = {
   updatedAt?: Date | string
   evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionCreateOrConnectWithoutTranscriptChunksInput = {
@@ -672,6 +731,8 @@ export type SessionUpdateWithoutTranscriptChunksInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
   evaluations?: Prisma.EvaluationUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutTranscriptChunksInput = {
@@ -687,6 +748,8 @@ export type SessionUncheckedUpdateWithoutTranscriptChunksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUncheckedUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionCreateWithoutEvaluationsInput = {
@@ -702,6 +765,8 @@ export type SessionCreateWithoutEvaluationsInput = {
   user: Prisma.UserCreateNestedOneWithoutSessionsInput
   transcriptChunks?: Prisma.TranscriptChunkCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateWithoutEvaluationsInput = {
@@ -717,6 +782,8 @@ export type SessionUncheckedCreateWithoutEvaluationsInput = {
   updatedAt?: Date | string
   transcriptChunks?: Prisma.TranscriptChunkUncheckedCreateNestedManyWithoutSessionInput
   resources?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionCreateOrConnectWithoutEvaluationsInput = {
@@ -748,6 +815,8 @@ export type SessionUpdateWithoutEvaluationsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
   transcriptChunks?: Prisma.TranscriptChunkUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutEvaluationsInput = {
@@ -763,6 +832,176 @@ export type SessionUncheckedUpdateWithoutEvaluationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcriptChunks?: Prisma.TranscriptChunkUncheckedUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUncheckedUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutSessionNestedInput
+}
+
+export type SessionCreateWithoutEmbeddingsInput = {
+  id?: string
+  subject?: string | null
+  topic?: string | null
+  goal?: string | null
+  status?: $Enums.SessionStatus
+  startedAt?: Date | string
+  endedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutSessionsInput
+  transcriptChunks?: Prisma.TranscriptChunkCreateNestedManyWithoutSessionInput
+  evaluations?: Prisma.EvaluationCreateNestedManyWithoutSessionInput
+  resources?: Prisma.SessionResourceCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutSessionInput
+}
+
+export type SessionUncheckedCreateWithoutEmbeddingsInput = {
+  id?: string
+  userId: string
+  subject?: string | null
+  topic?: string | null
+  goal?: string | null
+  status?: $Enums.SessionStatus
+  startedAt?: Date | string
+  endedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transcriptChunks?: Prisma.TranscriptChunkUncheckedCreateNestedManyWithoutSessionInput
+  evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutSessionInput
+  resources?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutSessionInput
+}
+
+export type SessionCreateOrConnectWithoutEmbeddingsInput = {
+  where: Prisma.SessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.SessionCreateWithoutEmbeddingsInput, Prisma.SessionUncheckedCreateWithoutEmbeddingsInput>
+}
+
+export type SessionUpsertWithoutEmbeddingsInput = {
+  update: Prisma.XOR<Prisma.SessionUpdateWithoutEmbeddingsInput, Prisma.SessionUncheckedUpdateWithoutEmbeddingsInput>
+  create: Prisma.XOR<Prisma.SessionCreateWithoutEmbeddingsInput, Prisma.SessionUncheckedCreateWithoutEmbeddingsInput>
+  where?: Prisma.SessionWhereInput
+}
+
+export type SessionUpdateToOneWithWhereWithoutEmbeddingsInput = {
+  where?: Prisma.SessionWhereInput
+  data: Prisma.XOR<Prisma.SessionUpdateWithoutEmbeddingsInput, Prisma.SessionUncheckedUpdateWithoutEmbeddingsInput>
+}
+
+export type SessionUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
+  transcriptChunks?: Prisma.TranscriptChunkUpdateManyWithoutSessionNestedInput
+  evaluations?: Prisma.EvaluationUpdateManyWithoutSessionNestedInput
+  resources?: Prisma.SessionResourceUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutSessionNestedInput
+}
+
+export type SessionUncheckedUpdateWithoutEmbeddingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transcriptChunks?: Prisma.TranscriptChunkUncheckedUpdateManyWithoutSessionNestedInput
+  evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutSessionNestedInput
+  resources?: Prisma.SessionResourceUncheckedUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutSessionNestedInput
+}
+
+export type SessionCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  subject?: string | null
+  topic?: string | null
+  goal?: string | null
+  status?: $Enums.SessionStatus
+  startedAt?: Date | string
+  endedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutSessionsInput
+  transcriptChunks?: Prisma.TranscriptChunkCreateNestedManyWithoutSessionInput
+  evaluations?: Prisma.EvaluationCreateNestedManyWithoutSessionInput
+  resources?: Prisma.SessionResourceCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutSessionInput
+}
+
+export type SessionUncheckedCreateWithoutAnalyticsEventsInput = {
+  id?: string
+  userId: string
+  subject?: string | null
+  topic?: string | null
+  goal?: string | null
+  status?: $Enums.SessionStatus
+  startedAt?: Date | string
+  endedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transcriptChunks?: Prisma.TranscriptChunkUncheckedCreateNestedManyWithoutSessionInput
+  evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutSessionInput
+  resources?: Prisma.SessionResourceUncheckedCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutSessionInput
+}
+
+export type SessionCreateOrConnectWithoutAnalyticsEventsInput = {
+  where: Prisma.SessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.SessionCreateWithoutAnalyticsEventsInput, Prisma.SessionUncheckedCreateWithoutAnalyticsEventsInput>
+}
+
+export type SessionUpsertWithoutAnalyticsEventsInput = {
+  update: Prisma.XOR<Prisma.SessionUpdateWithoutAnalyticsEventsInput, Prisma.SessionUncheckedUpdateWithoutAnalyticsEventsInput>
+  create: Prisma.XOR<Prisma.SessionCreateWithoutAnalyticsEventsInput, Prisma.SessionUncheckedCreateWithoutAnalyticsEventsInput>
+  where?: Prisma.SessionWhereInput
+}
+
+export type SessionUpdateToOneWithWhereWithoutAnalyticsEventsInput = {
+  where?: Prisma.SessionWhereInput
+  data: Prisma.XOR<Prisma.SessionUpdateWithoutAnalyticsEventsInput, Prisma.SessionUncheckedUpdateWithoutAnalyticsEventsInput>
+}
+
+export type SessionUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
+  transcriptChunks?: Prisma.TranscriptChunkUpdateManyWithoutSessionNestedInput
+  evaluations?: Prisma.EvaluationUpdateManyWithoutSessionNestedInput
+  resources?: Prisma.SessionResourceUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutSessionNestedInput
+}
+
+export type SessionUncheckedUpdateWithoutAnalyticsEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  subject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  topic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumSessionStatusFieldUpdateOperationsInput | $Enums.SessionStatus
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transcriptChunks?: Prisma.TranscriptChunkUncheckedUpdateManyWithoutSessionNestedInput
+  evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutSessionNestedInput
+  resources?: Prisma.SessionResourceUncheckedUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionCreateWithoutResourcesInput = {
@@ -778,6 +1017,8 @@ export type SessionCreateWithoutResourcesInput = {
   user: Prisma.UserCreateNestedOneWithoutSessionsInput
   transcriptChunks?: Prisma.TranscriptChunkCreateNestedManyWithoutSessionInput
   evaluations?: Prisma.EvaluationCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventCreateNestedManyWithoutSessionInput
 }
 
 export type SessionUncheckedCreateWithoutResourcesInput = {
@@ -793,6 +1034,8 @@ export type SessionUncheckedCreateWithoutResourcesInput = {
   updatedAt?: Date | string
   transcriptChunks?: Prisma.TranscriptChunkUncheckedCreateNestedManyWithoutSessionInput
   evaluations?: Prisma.EvaluationUncheckedCreateNestedManyWithoutSessionInput
+  embeddings?: Prisma.EmbeddingUncheckedCreateNestedManyWithoutSessionInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedCreateNestedManyWithoutSessionInput
 }
 
 export type SessionCreateOrConnectWithoutResourcesInput = {
@@ -824,6 +1067,8 @@ export type SessionUpdateWithoutResourcesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput
   transcriptChunks?: Prisma.TranscriptChunkUpdateManyWithoutSessionNestedInput
   evaluations?: Prisma.EvaluationUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutResourcesInput = {
@@ -839,6 +1084,8 @@ export type SessionUncheckedUpdateWithoutResourcesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcriptChunks?: Prisma.TranscriptChunkUncheckedUpdateManyWithoutSessionNestedInput
   evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionCreateManyUserInput = {
@@ -866,6 +1113,8 @@ export type SessionUpdateWithoutUserInput = {
   transcriptChunks?: Prisma.TranscriptChunkUpdateManyWithoutSessionNestedInput
   evaluations?: Prisma.EvaluationUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateWithoutUserInput = {
@@ -881,6 +1130,8 @@ export type SessionUncheckedUpdateWithoutUserInput = {
   transcriptChunks?: Prisma.TranscriptChunkUncheckedUpdateManyWithoutSessionNestedInput
   evaluations?: Prisma.EvaluationUncheckedUpdateManyWithoutSessionNestedInput
   resources?: Prisma.SessionResourceUncheckedUpdateManyWithoutSessionNestedInput
+  embeddings?: Prisma.EmbeddingUncheckedUpdateManyWithoutSessionNestedInput
+  analyticsEvents?: Prisma.AnalyticsEventUncheckedUpdateManyWithoutSessionNestedInput
 }
 
 export type SessionUncheckedUpdateManyWithoutUserInput = {
@@ -904,12 +1155,16 @@ export type SessionCountOutputType = {
   transcriptChunks: number
   evaluations: number
   resources: number
+  embeddings: number
+  analyticsEvents: number
 }
 
 export type SessionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transcriptChunks?: boolean | SessionCountOutputTypeCountTranscriptChunksArgs
   evaluations?: boolean | SessionCountOutputTypeCountEvaluationsArgs
   resources?: boolean | SessionCountOutputTypeCountResourcesArgs
+  embeddings?: boolean | SessionCountOutputTypeCountEmbeddingsArgs
+  analyticsEvents?: boolean | SessionCountOutputTypeCountAnalyticsEventsArgs
 }
 
 /**
@@ -943,6 +1198,20 @@ export type SessionCountOutputTypeCountResourcesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.SessionResourceWhereInput
 }
 
+/**
+ * SessionCountOutputType without action
+ */
+export type SessionCountOutputTypeCountEmbeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmbeddingWhereInput
+}
+
+/**
+ * SessionCountOutputType without action
+ */
+export type SessionCountOutputTypeCountAnalyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AnalyticsEventWhereInput
+}
+
 
 export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -959,6 +1228,8 @@ export type SessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   transcriptChunks?: boolean | Prisma.Session$transcriptChunksArgs<ExtArgs>
   evaluations?: boolean | Prisma.Session$evaluationsArgs<ExtArgs>
   resources?: boolean | Prisma.Session$resourcesArgs<ExtArgs>
+  embeddings?: boolean | Prisma.Session$embeddingsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.Session$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.SessionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["session"]>
 
@@ -1009,6 +1280,8 @@ export type SessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   transcriptChunks?: boolean | Prisma.Session$transcriptChunksArgs<ExtArgs>
   evaluations?: boolean | Prisma.Session$evaluationsArgs<ExtArgs>
   resources?: boolean | Prisma.Session$resourcesArgs<ExtArgs>
+  embeddings?: boolean | Prisma.Session$embeddingsArgs<ExtArgs>
+  analyticsEvents?: boolean | Prisma.Session$analyticsEventsArgs<ExtArgs>
   _count?: boolean | Prisma.SessionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1025,6 +1298,8 @@ export type $SessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     transcriptChunks: Prisma.$TranscriptChunkPayload<ExtArgs>[]
     evaluations: Prisma.$EvaluationPayload<ExtArgs>[]
     resources: Prisma.$SessionResourcePayload<ExtArgs>[]
+    embeddings: Prisma.$EmbeddingPayload<ExtArgs>[]
+    analyticsEvents: Prisma.$AnalyticsEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1435,6 +1710,8 @@ export interface Prisma__SessionClient<T, Null = never, ExtArgs extends runtime.
   transcriptChunks<T extends Prisma.Session$transcriptChunksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$transcriptChunksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TranscriptChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   evaluations<T extends Prisma.Session$evaluationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$evaluationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EvaluationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resources<T extends Prisma.Session$resourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$resourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  embeddings<T extends Prisma.Session$embeddingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$embeddingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmbeddingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  analyticsEvents<T extends Prisma.Session$analyticsEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Session$analyticsEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalyticsEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1944,6 +2221,54 @@ export type Session$resourcesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.SessionResourceScalarFieldEnum | Prisma.SessionResourceScalarFieldEnum[]
+}
+
+/**
+ * Session.embeddings
+ */
+export type Session$embeddingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Embedding
+   */
+  select?: Prisma.EmbeddingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Embedding
+   */
+  omit?: Prisma.EmbeddingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmbeddingInclude<ExtArgs> | null
+  where?: Prisma.EmbeddingWhereInput
+  orderBy?: Prisma.EmbeddingOrderByWithRelationInput | Prisma.EmbeddingOrderByWithRelationInput[]
+  cursor?: Prisma.EmbeddingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmbeddingScalarFieldEnum | Prisma.EmbeddingScalarFieldEnum[]
+}
+
+/**
+ * Session.analyticsEvents
+ */
+export type Session$analyticsEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AnalyticsEvent
+   */
+  select?: Prisma.AnalyticsEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AnalyticsEvent
+   */
+  omit?: Prisma.AnalyticsEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnalyticsEventInclude<ExtArgs> | null
+  where?: Prisma.AnalyticsEventWhereInput
+  orderBy?: Prisma.AnalyticsEventOrderByWithRelationInput | Prisma.AnalyticsEventOrderByWithRelationInput[]
+  cursor?: Prisma.AnalyticsEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AnalyticsEventScalarFieldEnum | Prisma.AnalyticsEventScalarFieldEnum[]
 }
 
 /**

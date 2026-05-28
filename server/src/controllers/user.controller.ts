@@ -70,7 +70,7 @@ export const updateUserProfileData = async (
     if (!validData.success) {
       return sendApiError(res, {
         status: 400,
-        message: validData.error.errors[0]?.message || 'Validation error',
+        message: validData.error.issues[0]?.message || 'Validation error',
         errors: validData.error.flatten().fieldErrors,
       });
     }
@@ -106,7 +106,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     if (!parsedData.success) {
       return sendApiError(res, {
         status: 400,
-        message: parsedData.error.errors[0]?.message || 'Validation error',
+        message: parsedData.error.issues[0]?.message || 'Validation error',
         errors: parsedData.error.flatten().fieldErrors,
       });
     }

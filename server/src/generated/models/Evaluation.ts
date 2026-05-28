@@ -20,8 +20,18 @@ export type EvaluationModel = runtime.Types.Result.DefaultSelection<Prisma.$Eval
 
 export type AggregateEvaluation = {
   _count: EvaluationCountAggregateOutputType | null
+  _avg: EvaluationAvgAggregateOutputType | null
+  _sum: EvaluationSumAggregateOutputType | null
   _min: EvaluationMinAggregateOutputType | null
   _max: EvaluationMaxAggregateOutputType | null
+}
+
+export type EvaluationAvgAggregateOutputType = {
+  confidenceScore: number | null
+}
+
+export type EvaluationSumAggregateOutputType = {
+  confidenceScore: number | null
 }
 
 export type EvaluationMinAggregateOutputType = {
@@ -29,6 +39,9 @@ export type EvaluationMinAggregateOutputType = {
   sessionId: string | null
   type: $Enums.EvaluationType | null
   content: string | null
+  summary: string | null
+  confidenceScore: number | null
+  topicDrift: boolean | null
   provider: string | null
   model: string | null
   createdAt: Date | null
@@ -39,6 +52,9 @@ export type EvaluationMaxAggregateOutputType = {
   sessionId: string | null
   type: $Enums.EvaluationType | null
   content: string | null
+  summary: string | null
+  confidenceScore: number | null
+  topicDrift: boolean | null
   provider: string | null
   model: string | null
   createdAt: Date | null
@@ -49,6 +65,13 @@ export type EvaluationCountAggregateOutputType = {
   sessionId: number
   type: number
   content: number
+  summary: number
+  strengths: number
+  weaknesses: number
+  missedConcepts: number
+  followUp: number
+  confidenceScore: number
+  topicDrift: number
   provider: number
   model: number
   metadata: number
@@ -57,11 +80,22 @@ export type EvaluationCountAggregateOutputType = {
 }
 
 
+export type EvaluationAvgAggregateInputType = {
+  confidenceScore?: true
+}
+
+export type EvaluationSumAggregateInputType = {
+  confidenceScore?: true
+}
+
 export type EvaluationMinAggregateInputType = {
   id?: true
   sessionId?: true
   type?: true
   content?: true
+  summary?: true
+  confidenceScore?: true
+  topicDrift?: true
   provider?: true
   model?: true
   createdAt?: true
@@ -72,6 +106,9 @@ export type EvaluationMaxAggregateInputType = {
   sessionId?: true
   type?: true
   content?: true
+  summary?: true
+  confidenceScore?: true
+  topicDrift?: true
   provider?: true
   model?: true
   createdAt?: true
@@ -82,6 +119,13 @@ export type EvaluationCountAggregateInputType = {
   sessionId?: true
   type?: true
   content?: true
+  summary?: true
+  strengths?: true
+  weaknesses?: true
+  missedConcepts?: true
+  followUp?: true
+  confidenceScore?: true
+  topicDrift?: true
   provider?: true
   model?: true
   metadata?: true
@@ -127,6 +171,18 @@ export type EvaluationAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: EvaluationAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: EvaluationSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: EvaluationMinAggregateInputType
@@ -157,6 +213,8 @@ export type EvaluationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: EvaluationCountAggregateInputType | true
+  _avg?: EvaluationAvgAggregateInputType
+  _sum?: EvaluationSumAggregateInputType
   _min?: EvaluationMinAggregateInputType
   _max?: EvaluationMaxAggregateInputType
 }
@@ -166,11 +224,20 @@ export type EvaluationGroupByOutputType = {
   sessionId: string
   type: $Enums.EvaluationType
   content: string
+  summary: string | null
+  strengths: runtime.JsonValue | null
+  weaknesses: runtime.JsonValue | null
+  missedConcepts: runtime.JsonValue | null
+  followUp: runtime.JsonValue | null
+  confidenceScore: number | null
+  topicDrift: boolean | null
   provider: string | null
   model: string | null
   metadata: runtime.JsonValue | null
   createdAt: Date
   _count: EvaluationCountAggregateOutputType | null
+  _avg: EvaluationAvgAggregateOutputType | null
+  _sum: EvaluationSumAggregateOutputType | null
   _min: EvaluationMinAggregateOutputType | null
   _max: EvaluationMaxAggregateOutputType | null
 }
@@ -198,6 +265,13 @@ export type EvaluationWhereInput = {
   sessionId?: Prisma.UuidFilter<"Evaluation"> | string
   type?: Prisma.EnumEvaluationTypeFilter<"Evaluation"> | $Enums.EvaluationType
   content?: Prisma.StringFilter<"Evaluation"> | string
+  summary?: Prisma.StringNullableFilter<"Evaluation"> | string | null
+  strengths?: Prisma.JsonNullableFilter<"Evaluation">
+  weaknesses?: Prisma.JsonNullableFilter<"Evaluation">
+  missedConcepts?: Prisma.JsonNullableFilter<"Evaluation">
+  followUp?: Prisma.JsonNullableFilter<"Evaluation">
+  confidenceScore?: Prisma.FloatNullableFilter<"Evaluation"> | number | null
+  topicDrift?: Prisma.BoolNullableFilter<"Evaluation"> | boolean | null
   provider?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   model?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   metadata?: Prisma.JsonNullableFilter<"Evaluation">
@@ -210,6 +284,13 @@ export type EvaluationOrderByWithRelationInput = {
   sessionId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  strengths?: Prisma.SortOrderInput | Prisma.SortOrder
+  weaknesses?: Prisma.SortOrderInput | Prisma.SortOrder
+  missedConcepts?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUp?: Prisma.SortOrderInput | Prisma.SortOrder
+  confidenceScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  topicDrift?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -225,6 +306,13 @@ export type EvaluationWhereUniqueInput = Prisma.AtLeast<{
   sessionId?: Prisma.UuidFilter<"Evaluation"> | string
   type?: Prisma.EnumEvaluationTypeFilter<"Evaluation"> | $Enums.EvaluationType
   content?: Prisma.StringFilter<"Evaluation"> | string
+  summary?: Prisma.StringNullableFilter<"Evaluation"> | string | null
+  strengths?: Prisma.JsonNullableFilter<"Evaluation">
+  weaknesses?: Prisma.JsonNullableFilter<"Evaluation">
+  missedConcepts?: Prisma.JsonNullableFilter<"Evaluation">
+  followUp?: Prisma.JsonNullableFilter<"Evaluation">
+  confidenceScore?: Prisma.FloatNullableFilter<"Evaluation"> | number | null
+  topicDrift?: Prisma.BoolNullableFilter<"Evaluation"> | boolean | null
   provider?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   model?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   metadata?: Prisma.JsonNullableFilter<"Evaluation">
@@ -237,13 +325,22 @@ export type EvaluationOrderByWithAggregationInput = {
   sessionId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  strengths?: Prisma.SortOrderInput | Prisma.SortOrder
+  weaknesses?: Prisma.SortOrderInput | Prisma.SortOrder
+  missedConcepts?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUp?: Prisma.SortOrderInput | Prisma.SortOrder
+  confidenceScore?: Prisma.SortOrderInput | Prisma.SortOrder
+  topicDrift?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
   metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.EvaluationCountOrderByAggregateInput
+  _avg?: Prisma.EvaluationAvgOrderByAggregateInput
   _max?: Prisma.EvaluationMaxOrderByAggregateInput
   _min?: Prisma.EvaluationMinOrderByAggregateInput
+  _sum?: Prisma.EvaluationSumOrderByAggregateInput
 }
 
 export type EvaluationScalarWhereWithAggregatesInput = {
@@ -254,6 +351,13 @@ export type EvaluationScalarWhereWithAggregatesInput = {
   sessionId?: Prisma.UuidWithAggregatesFilter<"Evaluation"> | string
   type?: Prisma.EnumEvaluationTypeWithAggregatesFilter<"Evaluation"> | $Enums.EvaluationType
   content?: Prisma.StringWithAggregatesFilter<"Evaluation"> | string
+  summary?: Prisma.StringNullableWithAggregatesFilter<"Evaluation"> | string | null
+  strengths?: Prisma.JsonNullableWithAggregatesFilter<"Evaluation">
+  weaknesses?: Prisma.JsonNullableWithAggregatesFilter<"Evaluation">
+  missedConcepts?: Prisma.JsonNullableWithAggregatesFilter<"Evaluation">
+  followUp?: Prisma.JsonNullableWithAggregatesFilter<"Evaluation">
+  confidenceScore?: Prisma.FloatNullableWithAggregatesFilter<"Evaluation"> | number | null
+  topicDrift?: Prisma.BoolNullableWithAggregatesFilter<"Evaluation"> | boolean | null
   provider?: Prisma.StringNullableWithAggregatesFilter<"Evaluation"> | string | null
   model?: Prisma.StringNullableWithAggregatesFilter<"Evaluation"> | string | null
   metadata?: Prisma.JsonNullableWithAggregatesFilter<"Evaluation">
@@ -264,6 +368,13 @@ export type EvaluationCreateInput = {
   id?: string
   type: $Enums.EvaluationType
   content: string
+  summary?: string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: number | null
+  topicDrift?: boolean | null
   provider?: string | null
   model?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -276,6 +387,13 @@ export type EvaluationUncheckedCreateInput = {
   sessionId: string
   type: $Enums.EvaluationType
   content: string
+  summary?: string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: number | null
+  topicDrift?: boolean | null
   provider?: string | null
   model?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -286,6 +404,13 @@ export type EvaluationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -298,6 +423,13 @@ export type EvaluationUncheckedUpdateInput = {
   sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -309,6 +441,13 @@ export type EvaluationCreateManyInput = {
   sessionId: string
   type: $Enums.EvaluationType
   content: string
+  summary?: string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: number | null
+  topicDrift?: boolean | null
   provider?: string | null
   model?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -319,6 +458,13 @@ export type EvaluationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -330,6 +476,13 @@ export type EvaluationUncheckedUpdateManyInput = {
   sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -351,10 +504,21 @@ export type EvaluationCountOrderByAggregateInput = {
   sessionId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  strengths?: Prisma.SortOrder
+  weaknesses?: Prisma.SortOrder
+  missedConcepts?: Prisma.SortOrder
+  followUp?: Prisma.SortOrder
+  confidenceScore?: Prisma.SortOrder
+  topicDrift?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
   metadata?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type EvaluationAvgOrderByAggregateInput = {
+  confidenceScore?: Prisma.SortOrder
 }
 
 export type EvaluationMaxOrderByAggregateInput = {
@@ -362,6 +526,9 @@ export type EvaluationMaxOrderByAggregateInput = {
   sessionId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  confidenceScore?: Prisma.SortOrder
+  topicDrift?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -372,9 +539,16 @@ export type EvaluationMinOrderByAggregateInput = {
   sessionId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  confidenceScore?: Prisma.SortOrder
+  topicDrift?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type EvaluationSumOrderByAggregateInput = {
+  confidenceScore?: Prisma.SortOrder
 }
 
 export type EvaluationCreateNestedManyWithoutSessionInput = {
@@ -423,10 +597,29 @@ export type EnumEvaluationTypeFieldUpdateOperationsInput = {
   set?: $Enums.EvaluationType
 }
 
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
 export type EvaluationCreateWithoutSessionInput = {
   id?: string
   type: $Enums.EvaluationType
   content: string
+  summary?: string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: number | null
+  topicDrift?: boolean | null
   provider?: string | null
   model?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -437,6 +630,13 @@ export type EvaluationUncheckedCreateWithoutSessionInput = {
   id?: string
   type: $Enums.EvaluationType
   content: string
+  summary?: string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: number | null
+  topicDrift?: boolean | null
   provider?: string | null
   model?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -477,6 +677,13 @@ export type EvaluationScalarWhereInput = {
   sessionId?: Prisma.UuidFilter<"Evaluation"> | string
   type?: Prisma.EnumEvaluationTypeFilter<"Evaluation"> | $Enums.EvaluationType
   content?: Prisma.StringFilter<"Evaluation"> | string
+  summary?: Prisma.StringNullableFilter<"Evaluation"> | string | null
+  strengths?: Prisma.JsonNullableFilter<"Evaluation">
+  weaknesses?: Prisma.JsonNullableFilter<"Evaluation">
+  missedConcepts?: Prisma.JsonNullableFilter<"Evaluation">
+  followUp?: Prisma.JsonNullableFilter<"Evaluation">
+  confidenceScore?: Prisma.FloatNullableFilter<"Evaluation"> | number | null
+  topicDrift?: Prisma.BoolNullableFilter<"Evaluation"> | boolean | null
   provider?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   model?: Prisma.StringNullableFilter<"Evaluation"> | string | null
   metadata?: Prisma.JsonNullableFilter<"Evaluation">
@@ -487,6 +694,13 @@ export type EvaluationCreateManySessionInput = {
   id?: string
   type: $Enums.EvaluationType
   content: string
+  summary?: string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: number | null
+  topicDrift?: boolean | null
   provider?: string | null
   model?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -497,6 +711,13 @@ export type EvaluationUpdateWithoutSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -507,6 +728,13 @@ export type EvaluationUncheckedUpdateWithoutSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -517,6 +745,13 @@ export type EvaluationUncheckedUpdateManyWithoutSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumEvaluationTypeFieldUpdateOperationsInput | $Enums.EvaluationType
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  strengths?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  weaknesses?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  missedConcepts?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  followUp?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  confidenceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  topicDrift?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -530,6 +765,13 @@ export type EvaluationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   sessionId?: boolean
   type?: boolean
   content?: boolean
+  summary?: boolean
+  strengths?: boolean
+  weaknesses?: boolean
+  missedConcepts?: boolean
+  followUp?: boolean
+  confidenceScore?: boolean
+  topicDrift?: boolean
   provider?: boolean
   model?: boolean
   metadata?: boolean
@@ -542,6 +784,13 @@ export type EvaluationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   sessionId?: boolean
   type?: boolean
   content?: boolean
+  summary?: boolean
+  strengths?: boolean
+  weaknesses?: boolean
+  missedConcepts?: boolean
+  followUp?: boolean
+  confidenceScore?: boolean
+  topicDrift?: boolean
   provider?: boolean
   model?: boolean
   metadata?: boolean
@@ -554,6 +803,13 @@ export type EvaluationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   sessionId?: boolean
   type?: boolean
   content?: boolean
+  summary?: boolean
+  strengths?: boolean
+  weaknesses?: boolean
+  missedConcepts?: boolean
+  followUp?: boolean
+  confidenceScore?: boolean
+  topicDrift?: boolean
   provider?: boolean
   model?: boolean
   metadata?: boolean
@@ -566,13 +822,20 @@ export type EvaluationSelectScalar = {
   sessionId?: boolean
   type?: boolean
   content?: boolean
+  summary?: boolean
+  strengths?: boolean
+  weaknesses?: boolean
+  missedConcepts?: boolean
+  followUp?: boolean
+  confidenceScore?: boolean
+  topicDrift?: boolean
   provider?: boolean
   model?: boolean
   metadata?: boolean
   createdAt?: boolean
 }
 
-export type EvaluationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sessionId" | "type" | "content" | "provider" | "model" | "metadata" | "createdAt", ExtArgs["result"]["evaluation"]>
+export type EvaluationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sessionId" | "type" | "content" | "summary" | "strengths" | "weaknesses" | "missedConcepts" | "followUp" | "confidenceScore" | "topicDrift" | "provider" | "model" | "metadata" | "createdAt", ExtArgs["result"]["evaluation"]>
 export type EvaluationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   session?: boolean | Prisma.SessionDefaultArgs<ExtArgs>
 }
@@ -593,6 +856,13 @@ export type $EvaluationPayload<ExtArgs extends runtime.Types.Extensions.Internal
     sessionId: string
     type: $Enums.EvaluationType
     content: string
+    summary: string | null
+    strengths: runtime.JsonValue | null
+    weaknesses: runtime.JsonValue | null
+    missedConcepts: runtime.JsonValue | null
+    followUp: runtime.JsonValue | null
+    confidenceScore: number | null
+    topicDrift: boolean | null
     provider: string | null
     model: string | null
     metadata: runtime.JsonValue | null
@@ -1025,6 +1295,13 @@ export interface EvaluationFieldRefs {
   readonly sessionId: Prisma.FieldRef<"Evaluation", 'String'>
   readonly type: Prisma.FieldRef<"Evaluation", 'EvaluationType'>
   readonly content: Prisma.FieldRef<"Evaluation", 'String'>
+  readonly summary: Prisma.FieldRef<"Evaluation", 'String'>
+  readonly strengths: Prisma.FieldRef<"Evaluation", 'Json'>
+  readonly weaknesses: Prisma.FieldRef<"Evaluation", 'Json'>
+  readonly missedConcepts: Prisma.FieldRef<"Evaluation", 'Json'>
+  readonly followUp: Prisma.FieldRef<"Evaluation", 'Json'>
+  readonly confidenceScore: Prisma.FieldRef<"Evaluation", 'Float'>
+  readonly topicDrift: Prisma.FieldRef<"Evaluation", 'Boolean'>
   readonly provider: Prisma.FieldRef<"Evaluation", 'String'>
   readonly model: Prisma.FieldRef<"Evaluation", 'String'>
   readonly metadata: Prisma.FieldRef<"Evaluation", 'Json'>

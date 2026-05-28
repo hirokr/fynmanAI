@@ -25,7 +25,9 @@ export const transcribeAudioBuffer = async (params: {
   const model = env.STT_MODEL || 'whisper-1';
 
   const form = new FormData();
-  const blob = new Blob([params.buffer], {
+  const audioBytes = new Uint8Array(params.buffer.length);
+  audioBytes.set(params.buffer);
+  const blob = new Blob([audioBytes.buffer as ArrayBuffer], {
     type: params.mimeType || 'audio/webm',
   });
 

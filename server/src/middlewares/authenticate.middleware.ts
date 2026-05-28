@@ -4,7 +4,7 @@ import { Response, NextFunction, Request, RequestHandler } from 'express';
 import { AuthRequest } from '#src/types/authRequest.js';
 import { getSetCache, makeUserSessionCacheKey } from '#src/utils/redis.ts';
 import { isValidSession } from '#src/services/token.service.ts';
-import { z, ZodError } from 'zod/v3';
+import { z, ZodError } from 'zod';
 import { sendApiError } from '#src/utils/api-response.ts';
 
 export const authMiddleware = async (
@@ -68,8 +68,8 @@ export const validateRequest =
       if (error instanceof ZodError) {
         sendApiError(res, {
           status: 400,
-          message: error.errors[0]?.message || 'Validation error',
-          errors: error.flatten().fieldErrors,
+          message: error.issues[0]?.message || 'Validation error',
+          errors: z.flattenError(error).fieldErrors,
         });
         return;
       }

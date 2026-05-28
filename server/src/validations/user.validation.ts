@@ -1,4 +1,4 @@
-import { z } from 'zod/v3';
+import { z } from 'zod';
 import { passwordValidation } from './auth.validation.ts';
 
 export const updateProfileSchema = z

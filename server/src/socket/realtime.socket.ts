@@ -29,6 +29,15 @@ const getTokenFromSocket = (socket: Socket): string | null => {
   return null;
 };
 
+const getOwnedSession = async (sessionId: string, userId: string) => {
+  const session = await getSessionById(sessionId);
+  if (!session || session.userId !== userId) {
+    return null;
+  }
+
+  return session;
+};
+
 export const registerRealtimeSocket = (io: Server) => {
   io.use(async (socket, next) => {
     try {
@@ -75,7 +84,10 @@ export const registerRealtimeSocket = (io: Server) => {
           return;
         }
 
-        const session = await getSessionById(payload.sessionId);
+        const session = await getOwnedSession(
+          payload.sessionId,
+          socket.data.userId
+        );
         if (!session) {
           cb?.({ ok: false, error: 'Session not found' });
           return;
@@ -116,6 +128,13 @@ export const registerRealtimeSocket = (io: Server) => {
           return;
         }
 
+        const session = await getOwnedSession(sessionId, socket.data.userId);
+        if (!session) {
+          cb?.({ ok: false, error: 'Session not found' });
+          return;
+        }
+        socket.join(sessionId);
+
         const now = Date.now();
         const windowMs = 60_000;
         const maxChunks = env.AUDIO_CHUNKS_PER_MINUTE || 60;
@@ -123,7 +142,7 @@ export const registerRealtimeSocket = (io: Server) => {
         const elapsed = now - windowStart;
         const resetWindow = elapsed >= windowMs;
 
-        if (resetWindow) {
+        if (!socket.data.audioWindowStart || resetWindow) {
           socket.data.audioWindowStart = now;
           socket.data.audioChunkCount = 0;
         }
@@ -168,22 +187,19 @@ export const registerRealtimeSocket = (io: Server) => {
           chunk,
         });
 
-        const session = await getSessionById(sessionId);
-        if (session) {
-          const evaluation = await maybeGenerateRealtimeFeedback({
-            sessionId,
-            subject: session.subject || undefined,
-            topic: session.topic || undefined,
-            resourceIds: session.resources.map(item => item.resourceId),
-            goal: session.goal || undefined,
-          });
+        const evaluation = await maybeGenerateRealtimeFeedback({
+          sessionId,
+          subject: session.subject || undefined,
+          topic: session.topic || undefined,
+          resourceIds: session.resources.map(item => item.resourceId),
+          goal: session.goal || undefined,
+        });
 
-          if (evaluation) {
-            io.to(sessionId).emit('analysis:question', {
-              sessionId,
-              evaluation,
-            });
-          }
+        if (evaluation) {
+          io.to(sessionId).emit('analysis:question', {
+            sessionId,
+            evaluation,
+          });
         }
 
         cb?.({ ok: true, chunk });

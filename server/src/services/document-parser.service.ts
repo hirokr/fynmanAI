@@ -187,7 +187,7 @@ class PythonDocumentParser implements ParserAdapter {
         };
       }
 
-      if (!parsed.success) {
+      if (parsed.success === false) {
         return {
           success: false,
           error: {
@@ -424,7 +424,7 @@ export class DocumentParserService {
       const result = await this.adapter.parse(options);
       const duration = Date.now() - start;
 
-      if (result.success) {
+      if (result.success === true) {
         logger.info('Document parsed successfully', {
           durationMs: duration,
           attempts: attempt,

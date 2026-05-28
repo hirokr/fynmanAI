@@ -58,6 +58,8 @@ export const ModelName = {
   Session: 'Session',
   TranscriptChunk: 'TranscriptChunk',
   Evaluation: 'Evaluation',
+  Embedding: 'Embedding',
+  AnalyticsEvent: 'AnalyticsEvent',
   SessionResource: 'SessionResource'
 } as const
 
@@ -125,6 +127,8 @@ export const ResourceScalarFieldEnum = {
   mimeType: 'mimeType',
   sourceUrl: 'sourceUrl',
   storageKey: 'storageKey',
+  filePath: 'filePath',
+  parsedText: 'parsedText',
   status: 'status',
   subject: 'subject',
   topic: 'topic',
@@ -184,6 +188,13 @@ export const EvaluationScalarFieldEnum = {
   sessionId: 'sessionId',
   type: 'type',
   content: 'content',
+  summary: 'summary',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  missedConcepts: 'missedConcepts',
+  followUp: 'followUp',
+  confidenceScore: 'confidenceScore',
+  topicDrift: 'topicDrift',
   provider: 'provider',
   model: 'model',
   metadata: 'metadata',
@@ -191,6 +202,31 @@ export const EvaluationScalarFieldEnum = {
 } as const
 
 export type EvaluationScalarFieldEnum = (typeof EvaluationScalarFieldEnum)[keyof typeof EvaluationScalarFieldEnum]
+
+
+export const EmbeddingScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  resourceId: 'resourceId',
+  resourceChunkId: 'resourceChunkId',
+  vector: 'vector',
+  model: 'model',
+  createdAt: 'createdAt'
+} as const
+
+export type EmbeddingScalarFieldEnum = (typeof EmbeddingScalarFieldEnum)[keyof typeof EmbeddingScalarFieldEnum]
+
+
+export const AnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sessionId: 'sessionId',
+  event: 'event',
+  payload: 'payload',
+  createdAt: 'createdAt'
+} as const
+
+export type AnalyticsEventScalarFieldEnum = (typeof AnalyticsEventScalarFieldEnum)[keyof typeof AnalyticsEventScalarFieldEnum]
 
 
 export const SessionResourceScalarFieldEnum = {
@@ -217,6 +253,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

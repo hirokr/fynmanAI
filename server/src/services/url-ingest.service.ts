@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import fetch from 'node-fetch';
+import fetch, { type Response as FetchResponse } from 'node-fetch';
 import { env } from '#config/env.ts';
 import logger from '#config/logger.ts';
 import {
@@ -78,7 +78,9 @@ const fetchWithTimeout = async (url: string) => {
   }
 };
 
-const readBufferWithLimit = async (response: Response): Promise<Buffer> => {
+const readBufferWithLimit = async (
+  response: FetchResponse
+): Promise<Buffer> => {
   const contentLength = response.headers.get('content-length');
   const maxBytes = getMaxBytes();
 
