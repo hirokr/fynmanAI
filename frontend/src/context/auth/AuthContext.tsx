@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { Session } from "@/types/auth";
+import { deleteSession } from "@/lib/auth/session";
 
 type AuthUser = Session["user"];
 
@@ -107,6 +108,8 @@ export function AuthProvider({
 	const clearSession = useCallback(() => {
 		setUser(null);
 		setError(undefined);
+		deleteSession();
+
 	}, []);
 
 	useEffect(() => {
