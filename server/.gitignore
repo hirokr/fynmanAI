@@ -6,3 +6,5 @@ node_modules
 /logs
 /prisma/migrations
 /prisma/generated
+.markitdown-src
+.venv-markitdown
