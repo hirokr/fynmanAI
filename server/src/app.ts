@@ -11,6 +11,8 @@ import passport from 'passport';
 
 import authRoutes from './routes/auth.route.ts';
 import usersRoutes from './routes/user.route.ts';
+import resourceRoutes from './routes/resource.route.ts';
+import sessionRoutes from './routes/session.route.ts';
 import { sendApiError, sendApiSuccess } from '#src/utils/api-response.ts';
 
 const app = express();
@@ -76,6 +78,8 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', usersRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 // Redis session store setup (commented out for now)
 export const redisClient = redis.createClient({

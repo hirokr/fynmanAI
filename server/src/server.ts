@@ -1,5 +1,9 @@
 import app, { redisClient } from './app.ts';
 import logger from './config/logger.ts';
+import { createServer } from 'node:http';
+import { Server as SocketServer } from 'socket.io';
+import { registerRealtimeSocket } from './socket/realtime.socket.ts';
+import { env } from './config/env.ts';
 
 const PORT = process.env.PORT || 8000;
 let isShuttingDown = false;
@@ -13,8 +17,26 @@ redisClient
     logger.error(`Failed to connect to Redis: ${String(err)}`);
   });
 
-const server = app.listen(PORT, () => {
-  console.log('start');
+const httpServer = createServer(app);
+const allowedOrigins = [
+  env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5173',
+].filter((origin): origin is string => Boolean(origin));
+
+const io = new SocketServer(httpServer, {
+  path: env.WS_PATH || '/ws',
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+registerRealtimeSocket(io);
+
+const server = httpServer.listen(PORT, () => {
+  logger.info(`API server listening on ${PORT}`);
 });
 
 const shutdown = async (signal: string) => {

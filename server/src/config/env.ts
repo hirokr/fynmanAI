@@ -98,6 +98,7 @@ const envSchema = z.object({
   VECTOR_DB_PROVIDER: optionalString,
   QDRANT_URL: optionalString,
   QDRANT_API_KEY: optionalString,
+  QDRANT_COLLECTION: optionalString,
   CHROMA_URL: optionalString,
 
   ENABLE_REALTIME_FEEDBACK: optionalBoolean,
@@ -200,6 +201,7 @@ export const {
   VECTOR_DB_PROVIDER,
   QDRANT_URL,
   QDRANT_API_KEY,
+  QDRANT_COLLECTION,
   CHROMA_URL,
   ENABLE_REALTIME_FEEDBACK,
   ENABLE_FINAL_EVALUATION,
