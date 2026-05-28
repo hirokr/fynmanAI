@@ -4,35 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import SessionAvatar from "@/app/session/active-session/_components/SessionAvatar";
 import TopNav from "@/components/landing/TopNav";
 import MobileNav from "@/components/ui/MobileNav";
-
-const userAvatarUrl =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCQe-7OaiVXkOj09UsAMciSwXYDjrUdU7fWvqOO5oa6M8sI_hijB1JltavBmVHqrzec2PyqFLKCNWC0Zjp_wOm3DgCLckZ5LUO9bc8SKs7380G4M5bU4VQBUE5zgMFwgdHhyRJSbeEnBAHA-EUq3kYX5Hm3LqJdrt1OSvcMNd0ZmptaI6cz2MCnfVFrJhmjXyXGxNz0_WVN_8Py5tX4PxJYX34POiGc9pC9W-aKSSNTcuKQBFzhlk2lhGZ81eVT4gRBXoMB5Olo1dCE";
-
-const resourceItems = [
-  {
-    icon: "description",
-    label: "Macroeconomics_Intro_v1.pdf",
-  },
-  {
-    icon: "sticky_note_2",
-    label: "Personal_Draft_Notes.txt",
-  },
-  {
-    icon: "description",
-    label: "Quantum_Computing_Theories.pdf",
-  },
-  {
-    icon: "link",
-    label: "MIT_Lecture_Series_Reference",
-  },
-  {
-    icon: "description",
-    label: "Advanced_Statistics_Module.pdf",
-  },
-];
+import UploadModal from "@/app/session/new-session/_components/UploadModal";
+import ResourceViewer from "@/app/session/_components/ResourceViewer";
+import { useSessionResources } from "./SessionResourcesContext";
 
 const depthModes = [
   { label: "Casual", active: false },
@@ -57,6 +33,22 @@ export default function SessionShellClient({
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [isArtcraftOpen, setIsArtcraftOpen] = useState(false);
   const [currentColor, setCurrentColor] = useState(colorOptions[0]);
+
+  // 🔥 Shared resources from context (same state as NewSessionCenter)
+  const { resources, addFiles, removeFile } = useSessionResources();
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewingFile, setViewingFile] = useState<File | null>(null);
+
+  const handleFilesUploaded = addFiles;
+
+  const getIcon = (name: string) => {
+    if (name.endsWith(".pdf")) return "picture_as_pdf";
+    if (name.endsWith(".md")) return "article";
+    if (name.endsWith(".json")) return "data_object";
+    if (name.match(/\.(png|jpg|jpeg|gif|webp)$/)) return "image";
+    if (name.endsWith(".txt")) return "sticky_note_2";
+    return "draft";
+  };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawing = useRef(false);
@@ -123,23 +115,53 @@ export default function SessionShellClient({
           folder_open
         </span>
       </div>
+
       <div className="space-y-1 custom-scrollbar-transparent overflow-y-auto flex-1">
-        {resourceItems.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center gap-2 py-1 px-2 hover:bg-surface-container-high transition-all cursor-pointer rounded-lg border-b border-on-secondary-container/5 group"
-          >
-            <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">
-              {item.icon}
+        {resources.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-12 opacity-40">
+            <span className="material-symbols-outlined text-on-surface-variant text-3xl">
+              folder_open
             </span>
-            <span className="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface truncate">
-              {item.label}
-            </span>
+            <p className="font-body-md text-body-md text-on-surface-variant text-center text-sm">
+              No resources yet.
+              <br />
+              Upload files to get started.
+            </p>
           </div>
-        ))}
+        ) : (
+          resources.map((item) => (
+            <div
+              key={item.name}
+              onClick={() => setViewingFile(item)}
+              className="flex items-center gap-2 py-1 px-2 hover:bg-surface-container-high transition-all cursor-pointer rounded-lg border-b border-on-secondary-container/5 group"
+            >
+              <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-primary transition-colors">
+                {getIcon(item.name)}
+              </span>
+              <span className="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface truncate flex-1">
+                {item.name}
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFile(item.name);
+                }}
+                className="opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity"
+              >
+                <span className="material-symbols-outlined text-[14px] text-on-surface-variant">
+                  close
+                </span>
+              </button>
+            </div>
+          ))
+        )}
       </div>
+
       <div className="mt-8 pt-4 border-t border-outline-variant">
-        <button className="flex items-center justify-center gap-1 w-full py-2 bg-secondary-container text-on-secondary-container rounded-xl font-label-md text-label-md hover:bg-surface-container-high transition-all active:scale-95">
+        <button
+          onClick={() => setUploadOpen(true)}
+          className="flex items-center justify-center gap-1 w-full py-2 bg-secondary-container text-on-secondary-container rounded-xl font-label-md text-label-md hover:bg-surface-container-high transition-all active:scale-95"
+        >
           <span className="material-symbols-outlined text-sm">add</span>
           Upload Context
         </button>
@@ -327,18 +349,20 @@ export default function SessionShellClient({
           {rightSidebarContent}
         </aside>
       </div>
-<MobileNav
-  leftItems={[
-    { icon: "folder_open", label: "Resources", onPress: openLeftSidebar },
-    { icon: "keyboard", label: "Type", href: "#" },
-  ]}
-  centerButton={{ icon: "mic", href: "/session/active-session" }}
-  rightItems={[
-    { icon: "stop_circle", label: "Stop", href: "/session/new-session" },
-    { icon: "tune", label: "Settings", onPress: openRightSidebar },
-  ]}
-/>
 
+      <MobileNav
+        leftItems={[
+          { icon: "folder_open", label: "Resources", onPress: openLeftSidebar },
+          { icon: "keyboard", label: "Type", href: "#" },
+        ]}
+        centerButton={{ icon: "mic", href: "/session/active-session" }}
+        rightItems={[
+          { icon: "stop_circle", label: "Stop", href: "/session/new-session" },
+          { icon: "tune", label: "Settings", onPress: openRightSidebar },
+        ]}
+      />
+
+      {/* Mobile sidebars */}
       <div
         className={`fixed inset-0 z-50 md:hidden transition-opacity ${
           isLeftSidebarOpen || isRightSidebarOpen
@@ -372,6 +396,7 @@ export default function SessionShellClient({
         </aside>
       </div>
 
+      {/* Artcraft sketchpad */}
       {isArtcraftOpen && (
         <div
           className="fixed inset-0 z-60 flex items-center justify-center p-8 bg-background/80 backdrop-blur-sm"
@@ -433,9 +458,7 @@ export default function SessionShellClient({
                       onClick={() => {
                         setCurrentColor(color);
                         const ctx = canvasRef.current?.getContext("2d");
-                        if (ctx) {
-                          ctx.strokeStyle = color;
-                        }
+                        if (ctx) ctx.strokeStyle = color;
                       }}
                     />
                   ))}
@@ -448,6 +471,17 @@ export default function SessionShellClient({
           </div>
         </div>
       )}
+
+      <UploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onUpload={handleFilesUploaded}
+      />
+      {/* Resource viewer — full screen overlay */}
+      <ResourceViewer
+        file={viewingFile}
+        onClose={() => setViewingFile(null)}
+      />
     </div>
   );
 }
