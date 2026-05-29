@@ -38,6 +38,18 @@ const getOwnedSession = async (sessionId: string, userId: string) => {
   return session;
 };
 
+const registerSocketEventAliases = (
+  socket: Socket,
+  aliases: string[],
+  handler: (payload: any, cb?: (response: unknown) => void) => Promise<void>
+) => {
+  aliases.forEach(eventName => {
+    socket.on(eventName, (payload, cb) => {
+      void handler(payload, cb);
+    });
+  });
+};
+
 export const registerRealtimeSocket = (io: Server) => {
   io.use(async (socket, next) => {
     try {
@@ -60,7 +72,7 @@ export const registerRealtimeSocket = (io: Server) => {
   });
 
   io.on('connection', socket => {
-    socket.on('session:start', async (payload, cb) => {
+    const handleSessionStart = async (payload: any, cb?: any) => {
       try {
         const session = await createSession({
           userId: socket.data.userId,
@@ -75,9 +87,9 @@ export const registerRealtimeSocket = (io: Server) => {
       } catch (error) {
         cb?.({ ok: false, error: 'Failed to start session' });
       }
-    });
+    };
 
-    socket.on('session:end', async (payload, cb) => {
+    const handleSessionEnd = async (payload: any, cb?: any) => {
       try {
         if (!payload?.sessionId) {
           cb?.({ ok: false, error: 'sessionId is required' });
@@ -117,12 +129,12 @@ export const registerRealtimeSocket = (io: Server) => {
       } catch (error) {
         cb?.({ ok: false, error: 'Failed to end session' });
       }
-    });
+    };
 
-    socket.on('audio:chunk', async (payload, cb) => {
+    const handleAudioChunk = async (payload: any, cb?: any) => {
       try {
         const sessionId = payload?.sessionId;
-        const audioBase64 = payload?.audioBase64;
+        const audioBase64 = payload?.audioBase64 || payload?.audio_chunk;
         if (!sessionId || !audioBase64) {
           cb?.({ ok: false, error: 'sessionId and audioBase64 are required' });
           return;
@@ -207,6 +219,22 @@ export const registerRealtimeSocket = (io: Server) => {
         logger.error(`Realtime audio chunk failed: ${String(error)}`);
         cb?.({ ok: false, error: 'Failed to process audio chunk' });
       }
-    });
+    };
+
+    registerSocketEventAliases(
+      socket,
+      ['session:start', 'session_start'],
+      handleSessionStart
+    );
+    registerSocketEventAliases(
+      socket,
+      ['session:end', 'session_end'],
+      handleSessionEnd
+    );
+    registerSocketEventAliases(
+      socket,
+      ['audio:chunk', 'audio_chunk'],
+      handleAudioChunk
+    );
   });
 };

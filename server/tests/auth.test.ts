@@ -15,6 +15,9 @@ const mockHashTokenCrypto = jest.fn<any>();
 const mockSaveToCookie = jest.fn<any>();
 const mockClearTokens = jest.fn<any>();
 const mockCreateRandomToken = jest.fn<any>();
+const mockSendVerificationEmail = jest.fn<any>();
+const mockSendWelcomeEmail = jest.fn<any>();
+const mockSendPasswordResetEmail = jest.fn<any>();
 
 const mockSaveRefreshToken = jest.fn<any>();
 const mockFindRefreshToken = jest.fn<any>();
@@ -53,6 +56,12 @@ jest.unstable_mockModule('#src/utils/jwt/tokens.ts', () => ({
   saveToCookie: mockSaveToCookie,
   clearTokens: mockClearTokens,
   createRandomToken: mockCreateRandomToken,
+}));
+
+jest.unstable_mockModule('#src/utils/mail/sendMail.ts', () => ({
+  sendVerificationEmail: mockSendVerificationEmail,
+  sendWelcomeEmail: mockSendWelcomeEmail,
+  sendPasswordResetEmail: mockSendPasswordResetEmail,
 }));
 
 jest.unstable_mockModule('#src/services/token.service.ts', () => ({
@@ -99,6 +108,9 @@ describe('Auth routes', () => {
     mockGetSetCache.mockImplementation(async (_key: string, cb: any) => {
       return cb ? await cb() : null;
     });
+    mockSendVerificationEmail.mockResolvedValue(undefined);
+    mockSendWelcomeEmail.mockResolvedValue(undefined);
+    mockSendPasswordResetEmail.mockResolvedValue(undefined);
   });
 
   describe('POST /auth/signup', () => {

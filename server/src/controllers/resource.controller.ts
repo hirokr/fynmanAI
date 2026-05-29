@@ -68,6 +68,24 @@ export const createResourceHandler = async (
       });
     }
 
+    if (sourceType === 'URL' && sourceUrl) {
+      const { urlIngestQueue } =
+        await import('#src/queues/url-ingest.queue.ts');
+      const job = await urlIngestQueue.add(
+        {
+          resourceId: resource.id,
+          sourceUrl,
+        },
+        `url-ingest:${resource.id}`
+      );
+
+      return sendApiSuccess(res, {
+        status: 202,
+        message: 'Resource created. URL ingestion queued.',
+        data: { resource, jobId: job.id },
+      });
+    }
+
     return sendApiSuccess(res, {
       status: 202,
       message: 'Resource created. Ingestion pending.',

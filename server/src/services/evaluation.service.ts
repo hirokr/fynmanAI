@@ -10,7 +10,10 @@ import {
 } from '#src/services/transcript-cache.service.ts';
 import { env } from '#config/env.ts';
 import { getSessionTranscriptText } from '#src/services/session.service.ts';
-import { trackAnalyticsEvent } from '#src/services/analytics.service.ts';
+import {
+  analyzeTranscriptQuality,
+  trackAnalyticsEvent,
+} from '#src/services/analytics.service.ts';
 import { appendSessionEvent } from '#src/services/session-cache.service.ts';
 
 type FinalEvaluationPayload = {
@@ -209,6 +212,12 @@ export const generateRealtimeFeedback = async (params: {
     }),
     { purpose: 'realtime', temperature: 0.4 }
   );
+  const transcriptAnalytics = analyzeTranscriptQuality({
+    transcript,
+    context,
+    subject: params.subject,
+    topic: params.topic,
+  });
 
   const evaluation = await prisma.evaluation.create({
     data: {
@@ -219,6 +228,7 @@ export const generateRealtimeFeedback = async (params: {
       model: completion.model,
       metadata: {
         contextCount: context.length,
+        analytics: transcriptAnalytics,
       },
     },
   });
@@ -229,6 +239,7 @@ export const generateRealtimeFeedback = async (params: {
     payload: {
       evaluationId: evaluation.id,
       contextCount: context.length,
+      analytics: transcriptAnalytics,
     },
   });
 
@@ -238,6 +249,7 @@ export const generateRealtimeFeedback = async (params: {
     payload: {
       evaluationId: evaluation.id,
       contextCount: context.length,
+      analytics: transcriptAnalytics,
     },
   });
 
@@ -284,6 +296,21 @@ export const generateFinalEvaluation = async (params: {
   );
 
   const parsed = parseFinalEvaluation(completion.content);
+  const transcriptAnalytics = analyzeTranscriptQuality({
+    transcript,
+    context,
+    subject: params.subject,
+    topic: params.topic,
+  });
+  const confidenceScore =
+    parsed?.confidence_score ??
+    Math.round(
+      transcriptAnalytics.conceptCoverage * 0.4 +
+        transcriptAnalytics.explanationDepth * 0.3 +
+        transcriptAnalytics.semanticConsistency * 0.2 +
+        transcriptAnalytics.speakingConfidence * 0.1
+    );
+  const topicDrift = parsed?.topic_drift ?? transcriptAnalytics.topicDrift;
 
   const evaluation = await prisma.evaluation.create({
     data: {
@@ -295,13 +322,14 @@ export const generateFinalEvaluation = async (params: {
       weaknesses: parsed?.weaknesses || undefined,
       missedConcepts: parsed?.missed_concepts || undefined,
       followUp: parsed?.follow_up || undefined,
-      confidenceScore: parsed?.confidence_score ?? null,
-      topicDrift: parsed?.topic_drift ?? null,
+      confidenceScore,
+      topicDrift,
       provider: completion.provider,
       model: completion.model,
       metadata: {
         contextCount: context.length,
         parsed: Boolean(parsed),
+        analytics: transcriptAnalytics,
       },
     },
   });
@@ -311,7 +339,8 @@ export const generateFinalEvaluation = async (params: {
     timestamp: new Date().toISOString(),
     payload: {
       evaluationId: evaluation.id,
-      confidenceScore: parsed?.confidence_score ?? null,
+      confidenceScore,
+      analytics: transcriptAnalytics,
     },
   });
 
@@ -320,8 +349,9 @@ export const generateFinalEvaluation = async (params: {
     sessionId: params.sessionId,
     payload: {
       evaluationId: evaluation.id,
-      confidenceScore: parsed?.confidence_score ?? null,
-      topicDrift: parsed?.topic_drift ?? null,
+      confidenceScore,
+      topicDrift,
+      analytics: transcriptAnalytics,
     },
   });
 
