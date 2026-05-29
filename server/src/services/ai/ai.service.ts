@@ -39,6 +39,13 @@ const PROVIDER_CAPABILITIES: Record<ProviderId, ProviderCapabilities> = {
   openai: { chat: true, embeddings: true },
 };
 
+const DEFAULT_CHAT_MAX_TOKENS: Record<ChatPurpose, number> = {
+  realtime: 700,
+  final: 1800,
+  helper: 1000,
+  default: 1200,
+};
+
 const normalizeBaseUrl = (value: string): string =>
   value.trim().replace(/\/+$/, '');
 
@@ -249,6 +256,17 @@ const resolveChatModel = (
   return primaryModel;
 };
 
+const resolveChatMaxTokens = (
+  purpose: ChatPurpose | undefined,
+  override: number | undefined
+): number => {
+  if (override && Number.isFinite(override) && override > 0) {
+    return Math.floor(override);
+  }
+
+  return DEFAULT_CHAT_MAX_TOKENS[purpose || 'default'];
+};
+
 export const generateChatCompletion = async (
   messages: ChatMessage[],
   options: ChatCompletionOptions = {}
@@ -279,7 +297,7 @@ export const generateChatCompletion = async (
         model,
         messages,
         temperature: options.temperature,
-        max_tokens: options.maxTokens,
+        max_tokens: resolveChatMaxTokens(options.purpose, options.maxTokens),
       };
 
       const data = await requestOpenAiCompatible<{
