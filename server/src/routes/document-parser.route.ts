@@ -1,9 +1,16 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import {
+  Router,
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+} from 'express';
 import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { env } from '#config/env.ts';
+import { AuthRequest } from '#src/types/authRequest.js';
 import { sendApiError } from '#src/utils/api-response.ts';
 import { resolveTempDir } from '#src/utils/file-system.ts';
 import { isSupportedFile } from '#src/services/document-parser.constants.ts';
@@ -15,6 +22,14 @@ import {
 } from '#src/controllers/document-parser.controller.ts';
 
 const router = Router();
+
+const asRequestHandler =
+  (
+    handler: (req: AuthRequest, res: Response) => Promise<unknown>
+  ): RequestHandler =>
+  (req, res, next) => {
+    void handler(req as AuthRequest, res).catch(next);
+  };
 
 const tempDir = resolveTempDir(
   env.UPLOAD_DIR ? path.join(env.UPLOAD_DIR, 'temp') : undefined
@@ -71,15 +86,15 @@ const uploadSingle = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-router.get('/health', parserHealthHandler);
+router.get('/health', asRequestHandler(parserHealthHandler));
 
-router.use(authMiddleware);
+router.use(authMiddleware as RequestHandler);
 
 router.post(
   '/parse',
   uploadSingle,
   cleanupTempFiles,
-  parseDocumentUploadHandler
+  asRequestHandler(parseDocumentUploadHandler)
 );
 
 export default router;

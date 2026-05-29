@@ -275,9 +275,9 @@
     "semantic_hash": "1f9b21f8dbd8b3762b9cfe40febe7679"
   },
   "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/session.route.ts": {
-    "mtime": 1779967145.4423485,
-    "ast_hash": "981471b20574e273565beeb46340586c",
-    "semantic_hash": "981471b20574e273565beeb46340586c"
+    "mtime": 1780070109.5773947,
+    "ast_hash": "50e58d4b6086cbd5ca95ed215976c87c",
+    "semantic_hash": ""
   },
   "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/auth.route.ts": {
     "mtime": 1776894993.0374193,
@@ -285,9 +285,9 @@
     "semantic_hash": "b5f0597549811998ceaa5dbccb5961e8"
   },
   "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/resource.route.ts": {
-    "mtime": 1779967145.4393485,
-    "ast_hash": "5f701de2401cb1e4492800d04cf0e220",
-    "semantic_hash": "5f701de2401cb1e4492800d04cf0e220"
+    "mtime": 1780070109.5773947,
+    "ast_hash": "cf44d0836b3afae154820c220ad3f845",
+    "semantic_hash": ""
   },
   "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/user.route.ts": {
     "mtime": 1779519675.461108,
@@ -295,9 +295,9 @@
     "semantic_hash": "503e642db733b1ab4612b32a0d91c5e5"
   },
   "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/document-parser.route.ts": {
-    "mtime": 1779977471.181469,
-    "ast_hash": "6e7d4ae5e526358368f2c3238a911fb1",
-    "semantic_hash": "6e7d4ae5e526358368f2c3238a911fb1"
+    "mtime": 1780073638.0521255,
+    "ast_hash": "9e7cdcadca3f7063fe911e58753a599c",
+    "semantic_hash": ""
   },
   "/media/hirokr/develop/Hackathons/fynmanAI/server/src/middlewares/cleanup.middleware.ts": {
     "mtime": 1779976938.361794,
@@ -368,5 +368,15 @@
     "mtime": 1779520151.5737574,
     "ast_hash": "28c00fe1846d5d47bf3793d31b49e9c0",
     "semantic_hash": "28c00fe1846d5d47bf3793d31b49e9c0"
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/analytics.route.ts": {
+    "mtime": 1780070109.575884,
+    "ast_hash": "5a5e521180e64ec8c9877da8c3a2bb91",
+    "semantic_hash": ""
+  },
+  "/media/hirokr/develop/Hackathons/fynmanAI/server/src/routes/health.route.ts": {
+    "mtime": 1780070109.575884,
+    "ast_hash": "aa59bbf226883c6cebfee8c39b5fa7ed",
+    "semantic_hash": ""
   }
 }
