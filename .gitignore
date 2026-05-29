@@ -24,6 +24,7 @@ coverage
  
 
 /.markitdown-src
+/.venv-markitdown
 
 
 # Turbo

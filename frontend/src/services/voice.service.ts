@@ -1,19 +1,17 @@
-export const startSession = (socket: any) => {
-  return new Promise<any>((resolve, reject) => {
-    socket.emit(
-      "session:start",
-      {
-        subject: "AI",
-        topic: "voice practice",
-        goal: "improve speaking",
-      },
-      (res: any) => {
-        if (res.ok) resolve(res.session);
-        else reject(res.error);
-      }
-    );
-  });
+type SessionStartPayload = {
+  subject?: string;
+  topic?: string;
+  goal?: string;
+  resourceIds?: string[];
 };
+
+export const startSession = (socket: any, payload: SessionStartPayload = {}) =>
+  new Promise<any>((resolve, reject) => {
+    socket.emit("session:start", payload, (res: any) => {
+      if (res.ok) resolve(res.session);
+      else reject(res.error);
+    });
+  });
 
 export const blobToBase64 = (blob: Blob) =>
   new Promise<string>((resolve) => {

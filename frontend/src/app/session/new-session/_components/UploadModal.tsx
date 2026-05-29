@@ -22,17 +22,20 @@ export default function UploadModal({
 }: Props) {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const effectiveUploading = uploading || uploadLoading;
+  const effectiveError = localError ?? uploadError ?? null;
 
   if (!open || typeof document === "undefined") return null;
 
   const resetModal = () => {
     setFiles([]);
-    setUploadError(null);
+    setLocalError(null);
   };
 
   const handleClose = () => {
-    if (uploading) return;
+    if (effectiveUploading) return;
 
     resetModal();
     onClose();
@@ -40,7 +43,7 @@ export default function UploadModal({
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []);
-    setUploadError(null);
+    setLocalError(null);
     setFiles((prev) => {
       const existingNames = new Set(prev.map((f) => f.name));
       return [...prev, ...selected.filter((f) => !existingNames.has(f.name))];
@@ -51,7 +54,7 @@ export default function UploadModal({
     e.preventDefault();
     setIsDragging(false);
     const dropped = Array.from(e.dataTransfer.files);
-    setUploadError(null);
+    setLocalError(null);
     setFiles((prev) => {
       const existingNames = new Set(prev.map((f) => f.name));
       return [...prev, ...dropped.filter((f) => !existingNames.has(f.name))];
@@ -59,7 +62,7 @@ export default function UploadModal({
   };
 
   const removeFile = (name: string) => {
-    setUploadError(null);
+    setLocalError(null);
     setFiles((prev) => prev.filter((f) => f.name !== name));
   };
 
@@ -92,7 +95,7 @@ export default function UploadModal({
     if (files.length === 0 || uploading) return;
 
     setUploading(true);
-    setUploadError(null);
+    setLocalError(null);
 
     try {
       for (const file of files) {
@@ -103,7 +106,7 @@ export default function UploadModal({
       resetModal();
       onClose();
     } catch (error) {
-      setUploadError(
+      setLocalError(
         error instanceof Error ? error.message : "Failed to upload documents"
       );
     } finally {
@@ -142,7 +145,7 @@ export default function UploadModal({
           <h2 className="text-white text-lg font-bold">Upload Resources</h2>
           <button
             onClick={handleClose}
-            disabled={uploading}
+            disabled={effectiveUploading}
             className="text-[#c7c4d7] hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
@@ -177,7 +180,7 @@ export default function UploadModal({
                 onChange={handleFiles}
                 className="hidden"
                 accept=".pdf,.docx,.pptx,.md,.markdown,.txt,.png,.jpg,.jpeg"
-                disabled={uploading}
+                disabled={effectiveUploading}
               />
             </label>
           </p>
@@ -208,7 +211,7 @@ export default function UploadModal({
                 </div>
                 <button
                   onClick={() => removeFile(f.name)}
-                  disabled={uploading}
+                  disabled={effectiveUploading}
                   className="text-[#c7c4d7] opacity-50 hover:opacity-100 transition-opacity"
                 >
                   <span className="material-symbols-outlined text-[16px]">
@@ -220,9 +223,9 @@ export default function UploadModal({
           </div>
         )}
 
-        {uploadError && (
+        {effectiveError && (
           <p className="rounded-lg px-3 py-2 text-sm text-[#ffb4b4] bg-[#3a1f2a]">
-            {uploadError}
+            {effectiveError}
           </p>
         )}
 
@@ -230,36 +233,35 @@ export default function UploadModal({
         <div className="flex justify-end gap-3 pt-1">
           <button
             onClick={handleClose}
-            disabled={uploading}
+            disabled={effectiveUploading}
             className="px-4 py-2 text-[#c7c4d7] hover:text-white transition-colors text-sm disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleUpload}
-            disabled={files.length === 0 || uploading}
+            disabled={files.length === 0 || effectiveUploading}
             className="px-5 py-2 rounded-lg text-sm font-medium transition-all"
             style={{
               background:
-                files.length === 0 || uploading
+                files.length === 0 || effectiveUploading
                   ? "rgba(128,131,255,0.3)"
                   : "#8083ff",
               color:
-                files.length === 0 || uploading
+                files.length === 0 || effectiveUploading
                   ? "rgba(255,255,255,0.4)"
                   : "#000",
-              cursor: files.length === 0 || uploading ? "not-allowed" : "pointer",
+              cursor:
+                files.length === 0 || effectiveUploading
+                  ? "not-allowed"
+                  : "pointer",
             }}
           >
-            {uploading
+            {effectiveUploading
               ? "Uploading..."
               : `Upload ${files.length > 0 ? `(${files.length})` : ""}`}
           </button>
         </div>
-
-        {uploadError && (
-          <p className="text-sm text-error text-right">{uploadError}</p>
-        )}
         {uploadSuccess && !uploadLoading && (
           <p className="text-sm text-[#c7c4d7] text-right">
             Upload complete.
