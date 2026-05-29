@@ -155,8 +155,14 @@ export const registerRealtimeSocket = (io: Server) => {
           return;
         }
 
+        const maxAudioBytes = (env.MAX_AUDIO_CHUNK_MB || 1) * 1024 * 1024;
+        const estimatedBytes = Math.ceil((audioBase64.length * 3) / 4);
+        if (estimatedBytes > maxAudioBytes) {
+          cb?.({ ok: false, error: 'Audio chunk exceeds size limit' });
+          return;
+        }
+
         const buffer = Buffer.from(audioBase64, 'base64');
-        const maxAudioBytes = (env.MAX_FILE_SIZE_MB || 25) * 1024 * 1024;
         if (buffer.byteLength > maxAudioBytes) {
           cb?.({ ok: false, error: 'Audio chunk exceeds size limit' });
           return;

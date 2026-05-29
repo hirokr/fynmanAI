@@ -52,9 +52,9 @@ jest.unstable_mockModule('#src/utils/jwt/tokens.ts', () => ({
 }));
 
 jest.unstable_mockModule('#src/utils/redis.ts', () => ({
-  getSetCache: jest.fn<any>().mockImplementation(async (_: any, cb: any) =>
-    cb ? cb() : null,
-  ),
+  getSetCache: jest
+    .fn<any>()
+    .mockImplementation(async (_: any, cb: any) => (cb ? cb() : null)),
   setCache: jest.fn(),
   invalidateCache: jest.fn(),
   deleteUserCache: jest.fn(),
@@ -83,10 +83,13 @@ jest.unstable_mockModule('#src/services/evaluation.service.ts', () => ({
   generateFinalEvaluation: jest.fn(),
 }));
 
-jest.unstable_mockModule('#src/services/transcript-preprocess.service.ts', () => ({
-  preprocessTranscriptText: jest.fn<any>().mockImplementation((t: any) => t),
-  preprocessTranscript: jest.fn(),
-}));
+jest.unstable_mockModule(
+  '#src/services/transcript-preprocess.service.ts',
+  () => ({
+    preprocessTranscriptText: jest.fn<any>().mockImplementation((t: any) => t),
+    preprocessTranscript: jest.fn(),
+  })
+);
 
 jest.unstable_mockModule('#src/config/google.config.ts', () => ({}));
 
@@ -251,7 +254,7 @@ describe('POST /sessions/:sessionId/end', () => {
     });
     expect(mockEndSession).toHaveBeenCalledWith(SESSION_ID);
     expect(mockEnsureFinalEvaluation).toHaveBeenCalledWith(
-      expect.objectContaining({ sessionId: SESSION_ID }),
+      expect.objectContaining({ sessionId: SESSION_ID })
     );
   });
 });
@@ -267,7 +270,7 @@ describe('POST /sessions', () => {
 
   it('returns 400 for unsupported subject', async () => {
     mockCreateSession.mockRejectedValue(
-      new Error('Unsupported subject: biology. Allowed subjects: math, physics'),
+      new Error('Unsupported subject: biology. Allowed subjects: math, physics')
     );
 
     const res = await request(app)
@@ -285,7 +288,11 @@ describe('POST /sessions', () => {
     const res = await request(app)
       .post(`${base}`)
       .set('Authorization', BEARER)
-      .send({ subject: 'physics', topic: 'Newton laws', goal: 'Understand laws' });
+      .send({
+        subject: 'physics',
+        topic: 'Newton laws',
+        goal: 'Understand laws',
+      });
 
     expect(res.status).toBe(201);
     expect(res.body.data.session).toMatchObject({ id: SESSION_ID });
@@ -294,7 +301,7 @@ describe('POST /sessions', () => {
         userId: USER_ID,
         subject: 'physics',
         topic: 'Newton laws',
-      }),
+      })
     );
   });
 });

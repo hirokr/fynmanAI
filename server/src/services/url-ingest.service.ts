@@ -38,13 +38,23 @@ const PRIVATE_IP_PATTERNS = [
   /^172\.(1[6-9]|2[0-9]|3[01])\./,
   /^192\.168\./,
   /^169\.254\./,
+  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,
   /^::1$/,
+  /^::$/,
+  /^fe80:/i,
   /^fc[0-9a-f]{2}:/i,
   /^fd[0-9a-f]{2}:/i,
 ];
 
+const normalizeAddress = (address: string): string[] => {
+  const ipv4Mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/i.exec(address);
+  return ipv4Mapped ? [address, ipv4Mapped[1]] : [address];
+};
+
 const isPrivateAddress = (address: string): boolean =>
-  PRIVATE_IP_PATTERNS.some(re => re.test(address));
+  normalizeAddress(address).some(a =>
+    PRIVATE_IP_PATTERNS.some(re => re.test(a))
+  );
 
 const validateUrlSafety = async (urlString: string): Promise<void> => {
   let parsed: URL;
@@ -110,22 +120,46 @@ const getFileNameFromUrl = (sourceUrl: string): string => {
 const getMaxBytes = (): number =>
   Math.max(1, env.URL_MAX_FILE_SIZE_MB || DEFAULT_MAX_URL_MB) * 1024 * 1024;
 
-const fetchWithTimeout = async (url: string) => {
-  const controller = new AbortController();
-  const timeoutMs = env.URL_FETCH_TIMEOUT_MS || DEFAULT_TIMEOUT_MS;
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+const MAX_REDIRECTS = 5;
 
-  try {
-    return await fetch(url, {
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: {
-        'User-Agent': 'FeynmanAI/1.0 (+https://example.com)',
-      },
-    });
-  } finally {
-    clearTimeout(timeoutId);
+const fetchWithTimeout = async (url: string): Promise<FetchResponse> => {
+  let currentUrl = url;
+
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const controller = new AbortController();
+    const timeoutMs = env.URL_FETCH_TIMEOUT_MS || DEFAULT_TIMEOUT_MS;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response: FetchResponse;
+    try {
+      response = await fetch(currentUrl, {
+        signal: controller.signal,
+        redirect: 'manual',
+        headers: { 'User-Agent': 'FeynmanAI/1.0 (+https://example.com)' },
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (response.status < 300 || response.status >= 400) {
+      return response;
+    }
+
+    const location = response.headers.get('location');
+    if (!location) {
+      return response;
+    }
+
+    try {
+      currentUrl = new URL(location, currentUrl).toString();
+    } catch {
+      throw new Error('Invalid redirect location');
+    }
+
+    await validateUrlSafety(currentUrl);
   }
+
+  throw new Error('Too many redirects');
 };
 
 const readBufferWithLimit = async (
