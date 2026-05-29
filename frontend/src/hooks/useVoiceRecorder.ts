@@ -88,6 +88,7 @@ export const useVoiceRecorder = (onLevel?: (level: number) => void) => {
           mimeType: "audio/webm",
           startTimeMs: 0,
           endTimeMs: durationMs,
+          endMessage: "user:end",
         });
       }
 

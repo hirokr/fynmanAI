@@ -28,6 +28,7 @@ type AudioChunkOptions = {
   mimeType?: string;
   startTimeMs?: number;
   endTimeMs?: number;
+  endMessage?: string;
 };
 
 export const sendAudioChunk = async (
@@ -45,6 +46,7 @@ export const sendAudioChunk = async (
     mimeType: options.mimeType || blob.type || "audio/webm",
     startTimeMs: options.startTimeMs,
     endTimeMs: options.endTimeMs,
+    endMessage: options.endMessage,
   });
 };
 

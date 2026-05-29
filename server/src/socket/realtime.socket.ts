@@ -45,6 +45,8 @@ export const registerRealtimeSocket = (io: Server) => {
       return next(new Error('Unauthorized'));
     }
   });
+   
+  
 
   io.on('connection', socket => {
     socket.on('session:start', async (payload, cb) => {
@@ -56,7 +58,6 @@ export const registerRealtimeSocket = (io: Server) => {
           goal: payload?.goal,
           resourceIds: payload?.resourceIds,
         });
-
         socket.join(session.id);
         cb?.({ ok: true, session });
       } catch (error) {
@@ -82,6 +83,8 @@ export const registerRealtimeSocket = (io: Server) => {
       try {
         const sessionId = payload?.sessionId;
         const audioBase64 = payload?.audioBase64;
+        const endMes = payload?.endMessage;
+        console.log("Received audio chunk for session", sessionId, "with endMessage:", endMes);
         if (!sessionId || !audioBase64) {
           cb?.({ ok: false, error: 'sessionId and audioBase64 are required' });
           return;

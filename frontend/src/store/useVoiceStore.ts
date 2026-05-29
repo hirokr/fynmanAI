@@ -8,6 +8,9 @@ type State = {
   sessionReady: boolean;
   transcripts: string[];
   aiFeedback: string | null;
+  resourceIds: string[];
+  subject: string;
+  topic: string;
 
   setSocket: (s: Socket) => void;
   setSessionId: (id: string) => void;
@@ -15,6 +18,10 @@ type State = {
   setConnected: (v: boolean) => void;
   setSessionReady: (v: boolean) => void;
   setAiFeedback: (text: string) => void;
+  addResourceId: (id: string) => void;
+  setResourceIds: (ids: string[]) => void;
+  setSubject: (value: string) => void;
+  setTopic: (value: string) => void;
 };
 
 export const useVoiceStore = create<State>((set) => ({
@@ -24,6 +31,9 @@ export const useVoiceStore = create<State>((set) => ({
   sessionReady: false,
   transcripts: [],
   aiFeedback: null,
+  resourceIds: [],
+  subject: "",
+  topic: "",
 
   setSocket: (socket) => set({ socket }),
   setSessionId: (sessionId) => set({ sessionId }),
@@ -34,4 +44,13 @@ export const useVoiceStore = create<State>((set) => ({
   setConnected: (connected) => set({ connected }),
   setSessionReady: (sessionReady) => set({ sessionReady }),
   setAiFeedback: (aiFeedback) => set({ aiFeedback }),
+  addResourceId: (id) =>
+    set((state) =>
+      state.resourceIds.includes(id)
+        ? state
+        : { resourceIds: [...state.resourceIds, id] }
+    ),
+  setResourceIds: (resourceIds) => set({ resourceIds }),
+  setSubject: (subject) => set({ subject }),
+  setTopic: (topic) => set({ topic }),
 }));

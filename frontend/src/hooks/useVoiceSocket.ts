@@ -11,13 +11,20 @@ export const useVoiceSocket = (token: string) => {
     setSessionReady,
     setAiFeedback,
     socket: existingSocket,
+    resourceIds,
+    subject,
+    topic,
   } = useVoiceStore();
 
   const startSessionFlow = async (socket: any) => {
     setSessionReady(false);
 
     try {
-      const session = await startSession(socket);
+      const session = await startSession(socket, {
+        resourceIds: resourceIds.length ? resourceIds : undefined,
+        subject: subject.trim() || undefined,
+        topic: topic.trim() || undefined,
+      });
 
       setSessionId(session.id);
       setSessionReady(true);

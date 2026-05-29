@@ -8,6 +8,7 @@ import BriefStep from "./BriefStep";
 import { useSessionResources } from "../../../../context/Resource/SessionResourcesContext";
 import { useAuth } from "@/context/auth/AuthContext";
 import { uploadDocument, validateUploadFile } from "@/services/upload.service";
+import { useVoiceStore } from "@/store/useVoiceStore";
 
 type Step = "upload" | "processing" | "brief";
 
@@ -35,6 +36,7 @@ export default function NewSessionCenter() {
     addParsedDocument,
   } = useSessionResources();
   const { accessToken } = useAuth();
+  const addResourceId = useVoiceStore((state) => state.addResourceId);
 
   useEffect(() => {
     if (step !== "processing") return undefined;
@@ -104,6 +106,9 @@ export default function NewSessionCenter() {
 
               const result = await uploadDocument({ file, token: accessToken });
               addParsedDocument(result.data);
+              if (result.data?.resource?.id) {
+                addResourceId(result.data.resource.id);
+              }
             }
 
             addFiles(files);
