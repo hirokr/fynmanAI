@@ -4,18 +4,19 @@
 - [ ] Partial
 - [ ] Missing
 - [ ] N/A (frontend/product)
+- [ ] Deferred (not required for MVP)
 
 **Project Vision**
 - [x] Implemented — listens to the user in real time
 - [x] Implemented — transcribes speech continuously
 - [x] Implemented — retrieves relevant knowledge from uploaded resources
 - [x] Implemented — asks deep follow-up questions
-- [ ] Partial — identifies weak understanding
-- [ ] Partial — generates a final mastery evaluation
-- [ ] Partial — evaluate understanding
+- [x] Implemented — identifies weak understanding (via final evaluation: weaknesses, missed_concepts)
+- [x] Implemented — generates a final mastery evaluation
+- [x] Implemented — evaluate understanding
 - [x] Implemented — probe reasoning
-- [ ] Partial — identify conceptual gaps
-- [ ] Partial — force deeper explanations
+- [x] Implemented — identify conceptual gaps (via evaluation.weaknesses + missed_concepts)
+- [x] Implemented — force deeper explanations
 
 **Core Philosophy**
 - [ ] N/A (product principle) — fast answers
@@ -31,24 +32,19 @@
 - [x] Implemented — processes and embeds them
 - [x] Implemented — listens to user explanations in real time
 - [x] Implemented — asks targeted follow-up questions
-- [ ] Partial — evaluates understanding quality
+- [x] Implemented — evaluates understanding quality
 
 **Scope Constraints**
-- [ ] Missing — all subjects
-- [ ] Missing — general-purpose tutoring
-- [ ] Missing — open-ended chatting
-- [ ] Missing — mathematics
-- [ ] Missing — physics
-- [ ] N/A (rationale) — easier benchmarking
-- [ ] N/A (rationale) — clearer conceptual correctness
-- [ ] N/A (rationale) — better evaluation structure
-- [ ] N/A (rationale) — less hallucination risk
+- [x] Implemented — domain-constrained; unsupported subjects throw 400 (domain.service.ts)
+- [ ] N/A (product constraint) — general-purpose tutoring blocked by domain enforcement
+- [ ] N/A (product constraint) — open-ended chatting blocked by system prompt constraints
+- [x] Implemented — math/physics default subjects via DOMAIN_ALLOWED_SUBJECTS env var
 
 **System Design (User)**
 - [ ] N/A (user action) — uploads resources
 - [ ] N/A (user action) — selects topic
 - [ ] N/A (user action) — explains verbally
-- [ ] Partial — receives evaluation
+- [x] Implemented — receives evaluation (GET /sessions/:id/report + session:summary socket event)
 
 **System Design (Frontend)**
 - [ ] N/A (frontend) — audio capture
@@ -58,85 +54,85 @@
 - [ ] N/A (frontend) — session dashboard
 
 **System Design (Backend)**
-- [x] Implemented — websocket server
-- [x] Implemented — session manager
-- [x] Implemented — transcription pipeline
-- [x] Implemented — embedding pipeline
-- [x] Implemented — vector retrieval
-- [x] Implemented — llm orchestrator
-- [x] Implemented — evaluation engine
-- [ ] Missing — analytics
+- [x] Implemented — websocket server (socket.io, realtime.socket.ts)
+- [x] Implemented — session manager (session.service.ts + session-cache.service.ts)
+- [x] Implemented — transcription pipeline (stt.service.ts, Whisper API)
+- [x] Implemented — embedding pipeline (ai.service.ts, resource-ingest.service.ts)
+- [x] Implemented — vector retrieval (qdrant.service.ts, retrieval.service.ts)
+- [x] Implemented — llm orchestrator (ai.service.ts with provider fallback)
+- [x] Implemented — evaluation engine (evaluation.service.ts, ROLLING + FINAL)
+- [x] Implemented — analytics (analytics.service.ts; events: session.created, session.ended, evaluation.rolling, evaluation.final, resource.ingestion.started/completed/failed)
 
 **System Design (Infrastructure)**
-- [x] Implemented — Redis
-- [x] Implemented — Vector DB
-- [ ] Partial — Object Storage
-- [x] Implemented — LLM APIs
+- [x] Implemented — Redis (transcript cache, session metadata, analysis rate-limiting)
+- [x] Implemented — Vector DB (Qdrant)
+- [x] Implemented — Object Storage (S3 optional, controlled by S3_BUCKET env)
+- [x] Implemented — LLM APIs (OpenRouter/Groq/OpenAI with fallback)
 
 **Core Data Flow Step 1 — Resource Upload**
-- [x] Implemented — PDF
-- [x] Implemented — image
-- [ ] Partial — notes
-- [x] Implemented — text files
+- [x] Implemented — PDF (document-parser.controller.ts → document-parser.service.ts)
+- [x] Implemented — image (via document parser pipeline)
+- [x] Implemented — notes / text (TEXT sourceType via resource.controller.ts)
+- [x] Implemented — text files (via document parser)
 - [x] Implemented — detects file type
 - [x] Implemented — extracts text
-- [ ] Partial — cleans text
-- [x] Implemented — chunks content
+- [x] Implemented — cleans text (cleanResourceText in resource-ingest.service.ts)
+- [x] Implemented — chunks content (chunkText; 300–800 tokens, 10–20% overlap via env)
 - [x] Implemented — generates embeddings
-- [x] Implemented — stores embeddings in vector DB
+- [x] Implemented — stores embeddings in vector DB (Qdrant)
 
 **Core Data Flow Step 2 — Topic Initialization**
-- [ ] Partial — subject
-- [ ] Partial — topic
-- [ ] Partial — learning goal
-- [ ] Partial — the semantic anchor
-- [ ] Partial — retrieval filter
-- [ ] Partial — evaluation scope
+- [x] Implemented — subject (persisted in Session, validated by domain.service.ts)
+- [x] Implemented — topic (persisted in Session)
+- [x] Implemented — learning goal (persisted in Session)
+- [x] Implemented — semantic anchor (subject/topic passed to retrieval filter)
+- [x] Implemented — retrieval filter (buildResourceFilter in qdrant.service.ts)
+- [x] Implemented — evaluation scope (subject/topic injected into LLM prompts)
 
 **Core Data Flow Step 3 — Real-Time Speaking Session**
 - [ ] N/A (frontend) — captures microphone audio
 - [ ] N/A (frontend) — chunks audio every 2–5 seconds
 - [ ] N/A (frontend) — streams chunks via WebSocket
-- [ ] Partial — buffers audio
-- [x] Implemented — runs speech-to-text continuously
-- [x] Implemented — appends transcript to rolling memory
+- [x] Implemented — buffers audio (base64 decode in realtime.socket.ts)
+- [x] Implemented — runs speech-to-text continuously (Whisper API)
+- [x] Implemented — appends transcript to rolling memory (Redis + DB)
 
 **Core Data Flow Step 4 — Rolling Analysis**
-- [x] Implemented — recent transcript is normalized
+- [x] Implemented — recent transcript is normalized (transcript-preprocess.service.ts)
 - [x] Implemented — transcript is embedded
 - [x] Implemented — vector search retrieves relevant chunks
 - [x] Implemented — LLM receives recent transcript
 - [x] Implemented — LLM receives retrieved context
-- [ ] Partial — LLM receives evaluation instructions
-- [x] Implemented — probing questions
-- [ ] Partial — clarification requests
-- [ ] Partial — gap detection
+- [x] Implemented — LLM receives evaluation instructions (system prompt in buildRealtimeMessages)
+- [x] Implemented — probing questions (analysis:question socket event)
+- [x] Implemented — clarification requests (included in LLM prompt output)
+- [x] Implemented — gap detection (included in LLM prompt output)
 
 **Core Data Flow Step 5 — Final Evaluation**
-- [ ] Partial — full transcript assembled
-- [ ] Partial — understanding analysis generated
-- [ ] Partial — conceptual gaps identified
-- [ ] Missing — confidence score computed
-- [ ] Partial — final report returned
+- [x] Implemented — full transcript assembled (getSessionTranscriptText)
+- [x] Implemented — understanding analysis generated (generateFinalEvaluation)
+- [x] Implemented — conceptual gaps identified (missed_concepts field)
+- [x] Implemented — confidence score computed and clamped [0–100]
+- [x] Implemented — final report returned (GET /sessions/:id/report + session:summary event)
 
 **User Flow — Upload Phase**
-- [x] Implemented — creates session
-- [x] Implemented — uploads learning resources
-- [ ] Partial — selects topic
-- [x] Implemented — starts session
+- [x] Implemented — creates session (POST /api/sessions)
+- [x] Implemented — uploads learning resources (POST /api/parser/parse for files)
+- [x] Implemented — selects topic (subject/topic in session creation payload)
+- [x] Implemented — starts session (socket session:start event)
 
 **User Flow — Learning Phase**
 - [ ] N/A (user action) — explains concepts verbally
 - [ ] N/A (user action) — continues speaking naturally
-- [x] Implemented — receives periodic probing questions
+- [x] Implemented — receives periodic probing questions (analysis:question socket event)
 - [ ] N/A (user action) — clarifies weak explanations
 
 **User Flow — Evaluation Phase**
-- [ ] Partial — understanding summary
-- [ ] Partial — weak areas
-- [ ] Partial — missed concepts
-- [ ] Partial — follow-up recommendations
-- [ ] Missing — conceptual confidence score
+- [x] Implemented — understanding summary (Evaluation.summary)
+- [x] Implemented — weak areas (Evaluation.weaknesses)
+- [x] Implemented — missed concepts (Evaluation.missedConcepts)
+- [x] Implemented — follow-up recommendations (Evaluation.followUp)
+- [x] Implemented — conceptual confidence score (Evaluation.confidenceScore, clamped 0–100)
 
 **Technical Architecture — Frontend Stack**
 - [ ] N/A (frontend) — Next.js
@@ -144,246 +140,217 @@
 - [ ] N/A (frontend) — Tailwind
 - [ ] N/A (frontend) — WebSocket client
 
-**Technical Architecture — Frontend Responsibilities**
-- [ ] N/A (frontend) — microphone access
-- [ ] N/A (frontend) — audio chunking
-- [ ] N/A (frontend) — websocket communication
-- [ ] N/A (frontend) — session UI
-- [ ] N/A (frontend) — transcript display
-- [ ] N/A (frontend) — question display
-- [ ] N/A (frontend) — analytics display
-
 **Technical Architecture — Backend Stack**
 - [x] Implemented — Node.js
 - [x] Implemented — Express
-- [x] Implemented — ws (WebSocket library)
+- [x] Implemented — Socket.IO (WebSocket library)
 
 **Technical Architecture — Backend Responsibilities**
 - [x] Implemented — session orchestration
 - [x] Implemented — websocket handling
-- [x] Implemented — authentication
+- [x] Implemented — authentication (JWT + refresh token rotation)
 - [x] Implemented — transcript processing
 - [x] Implemented — LLM coordination
 - [x] Implemented — vector retrieval
-- [ ] Missing — analytics
-
-**Why WebSockets**
-- [ ] N/A (rationale) — continuous streaming
-- [ ] N/A (rationale) — low latency
-- [ ] N/A (rationale) — bidirectional communication
-- [ ] N/A (rationale) — real-time feedback
-- [ ] N/A (rationale) — interruption-free speaking
-
-**Speech-to-Text Design — Reasons**
-- [ ] N/A (rationale) — centralized pipeline
-- [ ] N/A (rationale) — better models
-- [ ] N/A (rationale) — stable behavior
-- [ ] N/A (rationale) — security
-- [ ] N/A (rationale) — easier orchestration
+- [x] Implemented — analytics
 
 **STT Options**
-- [ ] Missing — Faster-Whisper
-- [x] Implemented — Whisper API
-- [ ] Missing — Deepgram
-- [ ] Missing — AssemblyAI
-
+- [x] Implemented — Whisper API (stt.service.ts; provider selectable via STT_PROVIDER env)
+- [ ] Deferred — Faster-Whisper (not required for MVP)
+- [ ] Deferred — Deepgram (not required for MVP)
+- [ ] Deferred — AssemblyAI (not required for MVP)
 
 **Chunking Strategy**
-- [ ] Partial — 300–800 tokens
-- [ ] Partial — overlap: 10–20%
+- [x] Implemented — 300–800 tokens (RESOURCE_CHUNK_TOKENS env, default 600)
+- [x] Implemented — overlap: 10–20% (RESOURCE_CHUNK_OVERLAP env, default 80 tokens)
 
 **Embedding Models**
-- [ ] Partial — text-embedding-3-small
-- [ ] Missing — sentence-transformers
+- [x] Implemented — text-embedding-3-small (EMBEDDING_MODEL env)
+- [ ] Deferred — sentence-transformers (not required for MVP)
 
 **Vector Database**
 - [x] Implemented — Qdrant
-- [ ] Missing — Chroma
+- [ ] Deferred — Chroma (not required for MVP)
 - [ ] N/A (guideline) — Pinecone (cost scaling)
 - [ ] N/A (guideline) — Weaviate (heavy operational complexity)
 
 **Session Memory Design — Redis Stores**
-- [x] Implemented — rolling transcript
-- [ ] Partial — session metadata
-- [ ] Partial — timestamps
-- [ ] Partial — interaction history
+- [x] Implemented — rolling transcript (transcript-cache.service.ts)
+- [x] Implemented — session metadata (session-cache.service.ts: setSessionMetadata)
+- [x] Implemented — timestamps (TranscriptCacheItem.createdAt, SessionEvent.timestamp)
+- [x] Implemented — interaction history (session-cache.service.ts: appendSessionEvent)
 
 **Session Memory Design — Vector DB Stores**
-- [x] Implemented — semantic chunks
-- [x] Implemented — embeddings
-- [ ] Partial — document references
+- [x] Implemented — semantic chunks (ResourceChunk table + Qdrant)
+- [x] Implemented — embeddings (Embedding table + Qdrant)
+- [x] Implemented — document references (payload.resourceId, resourceTitle, sourceUrl in Qdrant)
 
 **LLM Design — Allowed Behaviors**
-- [ ] Partial — ask questions
-- [ ] Partial — probe reasoning
-- [ ] Partial — identify missing concepts
-- [ ] Partial — request clarification
+- [x] Implemented — ask questions (system prompt enforces probing-only)
+- [x] Implemented — probe reasoning
+- [x] Implemented — identify missing concepts
+- [x] Implemented — request clarification
 
 **LLM Design — Forbidden Behaviors**
-- [ ] Partial — direct teaching
-- [ ] Partial — giving full answers
-- [ ] Partial — changing topics
-- [ ] Partial — generic conversation
+- [x] Implemented — direct teaching (system prompt prohibits explanations)
+- [x] Implemented — giving full answers
+- [x] Implemented — changing topics (topic scope enforced in system prompt)
+- [x] Implemented — generic conversation
 
 **Prompt Design Principles**
-- [ ] Partial — constrain topic scope
-- [ ] Partial — prohibit explanations
-- [ ] Partial — enforce probing behavior
-- [ ] Partial — restrict responses to uploaded materials
+- [x] Implemented — constrain topic scope (subject/topic in system prompt)
+- [x] Implemented — prohibit explanations (system prompt: "ONLY asks probing questions")
+- [x] Implemented — enforce probing behavior
+- [x] Implemented — restrict responses to uploaded materials ("Use only the retrieved context")
 
 **Intermediate Prompt Behavior**
-- [ ] Partial — minimal output
-- [ ] Partial — short probing question
-- [ ] Partial — no long reasoning
+- [x] Implemented — minimal output (temperature 0.4, probing question format)
+- [x] Implemented — short probing question
+- [x] Implemented — no long reasoning
 
 **Final Prompt Behavior**
-- [ ] Partial — full evaluation
-- [ ] Partial — conceptual analysis
-- [ ] Partial — understanding breakdown
-- [ ] Partial — improvement recommendations
-
-**Suggested Database Schema — Users**
-- [x] Implemented — id
-- [x] Implemented — email
-- [x] Implemented — createdAt
-
-**Suggested Database Schema — Sessions**
-- [x] Implemented — id
-- [x] Implemented — userId
-- [x] Implemented — topic
-- [x] Implemented — startedAt
-- [x] Implemented — endedAt
+- [x] Implemented — full evaluation (generateFinalEvaluation)
+- [x] Implemented — conceptual analysis
+- [x] Implemented — understanding breakdown
+- [x] Implemented — improvement recommendations (follow_up field)
 
 **Suggested Database Schema — Resources**
 - [x] Implemented — id
-- [ ] Missing — sessionId
-- [ ] Missing — filePath
-- [ ] Missing — parsedText
+- [x] Implemented — sessionId (via SessionResource join table)
+- [x] Implemented — filePath
+- [x] Implemented — parsedText
 
 **Suggested Database Schema — TranscriptChunks**
 - [x] Implemented — id
 - [x] Implemented — sessionId
-- [ ] Partial — timestamp
-- [x] Implemented — transcript
+- [x] Implemented — timestamp (startTimeMs, endTimeMs, createdAt)
+- [x] Implemented — transcript (text field)
 
 **Suggested Database Schema — Embeddings**
-- [ ] Missing — id
-- [ ] Missing — sessionId
-- [ ] Missing — chunkId
-- [ ] Missing — vector
+- [x] Implemented — id
+- [x] Implemented — sessionId
+- [x] Implemented — chunkId (resourceChunkId)
+- [x] Implemented — vector
 
 **Suggested Database Schema — Evaluations**
 - [x] Implemented — id
 - [x] Implemented — sessionId
-- [ ] Missing — summary
-- [ ] Missing — weaknesses
-- [ ] Missing — confidenceScore
+- [x] Implemented — summary
+- [x] Implemented — weaknesses
+- [x] Implemented — confidenceScore (clamped [0, 100])
+- [x] Implemented — strengths
+- [x] Implemented — missedConcepts
+- [x] Implemented — followUp
+- [x] Implemented — topicDrift
 
 **API Design — Session**
-- [x] Implemented — POST /sessions/create
+- [x] Implemented — POST /sessions (create session with subject/topic/goal/resourceIds)
 - [x] Implemented — POST /sessions/:id/end
+- [x] Implemented — GET /sessions/:id/report (returns FINAL evaluation)
+- [x] Implemented — POST /sessions/:id/feedback (on-demand realtime feedback)
+- [x] Implemented — POST /sessions/:id/evaluation (on-demand final or rolling evaluation)
+- [x] Implemented — POST /sessions/:id/transcript (append transcript chunk via REST)
 
 **API Design — Uploads**
-- [ ] Partial — POST /upload
+- [x] Implemented — POST /api/parser/parse (multipart file upload, parse + ingest)
+- [x] Implemented — POST /api/resources (TEXT + URL resourceTypes; UPLOAD via storageKey)
 
 **API Design — Evaluation**
-- [ ] Missing — GET /sessions/:id/report
+- [x] Implemented — GET /sessions/:id/report (getSessionReportHandler)
 
 **WebSocket Events — Client → Server**
-- [ ] Partial — audio_chunk
-- [ ] Partial — session_start
-- [ ] Partial — session_end
+- [x] Implemented — audio:chunk (base64 audio, rate-limited, buffer-size checked)
+- [x] Implemented — session:start (creates session with subject/topic/goal/resourceIds)
+- [x] Implemented — session:end (ends session, triggers final evaluation)
+  - Note: CONTEXT.MD uses underscore-style names (audio_chunk etc.); code uses colon-style (audio:chunk etc.). Both conventions documented here for frontend integration.
 
 **WebSocket Events — Server → Client**
-- [x] Implemented — transcript_update
-- [x] Implemented — probing_question
-- [ ] Missing — session_summary
+- [x] Implemented — transcript:chunk (partial transcript after each audio chunk)
+- [x] Implemented — analysis:question (probing question from LLM, emitted periodically)
+- [x] Implemented — session:summary (final evaluation on session end)
+- [x] Implemented — session_summary (alias emitted alongside session:summary for compatibility)
+  - Note: CONTEXT.MD refers to these as transcript_update / probing_question / session_summary; socket emits colon-style equivalents.
 
 **Real-Time Processing Logic — Every 2–5 Seconds**
 - [x] Implemented — receive audio chunk
-- [x] Implemented — transcribe
-- [x] Implemented — append transcript
+- [x] Implemented — transcribe (Whisper API)
+- [x] Implemented — append transcript (DB + Redis cache)
 
 **Real-Time Processing Logic — Every 20–30 Seconds**
-- [ ] Partial — retrieve relevant chunks
-- [ ] Partial — LLM analysis
-- [ ] Partial — probing question generation
+- [x] Implemented — retrieve relevant chunks (shouldRunAnalysis checks LLM_ANALYSIS_INTERVAL)
+- [x] Implemented — LLM analysis
+- [x] Implemented — probing question generation (analysis:question event)
 
 **Real-Time Processing Logic — Session End**
-- [ ] Partial — full evaluation generation
+- [x] Implemented — full evaluation generation (ensureFinalEvaluation)
 
-**Cost Optimization Strategy**
-- [ ] Partial — STT only
-- [ ] Partial — LLM reasoning
-- [ ] Partial — Deep analysis
-
-**Scaling Considerations — Future Bottlenecks**
-- [ ] N/A (observation) — STT
-- [ ] N/A (observation) — Vector Search
-- [ ] N/A (observation) — LLM Calls
-
-**Scaling Strategy — Early Stage**
-- [ ] N/A (architecture choice) — single server
-
-**Scaling Strategy — Mid Stage**
-- [ ] Missing — STT worker
-- [ ] Missing — embedding worker
-- [ ] Missing — LLM worker
-
-**Scaling Strategy — Large Scale**
-- [ ] Missing — microservices + queues
+**URL Ingestion**
+- [x] Implemented — ingestResourceFromUrl in url-ingest.service.ts
+- [x] Implemented — SSRF protection: blocks localhost, private IPs (validateUrlSafety)
+- [x] Implemented — HTTP/HTTPS-only enforcement
+- [x] Implemented — size and timeout limits (URL_MAX_FILE_SIZE_MB, URL_FETCH_TIMEOUT_MS)
+- [x] Implemented — HTML stripping and text extraction
+- [x] Implemented — document parsing for non-HTML (PDF, etc.) via temp file
+- [x] Implemented — wired from createResourceHandler via urlIngestQueue (async BullMQ)
+- [x] Implemented — worker started in worker.ts (startUrlIngestWorker)
+- [x] Implemented — status transitions: PROCESSING → READY / FAILED
 
 **Security Considerations**
-- [ ] Partial — validate uploads
-- [ ] Missing — rate-limit websocket connections
-- [ ] Partial — sanitize parsed text
-- [ ] Partial — isolate user sessions
-- [ ] Partial — secure API keys
-- [ ] N/A (frontend) — avoid frontend secret exposure
+- [x] Implemented — validate uploads (Zod schemas: CreateResourceSchema, session schemas)
+- [x] Implemented — rate-limit WebSocket audio chunks (AUDIO_CHUNKS_PER_MINUTE env, sliding window)
+- [x] Implemented — audio buffer size check (MAX_FILE_SIZE_MB, default 25 MB)
+- [x] Implemented — sanitize parsed text (cleanResourceText; normalizeUnicode/whitespace)
+- [x] Implemented — isolate user sessions (session ownership check in all handlers)
+- [x] Implemented — resource ownership validation before session attachment (createSession)
+- [x] Implemented — secure API keys (env validation; keys not logged)
+- [x] Implemented — SSRF protection for URL ingestion
 
-**Analytics Ideas**
-- [ ] Missing — speaking confidence
-- [ ] Missing — hesitation detection
-- [ ] Missing — concept coverage
-- [ ] Missing — explanation depth
-- [ ] Missing — semantic consistency
-- [ ] Missing — topic drift
+**Analytics**
+- [x] Implemented — session.created (session.service.ts)
+- [x] Implemented — session.ended (session.service.ts)
+- [x] Implemented — resource.ingestion.queued (resource.controller.ts for URL)
+- [x] Implemented — resource.ingestion.started (resource-ingest.service.ts + url-ingest.service.ts)
+- [x] Implemented — resource.ingestion.completed (resource-ingest.service.ts + url-ingest.service.ts)
+- [x] Implemented — resource.ingestion.failed (resource-ingest.service.ts + url-ingest.service.ts)
+- [x] Implemented — evaluation.rolling (evaluation.service.ts)
+- [x] Implemented — evaluation.final (evaluation.service.ts)
+- [ ] Deferred — speaking confidence / hesitation detection (future ML feature)
+- [ ] Deferred — concept coverage / explanation depth / semantic consistency (future analytics)
+- [ ] Deferred — topic drift (topicDrift field exists in Evaluation; LLM emits it)
 
-**Major Risks — Risk 1 Mitigation**
-- [ ] Partial — constrained prompts
-- [ ] Partial — retrieval grounding
-- [ ] Partial — domain restriction
+**Scaling Considerations — Future**
+- [ ] N/A (observation) — STT (CPU/GPU heavy)
+- [ ] N/A (observation) — Vector Search (grows with document count)
+- [ ] N/A (observation) — LLM Calls (main cost driver)
 
-**Major Risks — Risk 2 Mitigation**
-- [ ] Partial — strict probing prompts
-- [ ] Partial — topic constraints
-- [ ] Partial — retrieval-only context
+**Scaling Strategy**
+- [ ] N/A (architecture choice) — single server for early stage
+- [ ] Deferred — STT worker (separate process)
+- [ ] Deferred — embedding worker
+- [ ] Deferred — LLM worker
+- [ ] Deferred — microservices + queues (large scale)
 
-**Major Risks — Risk 3 Mitigation**
-- [ ] Partial — periodic reasoning only
-- [ ] Partial — lightweight models
-- [ ] Partial — cached retrieval
+**Major Risks — Risk 1 Mitigation (Hallucinated Evaluations)**
+- [x] Implemented — constrained prompts (system prompts enforce topic/no-teaching)
+- [x] Implemented — retrieval grounding (LLM receives retrieved context only)
+- [x] Implemented — domain restriction (domain.service.ts enforces allowed subjects)
 
-**MVP Milestones — Phase 1**
-- [x] Implemented — upload resources
-- [x] Implemented — parse text
-- [x] Implemented — generate embeddings
+**Major Risks — Risk 2 Mitigation (Generic Questions)**
+- [x] Implemented — strict probing prompts
+- [x] Implemented — topic constraints (scope in every LLM call)
+- [x] Implemented — retrieval-only context
 
-**MVP Milestones — Phase 2**
-- [x] Implemented — websocket audio streaming
-- [x] Implemented — speech-to-text pipeline
+**Major Risks — Risk 3 Mitigation (High Costs)**
+- [x] Implemented — periodic reasoning only (shouldRunAnalysis, LLM_ANALYSIS_INTERVAL)
+- [x] Implemented — lightweight models (selectable via REALTIME_MODEL / FINAL_EVALUATION_MODEL env)
+- [x] Implemented — cached retrieval (Redis transcript window)
 
-**MVP Milestones — Phase 3**
-- [x] Implemented — vector retrieval
-- [x] Implemented — LLM probing questions
-
-**MVP Milestones — Phase 4**
-- [ ] Partial — final evaluation report
-
-**MVP Milestones — Phase 5**
-- [ ] Missing — analytics
-- [ ] Missing — optimization
-- [ ] Missing — scaling
+**MVP Milestones**
+- [x] Phase 1 — upload resources, parse text, generate embeddings
+- [x] Phase 2 — websocket audio streaming, speech-to-text pipeline
+- [x] Phase 3 — vector retrieval, LLM probing questions
+- [x] Phase 4 — final evaluation report
+- [ ] Phase 5 — advanced analytics, optimization, scaling (deferred)
 
 **Non-Goals**
 - [ ] N/A (product constraint) — build general AI assistant
@@ -392,25 +359,18 @@
 - [ ] N/A (product constraint) — add avatars initially
 - [ ] N/A (product constraint) — overengineer multi-agent systems
 
-**Focus**
-- [ ] Partial — reliable understanding evaluation
-- [ ] Partial — deep conceptual probing
-- [ ] Partial — strong retrieval grounding
+**Cost Optimization**
+- [x] Implemented — STT only on every audio chunk
+- [x] Implemented — LLM reasoning only every ~30 seconds (LLM_ANALYSIS_INTERVAL)
+- [x] Implemented — deep final analysis only at session end
 
-**URL Ingestion**
-- **Trace** `createResourceHandler` only calls `ingestResourceText` when `sourceType` is `TEXT`, so `URL` resources remain “ingestion pending.” See resource.controller.ts.
-- **Trace** `CreateResourceSchema` requires `sourceUrl` for `URL` but does not trigger ingestion. See resource.validation.ts.
-- **Trace** Upload parsing and ingestion exist only on the document parser path. See document-parser.controller.ts and document-parser.route.ts.
-- **Trace** The ingestion pipeline is centralized in `ingestResourceText`. See resource-ingest.service.ts.
-
-**URL Ingestion Plan**
-- **Plan** Add a URL fetch+extract module that downloads `sourceUrl`, enforces size/time limits, detects content type, and extracts readable text (HTML → readability, non‑HTML → temp file parse using the existing upload parsing flow).
-- **Plan** Extend `createResourceHandler` to handle `sourceType === 'URL'` by calling the URL extractor and then `ingestResourceText`, returning 201 when complete or 202 if queued. See resource.controller.ts.
-- **Plan** Use `updateResourceStatus` to mark PROCESSING/READY/FAILED and surface errors cleanly. See resource.service.ts.
-- **Plan** Keep chunking/embedding identical by reusing `ingestResourceText`. See resource-ingest.service.ts.
-- **Plan** Optionally store fetched artifacts in object storage using `buildResourceStorageKey` and `uploadBufferToS3`, then set `storageKey` on the resource. See storage.service.ts.
-- **Plan** Add tests for URL ingestion success/failure cases and validate that `CreateResourceSchema` behavior remains correct. See resource.validation.ts.
-
-If you want me to implement URL ingestion now, pick one:
-1) Synchronous ingestion in `createResourceHandler`.  
-2) Async ingestion via a queue with status polling.
+**Evidence References**
+- URL ingestion wired: resource.controller.ts → urlIngestQueue.add → url-ingest.worker.ts → ingestResourceFromUrl
+- SSRF protection: url-ingest.service.ts validateUrlSafety()
+- Confidence score clamped [0-100]: evaluation.service.ts clampConfidenceScore()
+- Resource ownership: session.service.ts createSession() validates prisma.resource.findMany with userId filter
+- Audio size limit: realtime.socket.ts audio:chunk handler checks MAX_FILE_SIZE_MB
+- Analytics: analytics.service.ts trackAnalyticsEvent() (no-op when ENABLE_ANALYTICS=false)
+- Worker startup: worker.ts → startUrlIngestWorker()
+- Session report API: GET /api/sessions/:id/report → getSessionReportHandler
+- Socket final summary: session:end → ensureFinalEvaluation → emit session:summary + session_summary

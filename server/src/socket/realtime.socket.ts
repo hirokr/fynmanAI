@@ -156,6 +156,12 @@ export const registerRealtimeSocket = (io: Server) => {
         }
 
         const buffer = Buffer.from(audioBase64, 'base64');
+        const maxAudioBytes = (env.MAX_FILE_SIZE_MB || 25) * 1024 * 1024;
+        if (buffer.byteLength > maxAudioBytes) {
+          cb?.({ ok: false, error: 'Audio chunk exceeds size limit' });
+          return;
+        }
+
         const transcript = await transcribeAudioBuffer({
           buffer,
           fileName: payload?.fileName || `chunk-${Date.now()}.webm`,

@@ -1,9 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import dns from 'node:dns/promises';
 import fetch, { type Response as FetchResponse } from 'node-fetch';
 import { env } from '#config/env.ts';
 import logger from '#config/logger.ts';
+import { trackAnalyticsEvent } from '#src/services/analytics.service.ts';
 import {
   resolveTempDir,
   ensureDirectory,
@@ -28,6 +30,54 @@ import { isSupportedFile } from '#src/services/document-parser.constants.ts';
 
 const DEFAULT_MAX_URL_MB = 10;
 const DEFAULT_TIMEOUT_MS = 15_000;
+
+const PRIVATE_IP_PATTERNS = [
+  /^127\./,
+  /^0\./,
+  /^10\./,
+  /^172\.(1[6-9]|2[0-9]|3[01])\./,
+  /^192\.168\./,
+  /^169\.254\./,
+  /^::1$/,
+  /^fc[0-9a-f]{2}:/i,
+  /^fd[0-9a-f]{2}:/i,
+];
+
+const isPrivateAddress = (address: string): boolean =>
+  PRIVATE_IP_PATTERNS.some(re => re.test(address));
+
+const validateUrlSafety = async (urlString: string): Promise<void> => {
+  let parsed: URL;
+  try {
+    parsed = new URL(urlString);
+  } catch {
+    throw new Error('Invalid URL');
+  }
+
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error('Only HTTP/HTTPS URLs are supported');
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (['localhost', '0.0.0.0', '::1'].includes(hostname)) {
+    throw new Error('URL points to a blocked host');
+  }
+
+  try {
+    const addresses = await dns.lookup(hostname, { all: true });
+    for (const { address } of addresses) {
+      if (isPrivateAddress(address)) {
+        throw new Error(
+          `URL resolves to a blocked private address: ${address}`
+        );
+      }
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('blocked')) {
+      throw err;
+    }
+  }
+};
 
 const decodeEntities = (text: string): string =>
   text
@@ -158,11 +208,21 @@ export const ingestResourceFromUrl = async (params: {
 }): Promise<{ chunkCount: number }> => {
   await updateResourceStatus(params.resourceId, 'PROCESSING');
 
+  let resource: Awaited<ReturnType<typeof getResourceById>> | undefined;
+
   try {
-    const resource = await getResourceById(params.resourceId);
+    resource = await getResourceById(params.resourceId);
     if (!resource) {
       throw new Error('Resource not found');
     }
+
+    await trackAnalyticsEvent({
+      event: 'resource.ingestion.started',
+      userId: resource.userId,
+      payload: { resourceId: params.resourceId, sourceType: 'URL' },
+    });
+
+    await validateUrlSafety(params.sourceUrl);
 
     const response = await fetchWithTimeout(params.sourceUrl);
     if (!response.ok) {
@@ -223,9 +283,30 @@ export const ingestResourceFromUrl = async (params: {
       topic: resource.topic || undefined,
     });
 
+    await trackAnalyticsEvent({
+      event: 'resource.ingestion.completed',
+      userId: resource.userId,
+      payload: {
+        resourceId: params.resourceId,
+        sourceType: 'URL',
+        chunkCount: ingest.chunkCount,
+      },
+    });
+
     return ingest;
   } catch (error) {
     await updateResourceStatus(params.resourceId, 'FAILED');
+
+    await trackAnalyticsEvent({
+      event: 'resource.ingestion.failed',
+      userId: resource?.userId,
+      payload: {
+        resourceId: params.resourceId,
+        sourceType: 'URL',
+        error: error instanceof Error ? error.message : String(error),
+      },
+    });
+
     logger.error('[URL Ingest] Failed to ingest URL', {
       resourceId: params.resourceId,
       error: error instanceof Error ? error.message : String(error),
