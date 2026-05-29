@@ -92,25 +92,22 @@ export const createSession = async (params: {
   goal?: string;
   resourceIds?: string[];
 }) => {
-  const scope = normalizeDomainScope({
-    subject: params.subject,
-    topic: params.topic,
-    goal: params.goal,
-  });
 
+
+  console.log('2')
   await validateSessionResources({
     userId: params.userId,
     resourceIds: params.resourceIds,
-    subject: scope.subject,
-    topic: scope.topic,
+    subject: params.subject,
+    topic: params.topic,
   });
 
   const session = await prisma.session.create({
     data: {
       userId: params.userId,
-      subject: scope.subject,
-      topic: scope.topic,
-      goal: scope.goal,
+      subject: params.subject,
+      topic: params.topic,
+      goal: params.goal,
     },
   });
 
@@ -120,9 +117,9 @@ export const createSession = async (params: {
 
   await setSessionMetadata(session.id, {
     userId: params.userId,
-    subject: scope.subject,
-    topic: scope.topic,
-    goal: scope.goal,
+    subject: params.subject,
+    topic: params.topic,
+    goal: params.goal,
     resourceIds: params.resourceIds,
     createdAt: new Date().toISOString(),
   });
@@ -131,9 +128,9 @@ export const createSession = async (params: {
     type: 'session.created',
     timestamp: new Date().toISOString(),
     payload: {
-      subject: scope.subject,
-      topic: scope.topic,
-      goal: scope.goal,
+      subject: params.subject,
+      topic: params.topic,
+      goal: params.goal,
       resourceIds: params.resourceIds,
     },
   });
@@ -143,9 +140,9 @@ export const createSession = async (params: {
     userId: params.userId,
     sessionId: session.id,
     payload: {
-      subject: scope.subject,
-      topic: scope.topic,
-      goal: scope.goal,
+      subject: params.subject,
+      topic: params.topic,
+      goal: params.goal,
     },
   });
 

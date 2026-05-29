@@ -13,7 +13,7 @@ const REFRESH_SECRET = new TextEncoder().encode(
   process.env.REFRESH_JWT_SECRET as string
 );
 
-const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '5m';
+const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15d';
 const REFRESH_EXPIRES_IN = process.env.REFRESH_JWT_EXPIRES_IN || '15d';
 
 export const generateTokens = async (userId: string, sessionId: string) => {
@@ -111,8 +111,8 @@ export const saveToCookie = async (
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.COOKIE_SAME_SITE || 'strict',
     // short-lived access token cookie — set a reasonable expiry (matches JWT short expiry)
-    expires: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-    maxAge: 5 * 60 * 1000,
+    expires: new Date(Date.now() + 5 * 60 * 60 * 1000 * 17), // 5 minutes
+    maxAge: 5 * 60 * 60 * 1000 * 17,
   });
 };
 
