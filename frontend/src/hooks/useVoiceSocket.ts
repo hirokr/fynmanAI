@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { createSocket } from "@/lib/socket/socket";
 import { startSession } from "@/services/voice.service";
 import { useVoiceStore } from "@/store/useVoiceStore";
@@ -11,12 +12,10 @@ export const useVoiceSocket = (token: string) => {
     setSessionReady,
     setAiFeedback,
     socket: existingSocket,
-    resourceIds,
-    subject,
-    topic,
   } = useVoiceStore();
 
-  const startSessionFlow = async (socket: any) => {
+  const startSessionFlow = useCallback(async (socket: any) => {
+    const { resourceIds, subject, topic } = useVoiceStore.getState();
     setSessionReady(false);
 
     try {
@@ -32,9 +31,9 @@ export const useVoiceSocket = (token: string) => {
       console.error("Session start failed:", err);
       setSessionReady(false);
     }
-  };
+  }, [setSessionReady, setSessionId]);
 
-  const wireSocket = (socket: any) => {
+  const wireSocket = useCallback((socket: any) => {
     socket.off("connect");
     socket.off("disconnect");
     socket.off("transcript:chunk");
@@ -67,9 +66,9 @@ export const useVoiceSocket = (token: string) => {
           JSON.stringify(data)
       );
     });
-  };
+  }, [addTranscript, setAiFeedback, setConnected, setSessionReady, startSessionFlow]);
 
-  const connect = () => {
+  const connect = useCallback(() => {
     const socket = existingSocket ?? createSocket(token);
     setSocket(socket);
     wireSocket(socket);
@@ -79,7 +78,7 @@ export const useVoiceSocket = (token: string) => {
     }
 
     return socket;
-  };
+  }, [existingSocket, setSocket, token, wireSocket]);
 
   return { connect };
 };

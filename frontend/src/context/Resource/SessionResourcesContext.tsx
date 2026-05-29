@@ -15,6 +15,7 @@ type ResourcesContextType = {
   setUploadSuccess: (value: boolean) => void;
   setUploadError: (value: string | null) => void;
   addParsedDocument: (doc: ParsedDocumentResponse) => void;
+  resetResources: () => void;
 };
 
 const ResourcesContext = createContext<ResourcesContextType | null>(null);
@@ -41,6 +42,14 @@ export function SessionResourcesProvider({ children }: { children: ReactNode }) 
     setParsedDocuments((prev) => [...prev, doc]);
   };
 
+  const resetResources = () => {
+    setResources([]);
+    setParsedDocuments([]);
+    setUploadLoading(false);
+    setUploadSuccess(false);
+    setUploadError(null);
+  };
+
   return (
     <ResourcesContext.Provider
       value={{
@@ -55,6 +64,7 @@ export function SessionResourcesProvider({ children }: { children: ReactNode }) 
         setUploadSuccess,
         setUploadError,
         addParsedDocument,
+        resetResources,
       }}
     >
       {children}

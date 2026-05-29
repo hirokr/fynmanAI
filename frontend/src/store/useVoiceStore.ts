@@ -22,6 +22,7 @@ type State = {
   setResourceIds: (ids: string[]) => void;
   setSubject: (value: string) => void;
   setTopic: (value: string) => void;
+  resetSessionState: () => void;
 };
 
 export const useVoiceStore = create<State>((set) => ({
@@ -53,4 +54,15 @@ export const useVoiceStore = create<State>((set) => ({
   setResourceIds: (resourceIds) => set({ resourceIds }),
   setSubject: (subject) => set({ subject }),
   setTopic: (topic) => set({ topic }),
+  resetSessionState: () =>
+    set({
+      sessionId: null,
+      connected: false,
+      sessionReady: false,
+      transcripts: [],
+      aiFeedback: null,
+      resourceIds: [],
+      subject: "",
+      topic: "",
+    }),
 }));

@@ -23,7 +23,7 @@ export default function ActiveSessionCenter() {
   const { connect } = useVoiceSocket(accessToken ?? "");
   const { startRecording, stopRecording } = useVoiceRecorder(setVoiceLevel);
 
-  const { sessionReady, connected, socket, sessionId } = useVoiceStore();
+  const { sessionReady, connected, socket, sessionId, resetSessionState } = useVoiceStore();
   const statusLabel = !connected
     ? "Connecting"
     : isRecording
@@ -45,7 +45,7 @@ export default function ActiveSessionCenter() {
       socket?.disconnect();
       destroySocket();
     };
-  }, [accessToken]);
+  }, [accessToken, connect]);
 
   useEffect(() => {
     const handleMic = () => {
@@ -88,6 +88,7 @@ export default function ActiveSessionCenter() {
     stopRecording();
     setIsRecording(false);
     setVoiceLevel(0);
+    resetSessionState();
   };
 
   const handleKeyboardClick = () => {

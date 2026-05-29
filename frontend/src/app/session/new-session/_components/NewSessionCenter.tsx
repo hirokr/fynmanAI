@@ -34,9 +34,24 @@ export default function NewSessionCenter() {
     setUploadSuccess,
     setUploadError,
     addParsedDocument,
+    parsedDocuments,
+    resetResources,
   } = useSessionResources();
   const { accessToken } = useAuth();
-  const addResourceId = useVoiceStore((state) => state.addResourceId);
+  const { setResourceIds, resetSessionState } = useVoiceStore();
+
+  const handleProcessSession = () => {
+    const currentResourceIds = Array.from(
+      new Set(
+        parsedDocuments
+          .map((document) => document?.resource?.id)
+          .filter((id): id is string => Boolean(id))
+      )
+    );
+
+    setResourceIds(currentResourceIds);
+    setStep("processing");
+  };
 
   useEffect(() => {
     if (step !== "processing") return undefined;
@@ -67,7 +82,7 @@ export default function NewSessionCenter() {
       {step === "upload" && (
         <UploadStep
           onOpenModal={() => setUploadOpen(true)}
-          onProcess={() => setStep("processing")}
+          onProcess={handleProcessSession}
           uploadLoading={uploadLoading}
           uploadSuccess={uploadSuccess}
           uploadError={uploadError}
@@ -79,7 +94,14 @@ export default function NewSessionCenter() {
       )}
 
       {step === "brief" && (
-        <BriefStep onReset={() => setStep("upload")} />
+        <BriefStep
+          onReset={() => {
+            setStep("upload");
+            resetResources();
+            resetSessionState();
+            setResourceIds([]);
+          }}
+        />
       )}
 
       <UploadModal
@@ -106,9 +128,6 @@ export default function NewSessionCenter() {
 
               const result = await uploadDocument({ file, token: accessToken });
               addParsedDocument(result.data);
-              if (result.data?.resource?.id) {
-                addResourceId(result.data.resource.id);
-              }
             }
 
             addFiles(files);
