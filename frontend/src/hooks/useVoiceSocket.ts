@@ -28,12 +28,14 @@ export const useVoiceSocket = (token: string) => {
   };
 
   const connect = () => {
+    if (existingSocket) return existingSocket;
     const socket = createSocket(token);
 
     setSocket(socket);
 
     socket.on("connect", () => {
       setConnected(true);
+      console.log("Socket connected", socket.id);
       startSessionFlow(socket);
     });
 
@@ -43,12 +45,19 @@ export const useVoiceSocket = (token: string) => {
     });
 
     socket.on("transcript:chunk", (data) => {
-      addTranscript(data.chunk.text);
+      if (data?.chunk?.text) {
+        addTranscript(data.chunk.text);
+      }
     });
 
     socket.on("analysis:question", (data) => {
+      const evaluation = data?.evaluation;
       setAiFeedback(
-        data.question ?? data.text ?? JSON.stringify(data)
+        evaluation?.question ??
+          evaluation?.text ??
+          data?.question ??
+          data?.text ??
+          JSON.stringify(data)
       );
     });
 

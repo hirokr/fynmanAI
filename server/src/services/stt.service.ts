@@ -6,12 +6,12 @@ export type TranscriptionResult = {
   raw: unknown;
 };
 
-const requireWhisperKey = (): string => {
-  if (!env.WHISPER_API_KEY && !env.OPENAI_API_KEY) {
-    throw new Error('WHISPER_API_KEY or OPENAI_API_KEY is required');
+const requireGroqKey = (): string => {
+  if (!env.GROQ_API_KEY) {
+    throw new Error('GROQ_API_KEY is required');
   }
 
-  return env.WHISPER_API_KEY || env.OPENAI_API_KEY || '';
+  return env.GROQ_API_KEY;
 };
 
 export const transcribeAudioBuffer = async (params: {
@@ -21,10 +21,13 @@ export const transcribeAudioBuffer = async (params: {
   prompt?: string;
   language?: string;
 }): Promise<TranscriptionResult> => {
-  const apiKey = requireWhisperKey();
-  const model = env.STT_MODEL || 'whisper-1';
+  const apiKey = requireGroqKey();
+
+  // Groq Whisper model
+  const model = env.STT_MODEL || 'whisper-large-v3-turbo';
 
   const form = new FormData();
+
   const blob = new Blob([params.buffer], {
     type: params.mimeType || 'audio/webm',
   });
@@ -41,7 +44,7 @@ export const transcribeAudioBuffer = async (params: {
   }
 
   const response = await fetch(
-    'https://api.openai.com/v1/audio/transcriptions',
+    'https://api.groq.com/openai/v1/audio/transcriptions',
     {
       method: 'POST',
       headers: {
@@ -53,13 +56,23 @@ export const transcribeAudioBuffer = async (params: {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Whisper transcription failed: ${errorText}`);
+
+    throw new Error(
+      `Groq transcription failed: ${errorText}`
+    );
   }
 
-  const data = (await response.json()) as { text?: string };
+  const data = (await response.json()) as {
+    text?: string;
+  };
+
+  console.log('Groq transcription response:', data);
   if (!data.text) {
-    throw new Error('Whisper transcription missing text');
+    throw new Error('Groq transcription missing text');
   }
 
-  return { text: data.text, raw: data };
+  return {
+    text: data.text,
+    raw: data,
+  };
 };

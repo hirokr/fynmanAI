@@ -31,6 +31,7 @@ type ApiEnvelope<T> = {
 
 type AuthContextValue = {
 	user: AuthUser | null;
+	accessToken: string | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
 	error?: string;
@@ -86,7 +87,8 @@ export function AuthProvider({
 	initialUser?: AuthUser | null;
 }) {
 	const [user, setUser] = useState<AuthUser | null>(initialUser);
-	const [isLoading, setIsLoading] = useState(false);
+	const [accessToken, setAccessToken] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | undefined>();
 
 	const refreshSession = useCallback(async () => {
@@ -96,9 +98,11 @@ export function AuthProvider({
 		try {
 			const session = await readSession();
 			setUser(session.isAuthenticated ? session.user : null);
+			setAccessToken(session.isAuthenticated ? session.accessToken ?? null : null);
 			setError(session.error);
 		} catch {
 			setUser(null);
+			setAccessToken(null);
 			setError("Unable to verify session");
 		} finally {
 			setIsLoading(false);
@@ -107,6 +111,7 @@ export function AuthProvider({
 
 	const clearSession = useCallback(() => {
 		setUser(null);
+		setAccessToken(null);
 		setError(undefined);
 		deleteSession();
 
@@ -119,13 +124,14 @@ export function AuthProvider({
 	const value = useMemo<AuthContextValue>(
 		() => ({
 			user,
+			accessToken,
 			isAuthenticated: Boolean(user),
 			isLoading,
 			error,
 			refreshSession,
 			clearSession,
 		}),
-		[user, isLoading, error, refreshSession, clearSession],
+		[user, accessToken, isLoading, error, refreshSession, clearSession],
 	);
 
 	return createElement(AuthContext.Provider, { value }, children);
