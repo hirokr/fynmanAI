@@ -1,4 +1,5 @@
 import prisma from '#src/config/database.ts';
+import { Prisma } from '#src/generated/client.ts';
 import {
   generateChatCompletion,
   type ChatMessage,
@@ -37,6 +38,40 @@ type RealtimeFeedbackPayload = {
   detected_gaps: string[];
   topic_drift: boolean;
   citations: string[];
+};
+
+type CitationPayload = {
+  citationId: string;
+  chunkId: string;
+  resourceId?: string;
+  resourceTitle?: string;
+  score?: number;
+  sourceMetadata: {
+    sourceUrl?: string;
+    storageKey?: string;
+    chunkIndex?: number;
+    subject?: string;
+    topic?: string;
+    [key: string]: unknown;
+  };
+};
+
+type EvaluationRecord = {
+  id: string;
+  sessionId: string;
+  type: 'ROLLING' | 'FINAL';
+  content: string;
+  summary?: string | null;
+  strengths?: unknown;
+  weaknesses?: unknown;
+  missedConcepts?: unknown;
+  followUp?: unknown;
+  confidenceScore?: number | null;
+  topicDrift?: boolean | null;
+  provider?: string | null;
+  model?: string | null;
+  metadata?: unknown;
+  createdAt: Date;
 };
 
 const extractJson = (value: string): Record<string, unknown> | null => {
@@ -94,6 +129,11 @@ const coerceNumber = (value: unknown): number | null => {
   return null;
 };
 
+const asRecord = (value: unknown): Record<string, unknown> =>
+  value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+
 const parseFinalEvaluation = (raw: string): FinalEvaluationPayload | null => {
   const parsed = extractJson(raw);
   if (!parsed) {
@@ -102,9 +142,6 @@ const parseFinalEvaluation = (raw: string): FinalEvaluationPayload | null => {
 
   const summary = typeof parsed.summary === 'string' ? parsed.summary : '';
   const confidenceScore = coerceNumber(parsed.confidence_score);
-  const topicDrift =
-    typeof parsed.topic_drift === 'boolean' ? parsed.topic_drift : false;
-
   return {
     summary,
     strengths: coerceStringArray(parsed.strengths),
@@ -112,7 +149,7 @@ const parseFinalEvaluation = (raw: string): FinalEvaluationPayload | null => {
     missed_concepts: coerceStringArray(parsed.missed_concepts),
     follow_up: coerceStringArray(parsed.follow_up),
     confidence_score: confidenceScore ?? 0,
-    topic_drift: topicDrift,
+    topic_drift: coerceBoolean(parsed.topic_drift),
     cited_evidence: coerceStringArray(parsed.cited_evidence),
   };
 };
@@ -135,18 +172,21 @@ const parseRealtimeFeedback = (raw: string): RealtimeFeedbackPayload | null => {
 const getContextTexts = (context: RetrievedContextChunk[]): string[] =>
   context.map(chunk => chunk.text);
 
-const getCitations = (context: RetrievedContextChunk[]) =>
+const getCitations = (context: RetrievedContextChunk[]): CitationPayload[] =>
   context.map(chunk => ({
     citationId: chunk.citationId,
     chunkId: chunk.chunkId,
     resourceId: chunk.resourceId,
     resourceTitle: chunk.resourceTitle,
-    sourceUrl: chunk.sourceUrl,
-    storageKey: chunk.storageKey,
-    chunkIndex: chunk.chunkIndex,
-    subject: chunk.subject,
-    topic: chunk.topic,
     score: chunk.score,
+    sourceMetadata: {
+      sourceUrl: chunk.sourceUrl,
+      storageKey: chunk.storageKey,
+      chunkIndex: chunk.chunkIndex,
+      subject: chunk.subject,
+      topic: chunk.topic,
+      ...(chunk.sourceMetadata || {}),
+    },
   }));
 
 const formatContext = (context: RetrievedContextChunk[]): string => {
@@ -244,6 +284,59 @@ const buildFinalMessages = (params: {
   ];
 };
 
+export const formatEvaluationForClient = <T extends EvaluationRecord>(
+  evaluation: T
+) => {
+  const metadata = asRecord(evaluation.metadata);
+  const citations = Array.isArray(metadata.citations)
+    ? (metadata.citations as CitationPayload[])
+    : [];
+  const citedEvidence = coerceStringArray(metadata.citedEvidence);
+  const rubric = coerceStringArray(metadata.rubric);
+
+  if (evaluation.type === 'ROLLING') {
+    const followUp = asRecord(evaluation.followUp);
+    const parsed = parseRealtimeFeedback(evaluation.content);
+    const structured: RealtimeFeedbackPayload = parsed || {
+      questions: coerceStringArray(followUp.questions),
+      clarifications: coerceStringArray(followUp.clarifications),
+      detected_gaps: coerceStringArray(evaluation.weaknesses),
+      topic_drift: Boolean(evaluation.topicDrift),
+      citations: citedEvidence,
+    };
+
+    return {
+      ...evaluation,
+      structured,
+      citations,
+      citedEvidence,
+      rubric,
+      analytics: metadata.analytics,
+    };
+  }
+
+  const parsed = parseFinalEvaluation(evaluation.content);
+  const structured: FinalEvaluationPayload = parsed || {
+    summary: evaluation.summary || '',
+    strengths: coerceStringArray(evaluation.strengths),
+    weaknesses: coerceStringArray(evaluation.weaknesses),
+    missed_concepts: coerceStringArray(evaluation.missedConcepts),
+    follow_up: coerceStringArray(evaluation.followUp),
+    confidence_score: evaluation.confidenceScore || 0,
+    topic_drift: Boolean(evaluation.topicDrift),
+    cited_evidence: citedEvidence,
+  };
+
+  return {
+    ...evaluation,
+    structured,
+    citations,
+    citedEvidence,
+    rubric,
+    analytics: metadata.analytics,
+  };
+};
+
 export const maybeGenerateRealtimeFeedback = async (params: {
   sessionId: string;
   subject?: string;
@@ -333,7 +426,7 @@ export const generateRealtimeFeedback = async (params: {
         citedEvidence: parsed?.citations || [],
         rubric,
         analytics: transcriptAnalytics,
-      },
+      } as Prisma.InputJsonValue,
     },
   });
 
@@ -360,7 +453,7 @@ export const generateRealtimeFeedback = async (params: {
     },
   });
 
-  return evaluation;
+  return formatEvaluationForClient(evaluation);
 };
 
 export const generateFinalEvaluation = async (params: {
@@ -445,7 +538,7 @@ export const generateFinalEvaluation = async (params: {
         citedEvidence: parsed?.cited_evidence || [],
         rubric,
         analytics: transcriptAnalytics,
-      },
+      } as Prisma.InputJsonValue,
     },
   });
 
@@ -472,7 +565,7 @@ export const generateFinalEvaluation = async (params: {
     },
   });
 
-  return evaluation;
+  return formatEvaluationForClient(evaluation);
 };
 
 export const getLatestFinalEvaluation = async (sessionId: string) =>
@@ -490,7 +583,7 @@ export const ensureFinalEvaluation = async (params: {
 }) => {
   const existing = await getLatestFinalEvaluation(params.sessionId);
   if (existing) {
-    return existing;
+    return formatEvaluationForClient(existing);
   }
 
   return generateFinalEvaluation({

@@ -14,6 +14,7 @@ import {
   generateFinalEvaluation,
   generateRealtimeFeedback,
   ensureFinalEvaluation,
+  formatEvaluationForClient,
   getLatestFinalEvaluation,
 } from '#src/services/evaluation.service.ts';
 
@@ -115,7 +116,12 @@ export const getSessionDetailHandler = async (
     }
 
     return sendApiSuccess(res, {
-      data: { session },
+      data: {
+        session: {
+          ...session,
+          evaluations: session.evaluations.map(formatEvaluationForClient),
+        },
+      },
     });
   } catch (error) {
     return sendApiError(res, {

@@ -10,10 +10,10 @@
 
 ## P1 - Evaluation Quality
 
-- [ ] Return structured realtime probing output instead of raw LLM prose.
-- [ ] Add retrieval citations: chunk id, resource id, resource title, score, and source metadata.
-- [ ] Include citations in rolling feedback and final evaluation metadata.
-- [ ] Add domain-specific rubrics for math and physics.
+- [x] Return structured realtime probing output instead of raw LLM prose.
+- [x] Add retrieval citations: chunk id, resource id, resource title, score, and source metadata.
+- [x] Include citations in rolling feedback and final evaluation metadata.
+- [x] Add domain-specific rubrics for math and physics.
 
 ## P2 - Reliability And Operations
 
