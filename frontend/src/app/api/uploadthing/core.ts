@@ -11,7 +11,7 @@ export const ourFileRouter = {
 		})
 		.onUploadComplete(async ({ file }) => {
 			// Called server-side after upload finishes
-			return { url: file.ufsUrl };
+			return { url: file.url };
 		}),
 } satisfies FileRouter;
 

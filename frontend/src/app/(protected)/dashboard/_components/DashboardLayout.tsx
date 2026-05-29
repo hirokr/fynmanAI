@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import DashboardNav from "./DashboardNav";
 import DashboardShellClient from "./DashboardShellClient";
+import { DashboardDataProvider } from "./DashboardDataProvider";
 import MobileNav from "../../../../components/ui/MobileNav";
 
 const topLogoUrl =
@@ -53,7 +54,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </aside>
 
         <div className="flex-1 ml-0 md:ml-70 relative">
-          <DashboardShellClient>{children}</DashboardShellClient>
+          <DashboardShellClient>
+            <DashboardDataProvider>{children}</DashboardDataProvider>
+          </DashboardShellClient>
         </div>
       </div>
 

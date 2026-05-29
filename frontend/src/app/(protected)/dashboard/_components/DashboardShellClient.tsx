@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/auth/AuthContext";
 import TopNav from "@/components/landing/TopNav";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,8 +14,10 @@ export default function DashboardShellClient({
   children,
 }: DashboardShellClientProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const isDashboard = pathname === "/dashboard";
   const headerOffsetClass = isDashboard ? "pt-12" : "pt-16";
+  const avatarSrc = user?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDx58UFf8Zkf4ThtO7ufT7-KQgBt-LCoSLduSZ6amC-zKnDnVdU9gjeq5UKGRFlh3HFR54soCyjtrs_xhIGNCWYZn77RB1JOSoKDZnROBJlGClfJs2YK5VbhKifwX_JnTidJUkQHzIA7bCd7O4Ic08Bfetzmk5Ts42fritLV2M8UTBbFVcGhXtjB6HKdIxVL48QMJzpQA93WERCEEU0RMepIGJeQyFdEjzat374OgO2x-Sq6558duwc4PloptIjzmzjYNCCPs4z1pMj";
 
   return (
     <>
@@ -26,7 +29,7 @@ export default function DashboardShellClient({
       <header
         className={
           isDashboard
-            ? "fixed top-0 left-0 md:left-70 right-0 h-12 bg-[#0e1626] border-b border-[#273244] px-6 flex items-center justify-between z-40 hidden lg:flex md:flex" 
+            ? "fixed top-0 left-0 md:left-70 right-0 h-12 bg-[#0e1626] border-b border-[#273244] px-6 items-center justify-between z-40 hidden md:flex" 
             : "fixed top-0 left-0 md:left-70 right-0 h-16 bg-surface flex justify-between items-center px-6 z-40 border-b border-outline-variant"
         }
       >
@@ -80,8 +83,8 @@ export default function DashboardShellClient({
                 </button>
                 <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
                   <Image
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx58UFf8Zkf4ThtO7ufT7-KQgBt-LCoSLduSZ6amC-zKnDnVdU9gjeq5UKGRFlh3HFR54soCyjtrs_xhIGNCWYZn77RB1JOSoKDZnROBJlGClfJs2YK5VbhKifwX_JnTidJUkQHzIA7bCd7O4Ic08Bfetzmk5Ts42fritLV2M8UTBbFVcGhXtjB6HKdIxVL48QMJzpQA93WERCEEU0RMepIGJeQyFdEjzat374OgO2x-Sq6558duwc4PloptIjzmzjYNCCPs4z1pMj"
-                    alt="Avatar"
+                    src={avatarSrc}
+                    alt={user?.name || "Avatar"}
                     width={32}
                     height={32}
                     className="w-full h-full object-cover"

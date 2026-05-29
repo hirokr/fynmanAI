@@ -1,4 +1,12 @@
+"use client";
+
+import { useDashboardData } from "../../_components/DashboardDataProvider";
+
 export default function SystemSection() {
+  const { profile, progress } = useDashboardData();
+  const darkModeEnabled = true;
+  const focusNotificationsEnabled = (progress?.totals?.activeSessions ?? 0) > 0;
+
   return (
     <section className="space-y-6 pt-6" id="system">
       <div className="pb-4 border-b border-outline-variant">
@@ -13,20 +21,43 @@ export default function SystemSection() {
         <div className="flex items-center justify-between p-4 bg-surface-container rounded border border-outline-variant">
           <div>
             <p className="font-medium text-on-surface">Dark Mode</p>
-            <p className="text-xs text-outline">Optimized for low-light focus</p>
+            <p className="text-xs text-outline">
+              {darkModeEnabled
+                ? "Optimized for low-light focus"
+                : "Balanced for light environments"}
+            </p>
           </div>
-          <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer">
-            <div className="absolute right-1 top-1 w-4 h-4 bg-on-primary rounded-full" />
+          <div
+            className={`w-12 h-6 rounded-full relative cursor-pointer ${darkModeEnabled ? "bg-primary" : "bg-outline-variant"}`}
+          >
+            <div
+              className={`absolute top-1 w-4 h-4 bg-on-primary rounded-full ${darkModeEnabled ? "right-1" : "left-1"}`}
+            />
           </div>
         </div>
         <div className="flex items-center justify-between p-4 bg-surface-container rounded border border-outline-variant">
           <div>
             <p className="font-medium text-on-surface">Focus Notifications</p>
-            <p className="text-xs text-outline">Mute all during active sessions</p>
+            <p className="text-xs text-outline">
+              {focusNotificationsEnabled
+                ? "Mute all during active sessions"
+                : "Ready when you start a session"}
+            </p>
           </div>
-          <div className="w-12 h-6 bg-outline-variant rounded-full relative cursor-pointer">
-            <div className="absolute left-1 top-1 w-4 h-4 bg-on-surface-variant rounded-full" />
+          <div
+            className={`w-12 h-6 rounded-full relative cursor-pointer ${focusNotificationsEnabled ? "bg-primary" : "bg-outline-variant"}`}
+          >
+            <div
+              className={`absolute top-1 w-4 h-4 rounded-full ${focusNotificationsEnabled ? "right-1 bg-on-primary" : "left-1 bg-on-surface-variant"}`}
+            />
           </div>
+        </div>
+        <div className="p-4 bg-surface-container rounded border border-outline-variant space-y-1">
+          <p className="font-medium text-on-surface">Account Sync</p>
+          <p className="text-xs text-outline">
+            {profile?.emailVerified ? "Verified and active" : "Verification pending"}
+            {profile?.location ? ` • ${profile.location}` : ""}
+          </p>
         </div>
       </div>
     </section>
