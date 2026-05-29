@@ -21,6 +21,23 @@ import {
 import { appendSessionEvent } from '#src/services/session-cache.service.ts';
 import { getDomainRubric } from '#src/services/domain.service.ts';
 
+type PromptModule = {
+  startPrompt: string;
+  realTimePrompt: string;
+  endPrompt: string;
+};
+
+const promptModuleUrl = new URL('../../prompts.ts', import.meta.url).href;
+let promptModulePromise: Promise<PromptModule> | null = null;
+
+const loadPrompts = async (): Promise<PromptModule> => {
+  promptModulePromise =
+    promptModulePromise ||
+    (import(promptModuleUrl) as Promise<PromptModule>);
+
+  return promptModulePromise;
+};
+
 type FinalEvaluationPayload = {
   summary: string;
   strengths: string[];
@@ -261,6 +278,7 @@ const buildRealtimeMessages = (params: {
   topic?: string;
   goal?: string;
   rubric: string[];
+  systemPrompt: string;
 }): ChatMessage[] => {
   const contextBlock = formatContext(params.context);
   const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
@@ -270,11 +288,7 @@ const buildRealtimeMessages = (params: {
   return [
     {
       role: 'system',
-      content:
-        'You are Feynman AI, an examiner that ONLY asks probing questions. ' +
-        'Never provide explanations or answers. Ask concise questions that expose gaps. ' +
-        'Stay within the given subject/topic. If the transcript drifts, ask to refocus. ' +
-        'Return valid JSON only.',
+      content: `${params.systemPrompt}\nReturn valid JSON only.`,
     },
     {
       role: 'user',
@@ -298,6 +312,7 @@ const buildFinalMessages = (params: {
   topic?: string;
   goal?: string;
   rubric: string[];
+  systemPrompt: string;
 }): ChatMessage[] => {
   const contextBlock = formatContext(params.context);
   const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
@@ -307,11 +322,7 @@ const buildFinalMessages = (params: {
   return [
     {
       role: 'system',
-      content:
-        'You are Feynman AI. Provide a final mastery evaluation. ' +
-        'Do not teach. Highlight gaps, misconceptions, and missing reasoning. ' +
-        'Stay within the given subject/topic and use only retrieved context. ' +
-        'Return valid JSON only.',
+      content: `${params.systemPrompt}\nReturn valid JSON only.`,
     },
     {
       role: 'user',
@@ -329,6 +340,56 @@ const buildFinalMessages = (params: {
   ];
 };
 
+const buildStartMessages = (params: {
+  subject?: string;
+  topic?: string;
+  goal?: string;
+  rubric: string[];
+  systemPrompt: string;
+}): ChatMessage[] => {
+  const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
+  const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
+
+  return [
+    {
+      role: 'system',
+      content: params.systemPrompt,
+    },
+    {
+      role: 'user',
+      content:
+        `Subject/Topic: ${scope || 'unspecified'}\n` +
+        goalBlock +
+        `Rubric:\n${formatRubric(params.rubric)}\n\n` +
+        'The learning session is starting now. Return one concise opening probing question only.',
+    },
+  ];
+};
+
+export const generateSessionStartResponse = async (params: {
+  subject?: string;
+  topic?: string;
+  goal?: string;
+}) => {
+  const { startPrompt } = await loadPrompts();
+  const completion = await generateChatCompletion(
+    buildStartMessages({
+      subject: params.subject,
+      topic: params.topic,
+      goal: params.goal,
+      rubric: getDomainRubric(params.subject),
+      systemPrompt: startPrompt,
+    }),
+    { purpose: 'realtime', temperature: 0.3, maxTokens: 180 }
+  );
+
+  return {
+    content: completion.content,
+    provider: completion.provider,
+    model: completion.model,
+  };
+};
+
 export const formatEvaluationForClient = <T extends EvaluationRecord>(
   evaluation: T
 ) => {
@@ -338,6 +399,8 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
     : [];
   const citedEvidence = coerceStringArray(metadata.citedEvidence);
   const rubric = coerceStringArray(metadata.rubric);
+  const rawContent =
+    typeof metadata.rawContent === 'string' ? metadata.rawContent : evaluation.content;
 
   if (evaluation.type === 'ROLLING') {
     const followUp = asRecord(evaluation.followUp);
@@ -361,6 +424,7 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
       citations,
       citedEvidence,
       rubric,
+      rawContent,
       analytics: metadata.analytics,
     };
   }
@@ -388,6 +452,7 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
     citations,
     citedEvidence,
     rubric,
+    rawContent,
     analytics: metadata.analytics,
   };
 };
@@ -436,6 +501,7 @@ export const generateRealtimeFeedback = async (params: {
     limit: 5,
   });
   const rubric = getDomainRubric(params.subject);
+  const { realTimePrompt } = await loadPrompts();
 
   const completion = await generateChatCompletion(
     buildRealtimeMessages({
@@ -445,6 +511,7 @@ export const generateRealtimeFeedback = async (params: {
       topic: params.topic,
       goal: params.goal,
       rubric,
+      systemPrompt: realTimePrompt,
     }),
     { purpose: 'realtime', temperature: 0.4 }
   );
@@ -538,6 +605,7 @@ export const generateFinalEvaluation = async (params: {
     limit: 8,
   });
   const rubric = getDomainRubric(params.subject);
+  const { endPrompt } = await loadPrompts();
 
   const completion = await generateChatCompletion(
     buildFinalMessages({
@@ -547,6 +615,7 @@ export const generateFinalEvaluation = async (params: {
       topic: params.topic,
       goal: params.goal,
       rubric,
+      systemPrompt: endPrompt,
     }),
     { purpose: 'final', temperature: 0.3 }
   );

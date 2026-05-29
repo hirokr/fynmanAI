@@ -8,7 +8,12 @@ import {
 } from '#src/services/session.service.ts';
 import { handleTextInput } from '#src/services/text-input.service.ts';
 import { transcribeAudioBuffer } from '#src/services/stt.service.ts';
-import { maybeGenerateRealtimeFeedback } from '#src/services/evaluation.service.ts';
+import {
+  generateFinalEvaluation,
+  generateRealtimeFeedback,
+  generateSessionStartResponse,
+} from '#src/services/evaluation.service.ts';
+import { preprocessTranscriptText } from '#src/services/transcript-preprocess.service.ts';
 import logger from '#config/logger.ts';
 
 const getTokenFromSocket = (socket: Socket): string | null => {
@@ -46,6 +51,77 @@ export const registerRealtimeSocket = (io: Server) => {
     }
   });
 
+  const emitLlmResponse = (
+    sessionId: string,
+    phase: 'start' | 'realtime' | 'end',
+    content: string
+  ) => {
+    io.to(sessionId).emit('llm:response', {
+      sessionId,
+      phase,
+      content,
+    });
+  };
+
+  const generateAndEmitRealtimeResponse = async (params: {
+    sessionId: string;
+    userId: string;
+    text: string;
+  }) => {
+    const session = await getSessionById(params.sessionId);
+    if (!session || session.userId !== params.userId) {
+      return null;
+    }
+
+    const evaluation = await generateRealtimeFeedback({
+      sessionId: params.sessionId,
+      transcriptOverride: params.text,
+      subject: session.subject || undefined,
+      topic: session.topic || undefined,
+      resourceIds: session.resources.map(item => item.resourceId),
+      goal: session.goal || undefined,
+    });
+
+    if (evaluation?.rawContent) {
+      emitLlmResponse(params.sessionId, 'realtime', evaluation.rawContent);
+    }
+
+    return evaluation;
+  };
+
+  const handleEndSession = async (socket: Socket, payload: any, cb?: any) => {
+    try {
+      if (!payload?.sessionId) {
+        cb?.({ ok: false, error: 'sessionId is required' });
+        return;
+      }
+
+      const session = await getSessionById(payload.sessionId);
+      if (!session || session.userId !== socket.data.userId) {
+        cb?.({ ok: false, error: 'Session not found' });
+        return;
+      }
+
+      await endSession(payload.sessionId);
+      const evaluation = await generateFinalEvaluation({
+        sessionId: payload.sessionId,
+        subject: session.subject || undefined,
+        topic: session.topic || undefined,
+        resourceIds: session.resources.map(item => item.resourceId),
+        goal: session.goal || undefined,
+      });
+
+      if (evaluation?.rawContent) {
+        emitLlmResponse(payload.sessionId, 'end', evaluation.rawContent);
+      }
+
+      cb?.({ ok: true });
+    } catch (error) {
+      logger.error(`Realtime session end failed: ${String(error)}`);
+      cb?.({ ok: false, error: 'Failed to end session' });
+    }
+  };
+
   io.on('connection', socket => {
     socket.on('session:start', async (payload, cb) => {
       try {
@@ -58,25 +134,26 @@ export const registerRealtimeSocket = (io: Server) => {
         });
 
         socket.join(session.id);
+        const startResponse = await generateSessionStartResponse({
+          subject: session.subject || undefined,
+          topic: session.topic || undefined,
+          goal: session.goal || undefined,
+        });
+        emitLlmResponse(session.id, 'start', startResponse.content);
         cb?.({ ok: true, session });
       } catch (error) {
+        logger.error(`Realtime session start failed: ${String(error)}`);
         cb?.({ ok: false, error: 'Failed to start session' });
       }
     });
 
-    socket.on('session:end', async (payload, cb) => {
-      try {
-        if (!payload?.sessionId) {
-          cb?.({ ok: false, error: 'sessionId is required' });
-          return;
-        }
+    socket.on('session:end', (payload, cb) =>
+      handleEndSession(socket, payload, cb)
+    );
 
-        await endSession(payload.sessionId);
-        cb?.({ ok: true });
-      } catch (error) {
-        cb?.({ ok: false, error: 'Failed to end session' });
-      }
-    });
+    socket.on('user:end', (payload, cb) =>
+      handleEndSession(socket, payload, cb)
+    );
 
     socket.on('audio:chunk', async (payload, cb) => {
       try {
@@ -86,6 +163,13 @@ export const registerRealtimeSocket = (io: Server) => {
           cb?.({ ok: false, error: 'sessionId and audioBase64 are required' });
           return;
         }
+
+        const session = await getSessionById(sessionId);
+        if (!session || session.userId !== socket.data.userId) {
+          cb?.({ ok: false, error: 'Session not found' });
+          return;
+        }
+        socket.join(sessionId);
 
         const buffer = Buffer.from(audioBase64, 'base64');
         const transcript = await transcribeAudioBuffer({
@@ -106,22 +190,11 @@ export const registerRealtimeSocket = (io: Server) => {
           chunk,
         });
 
-        const session = await getSessionById(sessionId);
-        if (session) {
-          const evaluation = await maybeGenerateRealtimeFeedback({
-            sessionId,
-            subject: session.subject || undefined,
-            topic: session.topic || undefined,
-            resourceIds: session.resources.map(item => item.resourceId),
-          });
-
-          if (evaluation) {
-            io.to(sessionId).emit('analysis:question', {
-              sessionId,
-              evaluation,
-            });
-          }
-        }
+        await generateAndEmitRealtimeResponse({
+          sessionId,
+          userId: socket.data.userId,
+          text: transcript.text,
+        });
 
         cb?.({ ok: true, chunk });
       } catch (error) {
@@ -140,13 +213,38 @@ export const registerRealtimeSocket = (io: Server) => {
           return;
         }
 
+        const session = await getSessionById(sessionId);
+        if (!session || session.userId !== socket.data.userId) {
+          cb?.({ ok: false, error: 'Session not found' });
+          return;
+        }
+        socket.join(sessionId);
+
         await handleTextInput({
           sessionId,
           userId: socket.data.userId,
           text,
         });
 
-        cb?.({ ok: true });
+        const chunk = await appendTranscriptChunk({
+          sessionId,
+          text: preprocessTranscriptText(text),
+          startTimeMs: payload?.startTimeMs,
+          endTimeMs: payload?.endTimeMs,
+        });
+
+        io.to(sessionId).emit('transcript:chunk', {
+          sessionId,
+          chunk,
+        });
+
+        await generateAndEmitRealtimeResponse({
+          sessionId,
+          userId: socket.data.userId,
+          text: chunk.text,
+        });
+
+        cb?.({ ok: true, chunk });
       } catch (error) {
         logger.error(`Realtime text input failed: ${String(error)}`);
         cb?.({ ok: false, error: 'Failed to process text input' });
