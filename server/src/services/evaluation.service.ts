@@ -344,11 +344,14 @@ const buildStartMessages = (params: {
   subject?: string;
   topic?: string;
   goal?: string;
+  context: RetrievedContextChunk[];
   rubric: string[];
   systemPrompt: string;
 }): ChatMessage[] => {
   const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
+  const contextBlock = formatContext(params.context);
+  const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
 
   return [
     {
@@ -361,7 +364,10 @@ const buildStartMessages = (params: {
         `Subject/Topic: ${scope || 'unspecified'}\n` +
         goalBlock +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
-        'The learning session is starting now. Return one concise opening probing question only.',
+        `Retrieved context:\n${contextBlock}\n\n` +
+        `Available citation ids: ${citationIds || 'none'}\n\n` +
+        'The learning session is starting now. Return one concise opening probing question only. ' +
+        'Ground the question in the retrieved context when context is available.',
     },
   ];
 };
@@ -370,13 +376,27 @@ export const generateSessionStartResponse = async (params: {
   subject?: string;
   topic?: string;
   goal?: string;
+  resourceIds?: string[];
 }) => {
+  const contextQuery = [params.topic, params.subject, params.goal]
+    .filter(Boolean)
+    .join(' ');
+  const context = contextQuery.trim()
+    ? await retrieveContext({
+        transcript: contextQuery,
+        subject: params.subject,
+        topic: params.topic,
+        resourceIds: params.resourceIds,
+        limit: 5,
+      })
+    : [];
   const { startPrompt } = await loadPrompts();
   const completion = await generateChatCompletion(
     buildStartMessages({
       subject: params.subject,
       topic: params.topic,
       goal: params.goal,
+      context,
       rubric: getDomainRubric(params.subject),
       systemPrompt: startPrompt,
     }),
@@ -387,6 +407,7 @@ export const generateSessionStartResponse = async (params: {
     content: completion.content,
     provider: completion.provider,
     model: completion.model,
+    context,
   };
 };
 

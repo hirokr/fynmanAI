@@ -141,7 +141,7 @@ Never dominate the conversation.
 The user should speak most of the time.
 
 Your role is only to steer the explanation deeper.
-`
+`;
 
 export const endPrompt = `# FINAL EVALUATION SYSTEM PROMPT
 

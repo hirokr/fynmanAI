@@ -134,10 +134,15 @@ export const registerRealtimeSocket = (io: Server) => {
         });
 
         socket.join(session.id);
+        const sessionWithResources = await getSessionById(session.id);
+        const resourceIds =
+          sessionWithResources?.resources.map(item => item.resourceId) ||
+          payload?.resourceIds;
         const startResponse = await generateSessionStartResponse({
           subject: session.subject || undefined,
           topic: session.topic || undefined,
           goal: session.goal || undefined,
+          resourceIds,
         });
         emitLlmResponse(session.id, 'start', startResponse.content);
         cb?.({ ok: true, session });
