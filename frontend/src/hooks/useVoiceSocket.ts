@@ -8,16 +8,19 @@ export const useVoiceSocket = (token: string) => {
     setSessionId,
     addTranscript,
     setConnected,
-    setSessionReady,   // NEW
-    setAiFeedback,     // NEW
+    setSessionReady,
+    setAiFeedback,
+    socket: existingSocket,
   } = useVoiceStore();
 
   const startSessionFlow = async (socket: any) => {
-    setSessionReady(false); // block mic while pending — fixes race condition
+    setSessionReady(false);
+
     try {
-      const session: any = await startSession(socket);
+      const session = await startSession(socket);
+
       setSessionId(session.id);
-      setSessionReady(true); // now safe to record
+      setSessionReady(true);
     } catch (err) {
       console.error("Session start failed:", err);
       setSessionReady(false);
@@ -26,19 +29,17 @@ export const useVoiceSocket = (token: string) => {
 
   const connect = () => {
     const socket = createSocket(token);
+
     setSocket(socket);
 
     socket.on("connect", () => {
       setConnected(true);
-      startSessionFlow(socket); // fixes gap #1 + reconnect recovery
+      startSessionFlow(socket);
     });
-
-    // "connect" fires again automatically on reconnect,
-    // so startSessionFlow re-runs — fixes reconnect gap
 
     socket.on("disconnect", () => {
       setConnected(false);
-      setSessionReady(false); // block mic on disconnect
+      setSessionReady(false);
     });
 
     socket.on("transcript:chunk", (data) => {
@@ -46,7 +47,9 @@ export const useVoiceSocket = (token: string) => {
     });
 
     socket.on("analysis:question", (data) => {
-      setAiFeedback(data.question ?? data.text ?? JSON.stringify(data)); // fixes gap #2
+      setAiFeedback(
+        data.question ?? data.text ?? JSON.stringify(data)
+      );
     });
 
     return socket;

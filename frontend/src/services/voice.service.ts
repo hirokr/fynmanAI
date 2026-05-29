@@ -1,5 +1,5 @@
 export const startSession = (socket: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     socket.emit(
       "session:start",
       {
@@ -15,7 +15,6 @@ export const startSession = (socket: any) => {
   });
 };
 
-
 export const blobToBase64 = (blob: Blob) =>
   new Promise<string>((resolve) => {
     const reader = new FileReader();
@@ -25,7 +24,6 @@ export const blobToBase64 = (blob: Blob) =>
     };
     reader.readAsDataURL(blob);
   });
-
 
 export const sendAudioChunk = async (
   socket: any,

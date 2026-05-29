@@ -5,16 +5,16 @@ type State = {
   socket: Socket | null;
   sessionId: string | null;
   connected: boolean;
-  sessionReady: boolean;       // NEW: UI can gate mic button on this
+  sessionReady: boolean;
   transcripts: string[];
-  aiFeedback: string | null;   // NEW: for analysis:question
+  aiFeedback: string | null;
 
   setSocket: (s: Socket) => void;
   setSessionId: (id: string) => void;
   addTranscript: (text: string) => void;
   setConnected: (v: boolean) => void;
-  setSessionReady: (v: boolean) => void;  // NEW
-  setAiFeedback: (text: string) => void;  // NEW
+  setSessionReady: (v: boolean) => void;
+  setAiFeedback: (text: string) => void;
 };
 
 export const useVoiceStore = create<State>((set) => ({
@@ -28,8 +28,10 @@ export const useVoiceStore = create<State>((set) => ({
   setSocket: (socket) => set({ socket }),
   setSessionId: (sessionId) => set({ sessionId }),
   addTranscript: (text) =>
-    set((state) => ({ transcripts: [...state.transcripts, text] })),
+    set((state) => ({
+      transcripts: [...state.transcripts, text],
+    })),
   setConnected: (connected) => set({ connected }),
-  setSessionReady: (sessionReady) => set({ sessionReady }),  // NEW
-  setAiFeedback: (aiFeedback) => set({ aiFeedback }),        // NEW
+  setSessionReady: (sessionReady) => set({ sessionReady }),
+  setAiFeedback: (aiFeedback) => set({ aiFeedback }),
 }));
