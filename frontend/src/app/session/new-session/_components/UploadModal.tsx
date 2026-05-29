@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 type Props = {
   open: boolean;
   onClose: () => void;
-  onUpload: (files: File[]) => void;
+  onUpload: (files: File[]) => void | Promise<void>;
   uploadLoading?: boolean;
   uploadError?: string | null;
   uploadSuccess?: boolean;
@@ -66,31 +66,6 @@ export default function UploadModal({
     setFiles((prev) => prev.filter((f) => f.name !== name));
   };
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file, file.name);
-
-    const response = await fetch("/api/parser/parse", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const contentType = response.headers.get("content-type") ?? "";
-      const details = contentType.includes("application/json")
-        ? await response.json().catch(() => null)
-        : await response.text().catch(() => null);
-      const message =
-        typeof details === "object" && details && "message" in details
-          ? String((details as { message?: string }).message)
-          : typeof details === "string" && details.trim()
-            ? details
-            : `Failed to upload ${file.name}`;
-
-      throw new Error(message);
-    }
-  };
-
   const handleUpload = async () => {
     if (files.length === 0 || uploading) return;
 
@@ -98,11 +73,7 @@ export default function UploadModal({
     setLocalError(null);
 
     try {
-      for (const file of files) {
-        await uploadFile(file);
-      }
-
-      onUpload(files);
+      await onUpload(files);
       resetModal();
       onClose();
     } catch (error) {

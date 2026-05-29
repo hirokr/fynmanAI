@@ -17,7 +17,9 @@ const buildUrl = (endpoint: string, baseUrl?: string) => {
   if (endpoint.startsWith("http")) return endpoint;
   if (baseUrl === "") return endpoint;
   const root = baseUrl ?? API_BASE_URL;
-  return `${root}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const normalizedRoot = root.endsWith("/") ? root.slice(0, -1) : root;
+  const normalizedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  return `${normalizedRoot}${normalizedEndpoint}`;
 };
 
 export async function apiFetch<T>(

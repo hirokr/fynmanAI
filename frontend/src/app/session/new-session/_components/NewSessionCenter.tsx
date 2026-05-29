@@ -85,9 +85,10 @@ export default function NewSessionCenter() {
         onClose={() => setUploadOpen(false)}
         onUpload={async (files) => {
           if (!accessToken) {
-            setUploadError("Sign in to upload files.");
+            const error = new Error("Sign in to upload files.");
+            setUploadError(error.message);
             setUploadSuccess(false);
-            return;
+            throw error;
           }
 
           setUploadLoading(true);
@@ -113,6 +114,7 @@ export default function NewSessionCenter() {
               error instanceof Error ? error.message : "Upload failed";
             setUploadError(message);
             setUploadSuccess(false);
+            throw error;
           } finally {
             setUploadLoading(false);
           }
