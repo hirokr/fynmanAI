@@ -5,7 +5,7 @@ import UploadModal from "./UploadModal";
 import UploadStep from "./UploadStep";
 import ProcessingStep from "./ProcessingStep";
 import BriefStep from "./BriefStep";
-import { useSessionResources } from "../../_components/SessionResourcesContext";
+import { useSessionResources } from "../../../../context/Resource/SessionResourcesContext";
 
 type Step = "upload" | "processing" | "brief";
 
