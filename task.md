@@ -24,8 +24,6 @@
 
 ## P3 - Security And Scale
 
-- [ ] Harden URL ingestion against SSRF, private IP targets, unsafe redirects, and unsupported content types.
-- [ ] Add vector cleanup on resource deletion.
 - [ ] Add rate limits for REST endpoints and per-session websocket usage.
 - [ ] Add configurable retention policies for transcripts, uploaded resources, and analytics.
 
