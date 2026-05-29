@@ -14,6 +14,8 @@ type QdrantFilter = {
   must_not?: Array<Record<string, unknown>>;
 };
 
+const FILTER_PAYLOAD_INDEXES = ['resourceId', 'subject', 'topic'] as const;
+
 const requireQdrantUrl = (): string => {
   if (!env.QDRANT_URL) {
     throw new Error('[Qdrant] QDRANT_URL is required');
@@ -55,6 +57,20 @@ const requestQdrant = async <T>(
   return (await response.json()) as T;
 };
 
+const ensurePayloadIndexes = async (collectionName: string): Promise<void> => {
+  await Promise.all(
+    FILTER_PAYLOAD_INDEXES.map(fieldName =>
+      requestQdrant(`/collections/${collectionName}/index?wait=true`, {
+        method: 'PUT',
+        body: {
+          field_name: fieldName,
+          field_schema: 'keyword',
+        },
+      })
+    )
+  );
+};
+
 export const ensureCollection = async (
   collectionName: string,
   vectorSize: number
@@ -73,6 +89,8 @@ export const ensureCollection = async (
       },
     });
   }
+
+  await ensurePayloadIndexes(collectionName);
 };
 
 export const upsertPoints = async (
@@ -97,21 +115,37 @@ export const searchPoints = async (params: {
     score?: number;
   }>
 > => {
-  const response = await requestQdrant<{
-    result?: Array<{
-      id: string | number;
-      payload?: Record<string, unknown>;
-      score?: number;
-    }>;
-  }>(`/collections/${params.collectionName}/points/search`, {
-    method: 'POST',
-    body: {
-      vector: params.vector,
-      limit: params.limit || 5,
-      filter: params.filter,
-      with_payload: true,
-    },
-  });
+  const runSearch = () =>
+    requestQdrant<{
+      result?: Array<{
+        id: string | number;
+        payload?: Record<string, unknown>;
+        score?: number;
+      }>;
+    }>(`/collections/${params.collectionName}/points/search`, {
+      method: 'POST',
+      body: {
+        vector: params.vector,
+        limit: params.limit || 5,
+        filter: params.filter,
+        with_payload: true,
+      },
+    });
+
+  let response: Awaited<ReturnType<typeof runSearch>>;
+  try {
+    response = await runSearch();
+  } catch (error) {
+    if (!String(error).includes('Index required but not found')) {
+      throw error;
+    }
+
+    logger.warn(
+      `[Qdrant] Missing payload index on ${params.collectionName}; creating filter indexes and retrying search`
+    );
+    await ensurePayloadIndexes(params.collectionName);
+    response = await runSearch();
+  }
 
   return response.result || [];
 };

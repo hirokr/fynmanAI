@@ -101,7 +101,7 @@ export const registerRealtimeSocket = (io: Server) => {
           endTimeMs: payload?.endTimeMs,
         });
 
-        socket.to(sessionId).emit('transcript:chunk', {
+        io.to(sessionId).emit('transcript:chunk', {
           sessionId,
           chunk,
         });
