@@ -27,11 +27,11 @@ export const useVoiceSocket = (token: string) => {
     }
   };
 
-  const connect = () => {
-    if (existingSocket) return existingSocket;
-    const socket = createSocket(token);
-
-    setSocket(socket);
+  const wireSocket = (socket: any) => {
+    socket.off("connect");
+    socket.off("disconnect");
+    socket.off("transcript:chunk");
+    socket.off("analysis:question");
 
     socket.on("connect", () => {
       setConnected(true);
@@ -60,6 +60,16 @@ export const useVoiceSocket = (token: string) => {
           JSON.stringify(data)
       );
     });
+  };
+
+  const connect = () => {
+    const socket = existingSocket ?? createSocket(token);
+    setSocket(socket);
+    wireSocket(socket);
+
+    if (!socket.connected) {
+      socket.connect();
+    }
 
     return socket;
   };
