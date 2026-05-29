@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BACKEND_URL } from "@/constants/constants";
 import { useState } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 
 import { AuthPageShell } from "../_components/AuthPageShell";
 import { PasswordInputField } from "./_components/PasswordInputField";
@@ -21,6 +21,7 @@ export default function ResetPasswordPage() {
 	const [showConfirm, setShowConfirm] = useState(false);
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const meetsLengthRequirement = newPassword.length >= 8;
 	const meetsSpecialCharRequirement = /[^A-Za-z0-9]/.test(newPassword);
@@ -50,32 +51,26 @@ export default function ResetPasswordPage() {
 							alert("Missing reset token. Use the link from your email.");
 							return;
 						}
+						if (isSubmitting) return;
 
 						try {
-							const res = await fetch(
-								`${BACKEND_URL}/api/user/reset-password`,
-								{
-									method: "POST",
-									headers: { "Content-Type": "application/json" },
-									body: JSON.stringify({
-										token,
-										newPassword,
-										confirmPassword,
-									}),
+							setIsSubmitting(true);
+							await apiFetch("/api/user/reset-password", {
+								method: "POST",
+								body: {
+									token,
+									newPassword,
+									confirmPassword,
 								},
-							);
-
-							const payload = await res.json();
-							if (!res.ok) {
-								alert(payload?.message || "Failed to reset password");
-								return;
-							}
+							});
 
 							// success: go to sign in
 							router.push("/auth/signin");
 						} catch (err) {
 							console.error("Reset password failed", err);
 							alert("Failed to reset password");
+						} finally {
+							setIsSubmitting(false);
 						}
 					}}
 				>

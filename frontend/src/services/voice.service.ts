@@ -25,18 +25,38 @@ export const blobToBase64 = (blob: Blob) =>
     reader.readAsDataURL(blob);
   });
 
+type AudioChunkOptions = {
+  fileName?: string;
+  mimeType?: string;
+  startTimeMs?: number;
+  endTimeMs?: number;
+};
+
 export const sendAudioChunk = async (
   socket: any,
   sessionId: string,
-  blob: Blob
+  blob: Blob,
+  options: AudioChunkOptions = {}
 ) => {
   const base64 = await blobToBase64(blob);
 
   socket.emit("audio:chunk", {
     sessionId,
     audioBase64: base64,
-    fileName: `chunk-${Date.now()}.webm`,
-    mimeType: "audio/webm",
-    startTimeMs: Date.now(),
+    fileName: options.fileName || `chunk-${Date.now()}.webm`,
+    mimeType: options.mimeType || blob.type || "audio/webm",
+    startTimeMs: options.startTimeMs,
+    endTimeMs: options.endTimeMs,
+  });
+};
+
+export const sendTextInput = (
+  socket: any,
+  sessionId: string,
+  text: string
+) => {
+  socket.emit("text:input", {
+    sessionId,
+    text,
   });
 };

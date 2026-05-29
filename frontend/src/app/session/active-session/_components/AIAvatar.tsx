@@ -5,9 +5,12 @@ const aiAvatarUrl =
 
 interface AIAvatarProps {
   waveformOpacity: string;
+  waveformLevel?: number;
 }
 
-export default function AIAvatar({ waveformOpacity }: AIAvatarProps) {
+export default function AIAvatar({ waveformOpacity, waveformLevel = 0 }: AIAvatarProps) {
+  const pulseScale = 0.6 + Math.min(1, Math.max(0, waveformLevel)) * 0.9;
+
   return (
     <div className="mt-32 flex flex-col items-center gap-8 w-full max-w-2xl">
       <div className="w-16 h-16 rounded-full bg-surface-container-high border border-primary/20 flex items-center justify-center overflow-hidden">
@@ -21,12 +24,16 @@ export default function AIAvatar({ waveformOpacity }: AIAvatarProps) {
       </div>
       <div
         className={`flex items-center justify-center gap-0.5 h-10 w-48 ${waveformOpacity}`}
+        style={{ transform: `scaleY(${pulseScale})` }}
       >
         {Array.from({ length: 7 }).map((_, index) => (
           <div
             key={`wave-${index}`}
-            className={`waveform-bar w-0.75 bg-primary/${40 + index * 10} rounded-full`}
-            style={{ animationDelay: `${(index * 0.2) % 0.6}s` }}
+            className="waveform-bar w-0.75 bg-primary rounded-full"
+            style={{
+              animationDelay: `${(index * 0.2) % 0.6}s`,
+              opacity: 0.4 + index * 0.1,
+            }}
           />
         ))}
       </div>

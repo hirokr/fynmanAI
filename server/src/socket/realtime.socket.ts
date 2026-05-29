@@ -5,7 +5,9 @@ import {
   endSession,
   getSessionById,
 } from '#src/services/session.service.ts';
-import { ensureFinalEvaluation } from '#src/services/evaluation.service.ts';
+import { handleTextInput } from '#src/services/text-input.service.ts';
+import { transcribeAudioBuffer } from '#src/services/stt.service.ts';
+import { maybeGenerateRealtimeFeedback } from '#src/services/evaluation.service.ts';
 import logger from '#config/logger.ts';
 import { env } from '#config/env.ts';
 import { audioProcessingQueue } from '#src/queues/audio-processing.queue.ts';
@@ -347,41 +349,23 @@ export const registerRealtimeSocket = (io: Server) => {
           audioBase64,
           fileName: payload?.fileName || `chunk-${Date.now()}.webm`,
           mimeType: payload?.mimeType,
-          speakerLabel,
-          startTimeMs: validation.startTimeMs,
-          endTimeMs: validation.endTimeMs,
-          sequence: validation.sequence,
-        };
+        });
 
-        if (env.ENABLE_AUDIO_PROCESSING_QUEUE !== true) {
-          const result = await processAudioChunk(audioJob);
-          emitAudioProcessingResult(io, result);
-          cb?.({ ok: true, chunk: result.chunk, skipped: result.skipped });
-          return;
-        }
+        const chunk = await appendTranscriptChunk({
+          sessionId,
+          text: transcript.text,
+          startTimeMs: payload?.startTimeMs,
+          endTimeMs: payload?.endTimeMs,
+        });
 
-        const job = await audioProcessingQueue.add(
-          audioJob,
-          `audio:${sessionId}:${validation.sequence ?? Date.now()}`
-        );
-        const timeoutMs = env.AUDIO_PROCESSING_RESULT_TIMEOUT_MS || 30_000;
+        io.to(sessionId).emit('transcript:chunk', {
+          sessionId,
+          chunk,
+        });
 
-        try {
-          const result = (await job.waitUntilFinished(
-            audioProcessingQueue.events,
-            timeoutMs
-          )) as AudioChunkProcessResult;
-          emitAudioProcessingResult(io, result);
-          cb?.({
-            ok: true,
-            queued: true,
-            jobId: job.id,
-            chunk: result.chunk,
-            skipped: result.skipped,
-          });
-        } catch (error) {
-          logger.warn('[Realtime] Audio job queued without immediate result', {
-            jobId: job.id,
+        const session = await getSessionById(sessionId);
+        if (session) {
+          const evaluation = await maybeGenerateRealtimeFeedback({
             sessionId,
             error: error instanceof Error ? error.message : String(error),
           });
@@ -391,22 +375,29 @@ export const registerRealtimeSocket = (io: Server) => {
         logger.error(`Realtime audio chunk failed: ${String(error)}`);
         cb?.({ ok: false, error: 'Failed to process audio chunk' });
       }
-    };
+    });
 
-    registerSocketEventAliases(
-      socket,
-      ['session:start', 'session_start'],
-      handleSessionStart
-    );
-    registerSocketEventAliases(
-      socket,
-      ['session:end', 'session_end'],
-      handleSessionEnd
-    );
-    registerSocketEventAliases(
-      socket,
-      ['audio:chunk', 'audio_chunk'],
-      handleAudioChunk
-    );
+    socket.on('text:input', async (payload, cb) => {
+      try {
+        const sessionId = payload?.sessionId;
+        const text = payload?.text;
+
+        if (!sessionId || !text) {
+          cb?.({ ok: false, error: 'sessionId and text are required' });
+          return;
+        }
+
+        await handleTextInput({
+          sessionId,
+          userId: socket.data.userId,
+          text,
+        });
+
+        cb?.({ ok: true });
+      } catch (error) {
+        logger.error(`Realtime text input failed: ${String(error)}`);
+        cb?.({ ok: false, error: 'Failed to process text input' });
+      }
+    });
   });
 };

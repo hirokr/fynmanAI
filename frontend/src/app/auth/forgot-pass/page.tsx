@@ -5,25 +5,25 @@ import { useState } from "react";
 
 import { AuthPageShell } from "../_components/AuthPageShell";
 import { ForgotPasswordCard } from "./_components/ForgotPasswordCard";
-import { BACKEND_URL } from "@/constants/constants";
+import { apiFetch } from "@/lib/apiFetch";
 
 export default function ForgotPasswordPage() {
 	const router = useRouter();
 	const [email, setEmail] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const trimmedEmail = email.trim();
 		if (!trimmedEmail) return;
+		if (isSubmitting) return;
 
 		try {
-			const res = await fetch(`${BACKEND_URL}/api/user/forgot-password`, {
+			setIsSubmitting(true);
+			await apiFetch("/api/user/forgot-password", {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email: trimmedEmail }),
+				body: { email: trimmedEmail },
 			});
-
-			const payload = await res.json();
 			// Store email locally so verify page can show it
 			sessionStorage.setItem("authEmail", trimmedEmail);
 
@@ -34,6 +34,8 @@ export default function ForgotPasswordPage() {
 		} catch (err) {
 			console.error("Forgot password request failed:", err);
 			alert("Failed to send reset link. Please try again later.");
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
