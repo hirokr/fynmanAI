@@ -328,11 +328,11 @@ export const googleAuthCallback = [
         );
       }
 
-      sendWelcomeEmail({
-        to: user.email,
-        userName: user.name,
-        dashboardLink: `${frontend}`, //TODO: add dashboard link
-      });
+      // sendWelcomeEmail({
+      //   to: user.email,
+      //   userName: user.name,
+      //   dashboardLink: `${frontend}`, //TODO: add dashboard link
+      // });
 
       return res.redirect(
         `${frontend}/api/auth/google/callback?id=${user.id}&email=${user.email}&name=${user.name}&avatar=${user.avatar || ''}&emailVerified=${user.emailVerified}&isActive=${user.isActive}&accessToken=${accessToken}&refreshToken=${refreshToken}&userBodyImageUrl=${user.userBodyImageUrl || ''}&age=${user.age || ''}`
