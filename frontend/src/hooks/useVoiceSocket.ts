@@ -19,6 +19,12 @@ type AnalysisQuestionEvent = {
   text?: string;
 };
 
+type LlmResponseEvent = {
+  sessionId?: string;
+  phase?: "start" | "realtime" | "end";
+  content?: string;
+};
+
 export const useVoiceSocket = (token: string) => {
   const {
     setSocket,
@@ -61,6 +67,7 @@ export const useVoiceSocket = (token: string) => {
     socket.off("disconnect");
     socket.off("transcript:chunk");
     socket.off("analysis:question");
+    socket.off("llm:response");
 
     socket.on("connect", () => {
       setConnected(true);
@@ -88,6 +95,12 @@ export const useVoiceSocket = (token: string) => {
           data?.text ??
           JSON.stringify(data)
       );
+    });
+
+    socket.on("llm:response", (data: LlmResponseEvent) => {
+      if (data?.content) {
+        setAiFeedback(data.content);
+      }
     });
   }, [
     addTranscript,

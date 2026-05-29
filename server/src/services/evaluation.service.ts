@@ -20,6 +20,7 @@ import {
 } from '#src/services/analytics.service.ts';
 import { appendSessionEvent } from '#src/services/session-cache.service.ts';
 import { getDomainRubric } from '#src/services/domain.service.ts';
+import logger from '#config/logger.ts';
 
 type PromptModule = {
   startPrompt: string;
@@ -271,6 +272,20 @@ const formatRubric = (rubric: string[]): string =>
     ? rubric.map((item, index) => `${index + 1}. ${item}`).join('\n')
     : 'No subject-specific rubric available. Use the general Feynman criteria.';
 
+const logLlmRequest = (params: {
+  purpose: 'start' | 'realtime' | 'final';
+  sessionId?: string;
+  messages: ChatMessage[];
+  contextCount: number;
+}) => {
+  logger.info('LLM request payload', {
+    purpose: params.purpose,
+    sessionId: params.sessionId,
+    contextCount: params.contextCount,
+    messages: params.messages,
+  });
+};
+
 const buildRealtimeMessages = (params: {
   transcript: string;
   context: RetrievedContextChunk[];
@@ -391,15 +406,23 @@ export const generateSessionStartResponse = async (params: {
       })
     : [];
   const { startPrompt } = await loadPrompts();
+  const messages = buildStartMessages({
+    subject: params.subject,
+    topic: params.topic,
+    goal: params.goal,
+    context,
+    rubric: getDomainRubric(params.subject),
+    systemPrompt: startPrompt,
+  });
+
+  logLlmRequest({
+    purpose: 'start',
+    messages,
+    contextCount: context.length,
+  });
+
   const completion = await generateChatCompletion(
-    buildStartMessages({
-      subject: params.subject,
-      topic: params.topic,
-      goal: params.goal,
-      context,
-      rubric: getDomainRubric(params.subject),
-      systemPrompt: startPrompt,
-    }),
+    messages,
     { purpose: 'realtime', temperature: 0.3, maxTokens: 180 }
   );
 
@@ -523,17 +546,25 @@ export const generateRealtimeFeedback = async (params: {
   });
   const rubric = getDomainRubric(params.subject);
   const { realTimePrompt } = await loadPrompts();
+  const messages = buildRealtimeMessages({
+    transcript,
+    context,
+    subject: params.subject,
+    topic: params.topic,
+    goal: params.goal,
+    rubric,
+    systemPrompt: realTimePrompt,
+  });
+
+  logLlmRequest({
+    purpose: 'realtime',
+    sessionId: params.sessionId,
+    messages,
+    contextCount: context.length,
+  });
 
   const completion = await generateChatCompletion(
-    buildRealtimeMessages({
-      transcript,
-      context,
-      subject: params.subject,
-      topic: params.topic,
-      goal: params.goal,
-      rubric,
-      systemPrompt: realTimePrompt,
-    }),
+    messages,
     { purpose: 'realtime', temperature: 0.4 }
   );
   const parsed = parseRealtimeFeedback(completion.content);
@@ -627,17 +658,25 @@ export const generateFinalEvaluation = async (params: {
   });
   const rubric = getDomainRubric(params.subject);
   const { endPrompt } = await loadPrompts();
+  const messages = buildFinalMessages({
+    transcript,
+    context,
+    subject: params.subject,
+    topic: params.topic,
+    goal: params.goal,
+    rubric,
+    systemPrompt: endPrompt,
+  });
+
+  logLlmRequest({
+    purpose: 'final',
+    sessionId: params.sessionId,
+    messages,
+    contextCount: context.length,
+  });
 
   const completion = await generateChatCompletion(
-    buildFinalMessages({
-      transcript,
-      context,
-      subject: params.subject,
-      topic: params.topic,
-      goal: params.goal,
-      rubric,
-      systemPrompt: endPrompt,
-    }),
+    messages,
     { purpose: 'final', temperature: 0.3 }
   );
 

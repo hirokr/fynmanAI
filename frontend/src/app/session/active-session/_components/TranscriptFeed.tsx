@@ -8,6 +8,7 @@ interface TranscriptFeedProps {
 
 export default function TranscriptFeed({ sessionState }: TranscriptFeedProps) {
 	const transcripts = useVoiceStore((state) => state.transcripts);
+	const aiFeedback = useVoiceStore((state) => state.aiFeedback);
 
 	return (
 		<div className='flex-1 w-full max-w-2xl mt-8 overflow-y-auto custom-scrollbar-transparent pb-32'>
@@ -20,6 +21,16 @@ export default function TranscriptFeed({ sessionState }: TranscriptFeedProps) {
 						{text}
 					</div>
 				))}
+				{aiFeedback && (
+					<div className='rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-body-md text-on-surface'>
+						<div className='mb-2 text-label-md uppercase tracking-wide text-primary'>
+							AI response
+						</div>
+						<pre className='whitespace-pre-wrap break-words font-sans text-body-md leading-relaxed'>
+							{aiFeedback}
+						</pre>
+					</div>
+				)}
 				{sessionState === "thinking" && (
 					<div className='flex items-center gap-1'>
 						{Array.from({ length: 3 }).map((_, index) => (
