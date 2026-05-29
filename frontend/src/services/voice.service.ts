@@ -49,3 +49,14 @@ export const sendAudioChunk = async (
     endTimeMs: options.endTimeMs,
   });
 };
+
+export const sendTextInput = (
+  socket: any,
+  sessionId: string,
+  text: string
+) => {
+  socket.emit("text:input", {
+    sessionId,
+    text,
+  });
+};

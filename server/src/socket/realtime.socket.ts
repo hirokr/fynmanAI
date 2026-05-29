@@ -6,6 +6,7 @@ import {
   endSession,
   getSessionById,
 } from '#src/services/session.service.ts';
+import { handleTextInput } from '#src/services/text-input.service.ts';
 import { transcribeAudioBuffer } from '#src/services/stt.service.ts';
 import { maybeGenerateRealtimeFeedback } from '#src/services/evaluation.service.ts';
 import logger from '#config/logger.ts';
@@ -126,6 +127,29 @@ export const registerRealtimeSocket = (io: Server) => {
       } catch (error) {
         logger.error(`Realtime audio chunk failed: ${String(error)}`);
         cb?.({ ok: false, error: 'Failed to process audio chunk' });
+      }
+    });
+
+    socket.on('text:input', async (payload, cb) => {
+      try {
+        const sessionId = payload?.sessionId;
+        const text = payload?.text;
+
+        if (!sessionId || !text) {
+          cb?.({ ok: false, error: 'sessionId and text are required' });
+          return;
+        }
+
+        await handleTextInput({
+          sessionId,
+          userId: socket.data.userId,
+          text,
+        });
+
+        cb?.({ ok: true });
+      } catch (error) {
+        logger.error(`Realtime text input failed: ${String(error)}`);
+        cb?.({ ok: false, error: 'Failed to process text input' });
       }
     });
   });
