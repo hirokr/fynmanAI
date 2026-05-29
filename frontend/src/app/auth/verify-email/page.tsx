@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { BACKEND_URL } from "@/constants/constants";
+import { apiFetch } from "@/lib/apiFetch";
 
 import { AuthPageShell } from "../_components/AuthPageShell";
 import { VerificationCodeCard } from "./_components/VerificationCodeCard";
@@ -25,6 +25,7 @@ export default function EmailVerifyPage() {
 		emailFromQuery && emailFromQuery.trim()
 			? emailFromQuery
 			: storedEmail || "your email";
+	const [isVerifying, setIsVerifying] = useState(false);
 
 	useEffect(() => {
 		const sessionEmail = sessionStorage.getItem("authEmail") || "";
@@ -37,26 +38,21 @@ export default function EmailVerifyPage() {
 		// attempt to verify email automatically when token present
 		(async () => {
 			try {
-				const res = await fetch(`${BACKEND_URL}/api/user/verify-email`, {
+				setIsVerifying(true);
+				await apiFetch("/api/user/verify-email", {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
+					body: {
 						token: tokenFromQuery,
 						userId: userIdFromQuery || undefined,
-					}),
+					},
 				});
-
-				const payload = await res.json();
-				if (res.ok) {
-					alert("Email verified successfully");
-					router.push("/auth/signin");
-				} else {
-					console.warn("Email verify failed", payload);
-					alert(payload?.message || "Email verification failed");
-				}
+				alert("Email verified successfully");
+				router.push("/auth/signin");
 			} catch (err) {
 				console.error("Verify email error", err);
 				alert("Email verification failed");
+			} finally {
+				setIsVerifying(false);
 			}
 		})();
 	}, [tokenFromQuery, userIdFromQuery, router]);
@@ -71,24 +67,20 @@ export default function EmailVerifyPage() {
 
 	const handleSubmitToken = async (token: string) => {
 		if (!token) return;
+		if (isVerifying) return;
 		try {
-			const res = await fetch(`${BACKEND_URL}/api/user/verify-email`, {
+			setIsVerifying(true);
+			await apiFetch("/api/user/verify-email", {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ token, userId: userIdFromQuery || undefined }),
+				body: { token, userId: userIdFromQuery || undefined },
 			});
-
-			const payload = await res.json();
-			if (res.ok) {
-				alert("Email verified successfully");
-				router.push("/auth/signin");
-			} else {
-				console.warn("Email verify failed", payload);
-				alert(payload?.message || "Email verification failed");
-			}
+			alert("Email verified successfully");
+			router.push("/auth/signin");
 		} catch (err) {
 			console.error("Verify email error", err);
 			alert("Email verification failed");
+		} finally {
+			setIsVerifying(false);
 		}
 	};
 
