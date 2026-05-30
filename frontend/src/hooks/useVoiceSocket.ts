@@ -34,10 +34,12 @@ export const useVoiceSocket = (token: string) => {
     setSessionReady,
     setAiFeedback,
     socket: existingSocket,
+    resourceIds,
+    subject,
+    topic,
   } = useVoiceStore();
 
   const startSessionFlow = useCallback(async (socket: any) => {
-    const { resourceIds, subject, topic } = useVoiceStore.getState();
     setSessionReady(false);
 
     try {

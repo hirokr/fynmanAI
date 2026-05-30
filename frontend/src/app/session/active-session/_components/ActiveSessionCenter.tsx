@@ -111,39 +111,6 @@ export default function ActiveSessionCenter() {
       window.removeEventListener("voice:text", handleText);
     };
   }, [handleMicClick, handleStopClick, handleKeyboardClick]);
-  // }, [sessionReady]);
-  const handleMicClick = async () => {
-    if (!sessionReady) {
-      console.log("Mic blocked: session not ready");
-      return;
-    }
-
-    setIsRecording(true);
-    try {
-      await startRecording();
-    } catch (error) {
-      console.error("Failed to start recording", error);
-      setIsRecording(false);
-    }
-  };
-
-  const handleStopClick = () => {
-    stopRecording();
-    setIsRecording(false);
-    setVoiceLevel(0);
-    resetSessionState();
-  };
-
-  const handleKeyboardClick = () => {
-    setShowTextInput((prev) => !prev);
-  };
-
-  const handleSendText = () => {
-    if (!socket || !sessionId || !textInput.trim()) return;
-    sendTextInput(socket, sessionId, textInput.trim());
-    setTextInput("");
-    setShowTextInput(false);
-  };
 
   return (
     <section className="h-[calc(100%-3.5rem)] flex flex-col items-center relative">
