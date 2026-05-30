@@ -32,6 +32,7 @@ export const useVoiceSocket = (token: string) => {
     addTranscript,
     setConnected,
     setSessionReady,
+    setHasAiResponded,
     setAiFeedback,
     socket: existingSocket,
     resourceIds,
@@ -90,6 +91,7 @@ export const useVoiceSocket = (token: string) => {
 
     socket.on("analysis:question", (data: AnalysisQuestionEvent) => {
       const evaluation = data?.evaluation;
+      setHasAiResponded(true);
       setAiFeedback(
         evaluation?.question ??
           evaluation?.text ??
@@ -101,6 +103,7 @@ export const useVoiceSocket = (token: string) => {
 
     socket.on("llm:response", (data: LlmResponseEvent) => {
       if (data?.content) {
+        setHasAiResponded(true);
         setAiFeedback(data.content);
       }
     });
@@ -108,6 +111,7 @@ export const useVoiceSocket = (token: string) => {
     addTranscript,
     setAiFeedback,
     setConnected,
+    setHasAiResponded,
     setSessionReady,
     startSessionFlow,
   ]);

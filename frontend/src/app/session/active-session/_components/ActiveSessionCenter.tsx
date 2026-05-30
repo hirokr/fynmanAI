@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SessionStatusBadge from "./SessionStatusBadge";
 import AIAvatar from "./AIAvatar";
 import TranscriptFeed from "./TranscriptFeed";
@@ -15,7 +15,6 @@ import { endUserSession, sendTextInput } from "@/services/voice.service";
 
 export default function ActiveSessionCenter() {
   const { accessToken } = useAuth();
-  const [isRecording, setIsRecording] = useState(false);
   const [voiceLevel, setVoiceLevel] = useState(0);
   const [showTextInput, setShowTextInput] = useState(false);
   const [textInput, setTextInput] = useState("");
@@ -23,7 +22,20 @@ export default function ActiveSessionCenter() {
   const { connect } = useVoiceSocket(accessToken ?? "");
   const { startRecording, stopRecording } = useVoiceRecorder(setVoiceLevel);
 
-  const { sessionReady, connected, socket, sessionId, resetSessionState } = useVoiceStore();
+  const {
+    sessionReady,
+    connected,
+    socket,
+    sessionId,
+    isRecording,
+    isProcessing,
+    hasAiResponded,
+    transcripts,
+    setIsRecording,
+    setIsProcessing,
+    resetSessionState,
+  } = useVoiceStore();
+  const pendingTranscriptCountRef = useRef(0);
   const statusLabel = !connected
     ? "Connecting"
     : isRecording
@@ -46,24 +58,39 @@ export default function ActiveSessionCenter() {
       destroySocket();
     };
   }, [accessToken, connect]);
+
+  useEffect(() => {
+    if (!isProcessing) return;
+
+    if (transcripts.length > pendingTranscriptCountRef.current) {
+      setIsProcessing(false);
+    }
+  }, [isProcessing, transcripts.length]);
+
   const handleMicClick = useCallback(async () => {
-    if (!sessionReady) {
+    if (!sessionReady || !hasAiResponded) {
       console.log("Mic blocked: session not ready");
       return;
     }
 
+    if (isProcessing) {
+      return;
+    }
+
     setIsRecording(true);
+    setIsProcessing(false);
     try {
       await startRecording();
     } catch (error) {
       console.error("Failed to start recording", error);
       setIsRecording(false);
     }
-  }, [sessionReady, startRecording]);
+  }, [hasAiResponded, sessionReady, startRecording]);
 
   const handleStopClick = useCallback(async () => {
     setIsRecording(false);
-    setVoiceLevel(0);
+    setIsProcessing(true);
+    pendingTranscriptCountRef.current = transcripts.length;
 
     try {
       await stopRecording();
@@ -75,8 +102,9 @@ export default function ActiveSessionCenter() {
       await endUserSession(socket, sessionId);
     } catch (error) {
       console.error("Failed to end user session", error);
+      setIsProcessing(false);
     }
-  }, [sessionId, socket, stopRecording]);
+  }, [sessionId, socket, stopRecording, transcripts.length]);
 
   const handleKeyboardClick = useCallback(() => {
     setShowTextInput((prev) => !prev);
@@ -121,7 +149,8 @@ export default function ActiveSessionCenter() {
       />
 
       <AIAvatar
-        waveformOpacity={isRecording ? "opacity-100" : "opacity-0"}
+        isRecording={isRecording}
+        isProcessing={isProcessing}
         waveformLevel={voiceLevel}
       />
 
@@ -166,6 +195,8 @@ export default function ActiveSessionCenter() {
         onStopClick={handleStopClick}
         onKeyboardClick={handleKeyboardClick}
         isRecording={isRecording}
+        micLoading={isProcessing}
+        hasAiResponded={hasAiResponded}
       />
     </section>
   );

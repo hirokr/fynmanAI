@@ -6,6 +6,9 @@ type State = {
   sessionId: string | null;
   connected: boolean;
   sessionReady: boolean;
+  isRecording: boolean;
+  isProcessing: boolean;
+  hasAiResponded: boolean;
   transcripts: string[];
   aiFeedback: string | null;
   resourceIds: string[];
@@ -17,6 +20,9 @@ type State = {
   addTranscript: (text: string) => void;
   setConnected: (v: boolean) => void;
   setSessionReady: (v: boolean) => void;
+  setIsRecording: (v: boolean) => void;
+  setIsProcessing: (v: boolean) => void;
+  setHasAiResponded: (v: boolean) => void;
   setAiFeedback: (text: string) => void;
   addResourceId: (id: string) => void;
   setResourceIds: (ids: string[]) => void;
@@ -30,6 +36,9 @@ export const useVoiceStore = create<State>((set) => ({
   sessionId: null,
   connected: false,
   sessionReady: false,
+  isRecording: false,
+  isProcessing: false,
+  hasAiResponded: false,
   transcripts: [],
   aiFeedback: null,
   resourceIds: [],
@@ -44,6 +53,9 @@ export const useVoiceStore = create<State>((set) => ({
     })),
   setConnected: (connected) => set({ connected }),
   setSessionReady: (sessionReady) => set({ sessionReady }),
+  setIsRecording: (isRecording) => set({ isRecording }),
+  setIsProcessing: (isProcessing) => set({ isProcessing }),
+  setHasAiResponded: (hasAiResponded) => set({ hasAiResponded }),
   setAiFeedback: (aiFeedback) => set({ aiFeedback }),
   addResourceId: (id) =>
     set((state) =>
@@ -59,6 +71,9 @@ export const useVoiceStore = create<State>((set) => ({
       sessionId: null,
       connected: false,
       sessionReady: false,
+      isRecording: false,
+      isProcessing: false,
+      hasAiResponded: false,
       transcripts: [],
       aiFeedback: null,
       resourceIds: [],
