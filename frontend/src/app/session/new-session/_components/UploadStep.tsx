@@ -56,7 +56,7 @@ export default function UploadStep({
       {/* Process button */}
       <div className="pt-2 flex flex-col sm:flex-row justify-end gap-3">
         <AuthGuardAction
-          className="border border-outline-variant bg-surface-container-low text-on-surface-variant py-2 px-6 rounded-lg font-label-md text-label-md transition-all hover:border-on-surface-variant hover:text-on-surface"
+          className="border border-outline-variant bg-surface-container-low text-on-surface-variant py-3 px-6 rounded-lg font-label-md text-label-md transition-all hover:border-on-surface-variant hover:text-on-surface"
           onAuthenticatedClick={onContinueWithoutResources}
         >
           Continue Without Resources
