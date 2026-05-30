@@ -53,6 +53,11 @@ export default function NewSessionCenter() {
     setStep("processing");
   };
 
+  const handleContinueWithoutResources = () => {
+    setResourceIds([]);
+    setStep("brief");
+  };
+
   useEffect(() => {
     if (step !== "processing") return undefined;
 
@@ -83,6 +88,7 @@ export default function NewSessionCenter() {
         <UploadStep
           onOpenModal={() => setUploadOpen(true)}
           onProcess={handleProcessSession}
+          onContinueWithoutResources={handleContinueWithoutResources}
           uploadLoading={uploadLoading}
           uploadSuccess={uploadSuccess}
           uploadError={uploadError}

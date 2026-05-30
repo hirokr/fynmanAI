@@ -5,6 +5,7 @@ import AuthGuardAction from "@/components/auth/AuthActionButton";
 interface UploadStepProps {
   onOpenModal: () => void;
   onProcess: () => void;
+  onContinueWithoutResources: () => void;
   uploadLoading: boolean;
   uploadSuccess: boolean;
   uploadError: string | null;
@@ -13,6 +14,7 @@ interface UploadStepProps {
 export default function UploadStep({
   onOpenModal,
   onProcess,
+  onContinueWithoutResources,
   uploadLoading,
   uploadSuccess,
   uploadError,
@@ -52,7 +54,14 @@ export default function UploadStep({
       </button>
 
       {/* Process button */}
-      <div className="pt-2 flex justify-end">
+      <div className="pt-2 flex flex-col sm:flex-row justify-end gap-3">
+        <AuthGuardAction
+          className="border border-outline-variant bg-surface-container-low text-on-surface-variant py-2 px-6 rounded-lg font-label-md text-label-md transition-all hover:border-on-surface-variant hover:text-on-surface"
+          onAuthenticatedClick={onContinueWithoutResources}
+        >
+          Continue Without Resources
+        </AuthGuardAction>
+
         <AuthGuardAction
           className={`border border-outline-variant bg-accent text-on-background py-2 px-8 rounded-lg font-label-md text-label-md transition-all flex items-center gap-2 ${
             canProcess ? "hover:brightness-110" : "opacity-50 pointer-events-none"
