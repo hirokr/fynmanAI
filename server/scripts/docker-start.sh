@@ -18,12 +18,15 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
+echo "Running database migrations"
+bunx prisma migrate deploy
+
 echo "Starting API server"
-bunx tsx src/index.ts &
+bun src/index.ts &
 api_pid=$!
 
 echo "Starting background workers"
-bunx tsx src/worker.ts &
+bun src/worker.ts &
 worker_pid=$!
 
 wait -n "$api_pid" "$worker_pid"
