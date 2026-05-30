@@ -3,27 +3,30 @@ import type { SessionResourceContext } from "@/types/session-resource";
 
 export const toSessionResourcesFromParsedDocuments = (
   documents: ParsedDocumentResponse[]
-): SessionResourceContext[] =>
-  documents
-    .map((document) => {
-      const id = document.resource?.id;
-      if (!id) {
-        return null;
-      }
+): SessionResourceContext[] => {
+  const resources: SessionResourceContext[] = [];
 
-      const parsedText =
-        document.resource.parsedText?.trim() ||
-        document.parsedText?.trim() ||
-        "";
+  for (const document of documents) {
+    const id = document.resource?.id;
+    if (!id) {
+      continue;
+    }
 
-      if (!parsedText) {
-        return null;
-      }
+    const parsedText =
+      document.resource.parsedText?.trim() ||
+      document.parsedText?.trim() ||
+      "";
 
-      return {
-        id,
-        title: document.resource.title,
-        parsedText,
-      } satisfies SessionResourceContext;
-    })
-    .filter((resource): resource is SessionResourceContext => Boolean(resource));
+    if (!parsedText) {
+      continue;
+    }
+
+    resources.push({
+      id,
+      title: document.resource.title,
+      parsedText,
+    });
+  }
+
+  return resources;
+};
