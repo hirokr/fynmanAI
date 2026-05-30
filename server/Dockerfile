@@ -31,21 +31,19 @@ COPY . .
 
 RUN bunx prisma generate
 
-RUN python3 -m venv /app/.venv-markitdown \
-	&& /app/.venv-markitdown/bin/pip install --upgrade pip setuptools wheel \
-	&& git clone --depth 1 https://github.com/microsoft/markitdown.git /tmp/markitdown \
-	&& /app/.venv-markitdown/bin/pip install \
-		"/tmp/markitdown/packages/markitdown[all]" \
-		"/tmp/markitdown/packages/markitdown-ocr" \
-		openai \
-	&& rm -rf /tmp/markitdown
+ENV MARKITDOWN_REPO_DIR=/app/.markitdown-src
+ENV MARKITDOWN_VENV_DIR=/app/.venv-markitdown
 
-RUN chmod +x /app/scripts/docker-start.sh
+RUN sed -i 's/\r$//' /app/scripts/docker-setup-markitdown.sh /app/scripts/docker-start.sh \
+	&& chmod +x /app/scripts/docker-setup-markitdown.sh /app/scripts/docker-start.sh \
+	&& bash /app/scripts/docker-setup-markitdown.sh
 
 FROM base AS runner
 
 ENV NODE_ENV=production
 ENV PORT=8000
+ENV MARKITDOWN_REPO_DIR=/app/.markitdown-src
+ENV MARKITDOWN_VENV_DIR=/app/.venv-markitdown
 ENV DOC_PARSER_PYTHON_PATH=/app/.venv-markitdown/bin/python
 ENV DOC_PARSER_SCRIPT_PATH=/app/src/services/python/parse_document.py
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -53,10 +51,13 @@ ENV PYTHONUNBUFFERED=1
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/.venv-markitdown ./.venv-markitdown
+COPY --from=build /app/.markitdown-src ./.markitdown-src
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/bun.lock ./bun.lock
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/prisma.config.ts ./prisma.config.ts
+COPY --from=build /app/modifiedprompt.ts ./modifiedprompt.ts
+COPY --from=build /app/prompts.ts ./prompts.ts
 COPY --from=build /app/src ./src
 COPY --from=build /app/scripts ./scripts
 

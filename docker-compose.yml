@@ -51,6 +51,8 @@ services:
       REDIS_PORT: 6379
       REDIS_DB: 0
       REDIS_PASSWORD: ""
+      MARKITDOWN_REPO_DIR: /app/.markitdown-src
+      MARKITDOWN_VENV_DIR: /app/.venv-markitdown
       DOC_PARSER_PYTHON_PATH: /app/.venv-markitdown/bin/python
       DOC_PARSER_SCRIPT_PATH: /app/src/services/python/parse_document.py
       DOC_PARSER_ENABLE_PLUGINS: "true"
