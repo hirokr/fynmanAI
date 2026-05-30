@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth/AuthContext";
 import ActiveSessionCenter from "./_components/ActiveSessionCenter";
 
 export default function SessionActive() {
-  const { user, isLoading } = useAuth();
+  const { user, accessToken, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function SessionActive() {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || !user) {
+  if (isLoading || !user || !accessToken) {
     return null; // or loader
   }
 

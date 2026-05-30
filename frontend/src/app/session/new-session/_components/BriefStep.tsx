@@ -11,7 +11,7 @@ interface BriefStepProps {
 
 export default function BriefStep({ onReset }: BriefStepProps) {
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const { accessToken, refreshSession } = useAuth();
   const {
     resourceIds,
     subject,
@@ -40,6 +40,7 @@ export default function BriefStep({ onReset }: BriefStepProps) {
           resourceIds: resourceIds.length ? resourceIds : undefined,
         },
       });
+      await refreshSession();
       router.push("/session/active-session");
     } catch (error) {
       setBeginError(
