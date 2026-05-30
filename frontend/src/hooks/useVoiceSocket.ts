@@ -119,6 +119,7 @@ export const useVoiceSocket = (token: string) => {
     addConversationEntry,
     socket: existingSocket,
     resourceIds,
+    sessionResources,
     subject,
     topic,
   } = useVoiceStore();
@@ -186,6 +187,7 @@ export const useVoiceSocket = (token: string) => {
       const sessionSnapshot = useVoiceStore.getState();
       const session = await startSession(socket, {
         resourceIds: resourceIds.length ? resourceIds : undefined,
+        resources: sessionResources.length ? sessionResources : undefined,
         subject: subject.trim() || undefined,
         topic: topic.trim() || undefined,
         sessionState: {
@@ -209,6 +211,7 @@ export const useVoiceSocket = (token: string) => {
     }
   }, [
     resourceIds,
+    sessionResources,
     setSessionId,
     setSessionReady,
     subject,

@@ -190,10 +190,13 @@ export const buildResourceFilter = (filters: {
   const must: Array<Record<string, unknown>> = [];
 
   if (filters.resourceIds?.length) {
+    // Uploaded resources are ingested without subject/topic on chunks; session
+    // subject/topic are applied in the LLM prompt, not as required Qdrant fields.
     must.push({
       key: 'resourceId',
       match: { any: filters.resourceIds },
     });
+    return { must };
   }
 
   if (filters.subject) {

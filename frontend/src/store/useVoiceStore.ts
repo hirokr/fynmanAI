@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Socket } from "socket.io-client";
+import type { SessionResourceContext } from "@/types/session-resource";
 
 type ChatMessage = {
   id: string;
@@ -53,6 +54,7 @@ type State = {
 } & LearningSessionState & {
   messages: ChatMessage[];
   resourceIds: string[];
+  sessionResources: SessionResourceContext[];
   subject: string;
   topic: string;
 
@@ -81,6 +83,7 @@ type State = {
   resetLearningSessionState: () => void;
   addResourceId: (id: string) => void;
   setResourceIds: (ids: string[]) => void;
+  setSessionResources: (resources: SessionResourceContext[]) => void;
   setSubject: (value: string) => void;
   setTopic: (value: string) => void;
   resetSessionState: () => void;
@@ -177,6 +180,7 @@ export const useVoiceStore = create<State>()(
   ...createInitialLearningState(),
   messages: [],
   resourceIds: [],
+  sessionResources: [],
   subject: "",
   topic: "",
 
@@ -293,6 +297,7 @@ export const useVoiceStore = create<State>()(
         : { resourceIds: [...state.resourceIds, id] }
     ),
   setResourceIds: (resourceIds) => set({ resourceIds }),
+  setSessionResources: (sessionResources) => set({ sessionResources }),
   setSubject: (subject) => set({ subject }),
   setTopic: (topic) => set({ topic }),
   resetSessionState: () =>
@@ -309,6 +314,7 @@ export const useVoiceStore = create<State>()(
       ...createInitialLearningState(),
       messages: [],
       resourceIds: [],
+      sessionResources: [],
       subject: "",
       topic: "",
     }),
@@ -336,6 +342,7 @@ export const useVoiceStore = create<State>()(
         conversationHistory: state.conversationHistory,
         messages: state.messages,
         resourceIds: state.resourceIds,
+        sessionResources: state.sessionResources,
         subject: state.subject,
         topic: state.topic,
       }),

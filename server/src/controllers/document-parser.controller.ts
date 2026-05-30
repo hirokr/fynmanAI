@@ -89,6 +89,10 @@ export const parseDocumentUploadHandler = async (
     }
 
     const latestResource = await getResourceById(resource.id);
+    const resourceWithParsedText = {
+      ...(latestResource || resource),
+      parsedText: latestResource?.parsedText || parsed.text,
+    };
 
     return sendApiSuccess(res, {
       status: ingest ? 201 : 202,
@@ -96,7 +100,8 @@ export const parseDocumentUploadHandler = async (
         ? 'Document parsed and ingested'
         : 'Document parsed, but ingestion failed',
       data: {
-        resource: latestResource || resource,
+        resource: resourceWithParsedText,
+        parsedText: parsed.text,
         ingest,
         ingestError,
         parser: {

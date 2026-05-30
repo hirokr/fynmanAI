@@ -13,6 +13,11 @@ import {
   generateRealtimeFeedback,
   generateSessionStartResponse,
 } from '#src/services/evaluation.service.ts';
+import {
+  getSessionMetadata,
+  mergeSessionResources,
+  type SessionResourceMetadata,
+} from '#src/services/session-cache.service.ts';
 import { preprocessTranscriptText } from '#src/services/transcript-preprocess.service.ts';
 import { env } from '#config/env.ts';
 import logger from '#config/logger.ts';
@@ -202,10 +207,24 @@ export const registerRealtimeSocket = (io: Server) => {
     return updated;
   };
 
+  const resolveTurnResources = async (
+    sessionId: string,
+    resources?: SessionResourceMetadata[]
+  ): Promise<SessionResourceMetadata[]> => {
+    if (resources?.length) {
+      await mergeSessionResources(sessionId, resources);
+      return resources;
+    }
+
+    const metadata = await getSessionMetadata(sessionId);
+    return metadata?.resources || [];
+  };
+
   const generateAndEmitRealtimeResponse = async (params: {
     sessionId: string;
     userId: string;
     sessionState?: SocketLearningSessionState;
+    resources?: SessionResourceMetadata[];
   }) => {
     const session = await getSessionById(params.sessionId);
     if (!session || session.userId !== params.userId) {
@@ -213,12 +232,17 @@ export const registerRealtimeSocket = (io: Server) => {
     }
 
     const mergedState = mergeSessionMemory(params.sessionId, params.sessionState);
+    const sessionResources = await resolveTurnResources(
+      params.sessionId,
+      params.resources
+    );
 
     const evaluation = await generateRealtimeFeedback({
       sessionId: params.sessionId,
       subject: session.subject || undefined,
       topic: session.topic || undefined,
       resourceIds: session.resources.map(item => item.resourceId),
+      sessionResources,
       goal: session.goal || undefined,
       sessionState: mergedState,
     });
@@ -258,6 +282,7 @@ export const registerRealtimeSocket = (io: Server) => {
     sessionId: string;
     userId: string;
     sessionState?: SocketLearningSessionState;
+    resources?: SessionResourceMetadata[];
   }) => {
     if (realtimeAnalysisTimers.has(params.sessionId)) {
       return;
@@ -295,11 +320,13 @@ export const registerRealtimeSocket = (io: Server) => {
       await endSession(payload.sessionId);
       const memory = mergeSessionMemory(payload.sessionId, payload.sessionState);
 
+      const metadata = await getSessionMetadata(payload.sessionId);
       const evaluation = await generateFinalEvaluation({
         sessionId: payload.sessionId,
         subject: session.subject || undefined,
         topic: session.topic || undefined,
         resourceIds: session.resources.map(item => item.resourceId),
+        sessionResources: metadata?.resources,
         goal: session.goal || undefined,
         sessionState: memory,
       });
@@ -351,17 +378,15 @@ export const registerRealtimeSocket = (io: Server) => {
           topic: payload?.topic,
           goal: payload?.goal,
           resourceIds: payload?.resourceIds,
+          resources: payload?.resources,
         });
         socket.join(session.id);
-        const sessionWithResources = await getSessionById(session.id);
-        const resourceIds =
-          sessionWithResources?.resources.map(item => item.resourceId) ||
-          payload?.resourceIds;
+        const metadata = await getSessionMetadata(session.id);
         const startResponse = await generateSessionStartResponse({
           subject: session.subject || undefined,
           topic: session.topic || undefined,
           goal: session.goal || undefined,
-          resourceIds,
+          sessionResources: metadata?.resources,
           sessionState: payload?.sessionState,
         });
         const parsedStart = JSON.parse(startResponse.content) as { question?: string };
@@ -436,6 +461,7 @@ export const registerRealtimeSocket = (io: Server) => {
             sessionId,
             userId: socket.data.userId,
             sessionState: memory,
+            resources: payload?.resources,
           });
         }
 
@@ -487,6 +513,7 @@ export const registerRealtimeSocket = (io: Server) => {
           sessionId,
           userId: socket.data.userId,
           sessionState: memory,
+          resources: payload?.resources,
         });
 
         cb?.({ ok: true, chunk });

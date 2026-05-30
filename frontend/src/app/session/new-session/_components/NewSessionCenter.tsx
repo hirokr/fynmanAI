@@ -9,6 +9,7 @@ import { useSessionResources } from "../../../../context/Resource/SessionResourc
 import { useAuth } from "@/context/auth/AuthContext";
 import { uploadDocument, validateUploadFile } from "@/services/upload.service";
 import { useVoiceStore } from "@/store/useVoiceStore";
+import { toSessionResourcesFromParsedDocuments } from "@/utils/session-resources";
 
 type Step = "upload" | "processing" | "brief";
 
@@ -38,7 +39,7 @@ export default function NewSessionCenter() {
     resetResources,
   } = useSessionResources();
   const { accessToken } = useAuth();
-  const { setResourceIds, resetSessionState } = useVoiceStore();
+  const { setResourceIds, setSessionResources, resetSessionState } = useVoiceStore();
 
   const handleProcessSession = () => {
     const currentResourceIds = Array.from(
@@ -50,11 +51,13 @@ export default function NewSessionCenter() {
     );
 
     setResourceIds(currentResourceIds);
+    setSessionResources(toSessionResourcesFromParsedDocuments(parsedDocuments));
     setStep("processing");
   };
 
   const handleContinueWithoutResources = () => {
     setResourceIds([]);
+    setSessionResources([]);
     setStep("brief");
   };
 
@@ -105,7 +108,6 @@ export default function NewSessionCenter() {
             setStep("upload");
             resetResources();
             resetSessionState();
-            setResourceIds([]);
           }}
         />
       )}

@@ -14,6 +14,7 @@ export default function BriefStep({ onReset }: BriefStepProps) {
   const { accessToken } = useAuth();
   const {
     resourceIds,
+    sessionResources,
     subject,
     topic,
     setSubject,
@@ -40,6 +41,7 @@ export default function BriefStep({ onReset }: BriefStepProps) {
           subject: subject.trim() || undefined,
           topic: topic.trim() || undefined,
           resourceIds: resourceIds.length ? resourceIds : undefined,
+          resources: sessionResources.length ? sessionResources : undefined,
         },
       });
       router.push("/session/active-session");
@@ -118,8 +120,7 @@ export default function BriefStep({ onReset }: BriefStepProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end sm:gap-4 sm:pt-4">
-        <AuthGuardAction
+<div className="flex flex-col gap-3 pt-2 pb-9 sm:flex-row sm:justify-end sm:gap-4 sm:pt-4 sm:pb-3">        <AuthGuardAction
           className="rounded-lg border border-outline-variant px-8 py-2 text-on-surface-variant transition-all hover:border-on-surface-variant hover:text-on-surface"
           onAuthenticatedClick={onReset}
         >

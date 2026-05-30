@@ -6,12 +6,14 @@ export type ParsedDocumentResponse = {
     title: string;
     sourceType: string;
     mimeType?: string | null;
+    parsedText?: string | null;
     subject?: string | null;
     topic?: string | null;
     metadata?: unknown;
     createdAt?: string;
     updatedAt?: string;
   };
+  parsedText?: string;
   ingest: unknown;
   parser: {
     metadata?: unknown;
