@@ -5,12 +5,6 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { icon: "home", label: "Home", href: "/dashboard" },
-  {
-    icon: "mic",
-    label: "Voice Sessions",
-    href: "/session/active-session",
-    filled: true,
-  },
   { icon: "auto_stories", label: "Learning Path", href: "#" },
   { icon: "folder_open", label: "Resources", href: "#" },
   { icon: "settings", label: "Settings", href: "/dashboard/settings" },
@@ -35,9 +29,6 @@ export default function DashboardNav() {
           >
             <span
               className="material-symbols-outlined"
-              style={
-                item.filled ? { fontVariationSettings: "'FILL' 1" } : undefined
-              }
             >
               {item.icon}
             </span>

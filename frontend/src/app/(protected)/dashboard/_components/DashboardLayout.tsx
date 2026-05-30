@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 <MobileNav
   leftItems={[
     { icon: "home", label: "Home", href: "/dashboard" },
-    { icon: "mic", label: "Voice Sessions", href: "/session/active-session", filled: true },
+    { icon: "folder_open", label: "Resources", href: "/session", filled: true },
   ]}
   centerButton={{ icon: "add", href: "/session/new-session" }}
   rightItems={[
