@@ -1,10 +1,17 @@
 import z from 'zod';
 
+const SessionResourceContextSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().optional(),
+  parsedText: z.string().optional(),
+});
+
 export const StartSessionSchema = z.object({
   subject: z.string().optional(),
   topic: z.string().optional(),
   goal: z.string().optional(),
-  resourceIds: z.array(z.string()).optional(),
+  resourceIds: z.array(z.string().uuid()).optional(),
+  resources: z.array(SessionResourceContextSchema).optional(),
 });
 
 export const AppendTranscriptSchema = z.object({

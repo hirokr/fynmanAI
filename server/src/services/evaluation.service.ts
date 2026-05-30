@@ -4,10 +4,14 @@ import {
   generateChatCompletion,
   type ChatMessage,
 } from '#src/services/ai/ai.service.ts';
+import type { RetrievedContextChunk } from '#src/services/retrieval.service.ts';
 import {
-  retrieveContext,
-  type RetrievedContextChunk,
-} from '#src/services/retrieval.service.ts';
+  resolveAiContext,
+  formatSessionScopeInstructions,
+  getSessionScopeAvailability,
+  type SessionResourceContext,
+} from '#src/services/session-context.service.ts';
+import { getSessionMetadata } from '#src/services/session-cache.service.ts';
 import {
   getTranscriptWindowText,
   shouldRunAnalysis,
@@ -30,6 +34,22 @@ type PromptModule = {
 
 const promptModuleUrl = new URL('../../modifiedprompt.ts', import.meta.url).href;
 let promptModulePromise: Promise<PromptModule> | null = null;
+
+const loadSessionResources = async (
+  sessionId?: string,
+  provided?: SessionResourceContext[]
+): Promise<SessionResourceContext[]> => {
+  if (provided?.length) {
+    return provided;
+  }
+
+  if (!sessionId) {
+    return [];
+  }
+
+  const metadata = await getSessionMetadata(sessionId);
+  return metadata?.resources || [];
+};
 
 const loadPrompts = async (): Promise<PromptModule> => {
   promptModulePromise =
@@ -326,19 +346,65 @@ const getCitations = (context: RetrievedContextChunk[]): CitationPayload[] =>
     },
   }));
 
-const formatContext = (context: RetrievedContextChunk[]): string => {
-  if (!context.length) {
-    return 'No retrieved context.';
+const formatChunkBlock = (chunks: RetrievedContextChunk[]): string => {
+  if (!chunks.length) {
+    return 'None provided.';
   }
 
-  return context
+  return chunks
     .map(
       chunk =>
         `[${chunk.citationId}] resource=${chunk.resourceTitle || chunk.resourceId || 'unknown'} ` +
-        `chunk=${chunk.chunkIndex ?? 'unknown'} score=${chunk.score ?? 'n/a'}\n` +
+        `chunk=${chunk.chunkIndex ?? 'n/a'} score=${chunk.score ?? 'n/a'}\n` +
         chunk.text
     )
     .join('\n---\n');
+};
+
+const formatContext = (context: RetrievedContextChunk[]): string => {
+  if (!context.length) {
+    return 'No learning materials provided.';
+  }
+
+  const parsedChunks = context.filter(
+    chunk => chunk.sourceMetadata?.source === 'parsedText'
+  );
+  const supplementalChunks = context.filter(
+    chunk => chunk.sourceMetadata?.source !== 'parsedText'
+  );
+
+  if (!supplementalChunks.length) {
+    return `Uploaded file content (parsed data):\n${formatChunkBlock(parsedChunks)}`;
+  }
+
+  return (
+    `Uploaded file content (parsed data):\n${formatChunkBlock(parsedChunks)}\n\n` +
+    `Supplemental retrieval (optional):\n${formatChunkBlock(supplementalChunks)}`
+  );
+};
+
+const buildScopeBlock = (params: {
+  sessionResources?: SessionResourceContext[];
+  subject?: string;
+  topic?: string;
+}): string => {
+  const availability = getSessionScopeAvailability({
+    sessionResources: params.sessionResources,
+    subject: params.subject,
+    topic: params.topic,
+  });
+
+  const subjectLine = params.subject?.trim()
+    ? `Subject: ${params.subject.trim()}`
+    : 'Subject: (not provided)';
+  const topicLine = params.topic?.trim()
+    ? `Topic: ${params.topic.trim()}`
+    : 'Topic: (not provided)';
+  const fileLine = availability.hasParsedData
+    ? `Uploaded file content: provided (${params.sessionResources?.length || 0} resource(s))`
+    : 'Uploaded file content: (not provided)';
+
+  return `${subjectLine}\n${topicLine}\n${fileLine}\n\n${formatSessionScopeInstructions(availability)}`;
 };
 
 const formatRubric = (rubric: string[]): string =>
@@ -369,6 +435,7 @@ const logLlmRequest = (params: {
 
 const buildRealtimeMessages = (params: {
   context: RetrievedContextChunk[];
+  sessionResources?: SessionResourceContext[];
   subject?: string;
   topic?: string;
   goal?: string;
@@ -377,7 +444,11 @@ const buildRealtimeMessages = (params: {
   sessionState?: LearningSessionState;
 }): ChatMessage[] => {
   const contextBlock = formatContext(params.context);
-  const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
+  const scopeBlock = buildScopeBlock({
+    sessionResources: params.sessionResources,
+    subject: params.subject,
+    topic: params.topic,
+  });
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
   const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
   const sessionStateBlock = formatSessionState({
@@ -400,22 +471,26 @@ const buildRealtimeMessages = (params: {
     {
       role: 'user',
       content:
-        `Subject/Topic: ${scope || 'unspecified'}\n` +
+        `${scopeBlock}\n\n` +
         goalBlock +
         `Current user message: ${latestUserMessage || 'none'}\n` +
         `Session memory:\n${sessionStateBlock}\n\n` +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
-        `Retrieved context:\n${contextBlock}\n\n` +
+        `Learning materials:\n${contextBlock}\n\n` +
         `Available citation ids: ${citationIds || 'none'}\n\n` +
         'Return JSON with keys: question (single string), clarifications (0-2 strings), ' +
         'detected_gaps (0-4 strings), topic_drift (boolean), citations (citation ids used). ' +
-        'Ask exactly one question only. Do not teach, solve, explain, or add text outside JSON. ' +
+        'Ask exactly one question only using the question scope rules. ' +
+        'Evaluate the user answer using evaluation scope rules. ' +
+        'Do not teach, solve, explain, or add text outside JSON. ' +
         'If failedAttempts is 5 or more, trigger mastery fallback behavior in the answer.',
     },
   ];
 };
 
 const buildFinalMessages = (params: {
+  context: RetrievedContextChunk[];
+  sessionResources?: SessionResourceContext[];
   subject?: string;
   topic?: string;
   goal?: string;
@@ -423,10 +498,16 @@ const buildFinalMessages = (params: {
   systemPrompt: string;
   sessionState?: LearningSessionState;
 }): ChatMessage[] => {
-  const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
+  const scopeBlock = buildScopeBlock({
+    sessionResources: params.sessionResources,
+    subject: params.subject,
+    topic: params.topic,
+  });
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
   const sessionStateBlock = formatSessionState(params.sessionState);
   const conceptAttemptsSummary = buildConceptAttemptsSummary(params.sessionState);
+  const contextBlock = formatContext(params.context);
+  const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
 
   return [
     {
@@ -439,11 +520,13 @@ const buildFinalMessages = (params: {
     {
       role: 'user',
       content:
-        `Subject/Topic: ${scope || 'unspecified'}\n` +
+        `${scopeBlock}\n\n` +
         goalBlock +
         `Session memory:\n${sessionStateBlock}\n\n` +
         `Concept attempts summary:\n${conceptAttemptsSummary}\n\n` +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
+        `Learning materials:\n${contextBlock}\n\n` +
+        `Available citation ids: ${citationIds || 'none'}\n\n` +
         'Return JSON with keys: summary, strengths, weaknesses, missed_concepts, ' +
         'follow_up, confidence_score (0-100), topic_drift (true/false), cited_evidence. ' +
         'cited_evidence must contain citation ids that support the evaluation. ' +
@@ -457,11 +540,16 @@ const buildStartMessages = (params: {
   topic?: string;
   goal?: string;
   context: RetrievedContextChunk[];
+  sessionResources?: SessionResourceContext[];
   rubric: string[];
   systemPrompt: string;
   sessionState?: LearningSessionState;
 }): ChatMessage[] => {
-  const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
+  const scopeBlock = buildScopeBlock({
+    sessionResources: params.sessionResources,
+    subject: params.subject,
+    topic: params.topic,
+  });
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
   const contextBlock = formatContext(params.context);
   const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
@@ -479,14 +567,14 @@ const buildStartMessages = (params: {
     {
       role: 'user',
       content:
-        `Subject/Topic: ${scope || 'unspecified'}\n` +
+        `${scopeBlock}\n\n` +
         goalBlock +
         `Session memory:\n${sessionStateBlock}\n\n` +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
-        `Retrieved context:\n${contextBlock}\n\n` +
+        `Learning materials:\n${contextBlock}\n\n` +
         `Available citation ids: ${citationIds || 'none'}\n\n` +
         'The learning session is starting now. Return one concise opening probing question only. ' +
-        'Ground the question in the retrieved context when context is available.',
+        'Follow the question scope rules for what to ask.',
     },
   ];
 };
@@ -496,26 +584,27 @@ export const generateSessionStartResponse = async (params: {
   topic?: string;
   goal?: string;
   resourceIds?: string[];
+  sessionResources?: SessionResourceContext[];
   sessionState?: LearningSessionState;
 }) => {
   const contextQuery = [params.topic, params.subject, params.goal]
     .filter(Boolean)
     .join(' ');
-  const context = contextQuery.trim()
-    ? await retrieveContext({
-        transcript: contextQuery,
-        subject: params.subject,
-        topic: params.topic,
-        resourceIds: params.resourceIds,
-        limit: 5,
-      })
-    : [];
+  const sessionResources = params.sessionResources || [];
+  const context = await resolveAiContext({
+    transcript: contextQuery,
+    subject: params.subject,
+    topic: params.topic,
+    sessionResources,
+    qdrantLimit: 2,
+  });
   const { startPrompt } = await loadPrompts();
   const messages = buildStartMessages({
     subject: params.subject,
     topic: params.topic,
     goal: params.goal,
     context,
+    sessionResources,
     rubric: getDomainRubric(params.subject),
     systemPrompt: startPrompt,
     sessionState: params.sessionState,
@@ -618,6 +707,7 @@ export const maybeGenerateRealtimeFeedback = async (params: {
   subject?: string;
   topic?: string;
   resourceIds?: string[];
+  sessionResources?: SessionResourceContext[];
   goal?: string;
 }) => {
   if (env.ENABLE_REALTIME_FEEDBACK === false) {
@@ -638,6 +728,7 @@ export const generateRealtimeFeedback = async (params: {
   subject?: string;
   topic?: string;
   resourceIds?: string[];
+  sessionResources?: SessionResourceContext[];
   transcriptOverride?: string;
   goal?: string;
   sessionState?: LearningSessionState;
@@ -650,17 +741,22 @@ export const generateRealtimeFeedback = async (params: {
     return null;
   }
 
-  const context = await retrieveContext({
+  const sessionResources = await loadSessionResources(
+    params.sessionId,
+    params.sessionResources
+  );
+  const context = await resolveAiContext({
     transcript: userMessage,
     subject: params.subject,
     topic: params.topic,
-    resourceIds: params.resourceIds,
-    limit: 5,
+    sessionResources,
+    qdrantLimit: 3,
   });
   const rubric = getDomainRubric(params.subject);
   const { realTimePrompt } = await loadPrompts();
   const messages = buildRealtimeMessages({
     context,
+    sessionResources,
     subject: params.subject,
     topic: params.topic,
     goal: params.goal,
@@ -748,6 +844,7 @@ export const generateFinalEvaluation = async (params: {
   subject?: string;
   topic?: string;
   resourceIds?: string[];
+  sessionResources?: SessionResourceContext[];
   transcriptOverride?: string;
   goal?: string;
   sessionState?: LearningSessionState;
@@ -761,7 +858,11 @@ export const generateFinalEvaluation = async (params: {
     return null;
   }
 
-  const context = await retrieveContext({
+  const sessionResources = await loadSessionResources(
+    params.sessionId,
+    params.sessionResources
+  );
+  const context = await resolveAiContext({
     transcript: [
       sessionMemory.currentQuestion,
       ...sessionMemory.conversationHistory.map(entry => entry.content),
@@ -771,12 +872,14 @@ export const generateFinalEvaluation = async (params: {
       .join(' \n'),
     subject: params.subject,
     topic: params.topic,
-    resourceIds: params.resourceIds,
-    limit: 8,
+    sessionResources,
+    qdrantLimit: 3,
   });
   const rubric = getDomainRubric(params.subject);
   const { endPrompt } = await loadPrompts();
   const messages = buildFinalMessages({
+    context,
+    sessionResources,
     subject: params.subject,
     topic: params.topic,
     goal: params.goal,
@@ -886,6 +989,7 @@ export const ensureFinalEvaluation = async (params: {
   subject?: string;
   topic?: string;
   resourceIds?: string[];
+  sessionResources?: SessionResourceContext[];
   goal?: string;
 }) => {
   const existing = await getLatestFinalEvaluation(params.sessionId);
@@ -898,6 +1002,7 @@ export const ensureFinalEvaluation = async (params: {
     subject: params.subject,
     topic: params.topic,
     resourceIds: params.resourceIds,
+    sessionResources: params.sessionResources,
     goal: params.goal,
   });
 };

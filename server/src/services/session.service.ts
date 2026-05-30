@@ -4,6 +4,7 @@ import { attachResourceToSession } from '#src/services/resource.service.ts';
 import {
   appendSessionEvent,
   setSessionMetadata,
+  type SessionResourceMetadata,
 } from '#src/services/session-cache.service.ts';
 import { normalizeDomainScope } from '#src/services/domain.service.ts';
 import { trackAnalyticsEvent } from '#src/services/analytics.service.ts';
@@ -18,13 +19,23 @@ const normalizeScopeValue = (value?: string | null): string | undefined => {
 const validateSessionResources = async (params: {
   userId: string;
   resourceIds?: string[];
+  resources?: SessionResourceMetadata[];
   subject?: string;
   topic?: string;
 }) => {
-  const uniqueResourceIds = Array.from(new Set(params.resourceIds || []));
+  const idsFromPayload = (params.resources || []).map(resource => resource.id);
+  const uniqueResourceIds = Array.from(
+    new Set([...(params.resourceIds || []), ...idsFromPayload])
+  );
   if (!uniqueResourceIds.length) {
     return;
   }
+
+  const parsedTextById = new Map(
+    (params.resources || [])
+      .filter(resource => resource.parsedText?.trim())
+      .map(resource => [resource.id, resource.parsedText!.trim()])
+  );
 
   const resources = await prisma.resource.findMany({
     where: { id: { in: uniqueResourceIds } },
@@ -39,7 +50,9 @@ const validateSessionResources = async (params: {
   const resourcesById = new Map(resources.map(resource => [resource.id, resource]));
   const missing = uniqueResourceIds.filter(id => !resourcesById.has(id));
   const foreign = resources.filter(resource => resource.userId !== params.userId);
-  const notReady = resources.filter(resource => resource.status !== 'READY');
+  const notReady = resources.filter(
+    resource => resource.status !== 'READY' && !parsedTextById.has(resource.id)
+  );
   const subject = normalizeScopeValue(params.subject);
   const topic = normalizeScopeValue(params.topic);
   const subjectMismatches = subject
@@ -91,13 +104,19 @@ export const createSession = async (params: {
   topic?: string;
   goal?: string;
   resourceIds?: string[];
+  resources?: SessionResourceMetadata[];
 }) => {
+  const resourceIds = Array.from(
+    new Set([
+      ...(params.resourceIds || []),
+      ...(params.resources || []).map(resource => resource.id),
+    ])
+  );
 
-
-  console.log('2')
   await validateSessionResources({
     userId: params.userId,
-    resourceIds: params.resourceIds,
+    resourceIds,
+    resources: params.resources,
     subject: params.subject,
     topic: params.topic,
   });
@@ -111,16 +130,23 @@ export const createSession = async (params: {
     },
   });
 
-  if (params.resourceIds?.length) {
-    await attachResourceToSession(session.id, params.resourceIds);
+  if (resourceIds.length) {
+    await attachResourceToSession(session.id, resourceIds);
   }
+
+  const sessionResources = (params.resources || []).map(resource => ({
+    id: resource.id,
+    title: resource.title,
+    parsedText: resource.parsedText?.trim() || undefined,
+  }));
 
   await setSessionMetadata(session.id, {
     userId: params.userId,
     subject: params.subject,
     topic: params.topic,
     goal: params.goal,
-    resourceIds: params.resourceIds,
+    resourceIds,
+    resources: sessionResources.length ? sessionResources : undefined,
     createdAt: new Date().toISOString(),
   });
 
@@ -131,7 +157,8 @@ export const createSession = async (params: {
       subject: params.subject,
       topic: params.topic,
       goal: params.goal,
-      resourceIds: params.resourceIds,
+      resourceIds,
+      resourceCount: sessionResources.length,
     },
   });
 

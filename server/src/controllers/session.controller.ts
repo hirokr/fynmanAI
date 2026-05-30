@@ -9,6 +9,7 @@ import {
   getSessionById,
   listSessionsForUser,
 } from '#src/services/session.service.ts';
+import { getSessionMetadata } from '#src/services/session-cache.service.ts';
 import { preprocessTranscriptText } from '#src/services/transcript-preprocess.service.ts';
 import {
   generateFinalEvaluation,
@@ -32,11 +33,12 @@ export const startSessionHandler = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const { subject, topic, goal, resourceIds } = req.body as {
+    const { subject, topic, goal, resourceIds, resources } = req.body as {
       subject?: string;
       topic?: string;
       goal?: string;
       resourceIds?: string[];
+      resources?: { id: string; title?: string; parsedText?: string }[];
     };
 
     const session = await createSession({
@@ -45,6 +47,7 @@ export const startSessionHandler = async (req: AuthRequest, res: Response) => {
       topic,
       goal,
       resourceIds,
+      resources,
     });
 
     return sendApiSuccess(res, {
@@ -194,11 +197,13 @@ export const requestRealtimeFeedbackHandler = async (
       return sendApiError(res, { status: 404, message: 'Session not found' });
     }
 
+    const metadata = await getSessionMetadata(sessionId);
     const evaluation = await generateRealtimeFeedback({
       sessionId,
       subject: session.subject || undefined,
       topic: session.topic || undefined,
       resourceIds: session.resources.map(item => item.resourceId),
+      sessionResources: metadata?.resources,
       goal: session.goal || undefined,
     });
 
@@ -234,6 +239,7 @@ export const requestFinalEvaluationHandler = async (
 
     const evaluationType = (req.body?.type || 'FINAL') as 'ROLLING' | 'FINAL';
 
+    const metadata = await getSessionMetadata(sessionId);
     const evaluation =
       evaluationType === 'ROLLING'
         ? await generateRealtimeFeedback({
@@ -241,6 +247,7 @@ export const requestFinalEvaluationHandler = async (
             subject: session.subject || undefined,
             topic: session.topic || undefined,
             resourceIds: session.resources.map(item => item.resourceId),
+            sessionResources: metadata?.resources,
             goal: session.goal || undefined,
           })
         : await generateFinalEvaluation({
@@ -248,6 +255,7 @@ export const requestFinalEvaluationHandler = async (
             subject: session.subject || undefined,
             topic: session.topic || undefined,
             resourceIds: session.resources.map(item => item.resourceId),
+            sessionResources: metadata?.resources,
             goal: session.goal || undefined,
           });
 
@@ -279,11 +287,13 @@ export const endSessionHandler = async (req: AuthRequest, res: Response) => {
     }
 
     const ended = await endSession(sessionId);
+    const metadata = await getSessionMetadata(sessionId);
     const finalEvaluation = await ensureFinalEvaluation({
       sessionId,
       subject: session.subject || undefined,
       topic: session.topic || undefined,
       resourceIds: session.resources.map(item => item.resourceId),
+      sessionResources: metadata?.resources,
       goal: session.goal || undefined,
     });
 

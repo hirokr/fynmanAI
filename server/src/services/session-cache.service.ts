@@ -4,12 +4,19 @@ import { env } from '#config/env.ts';
 const SESSION_TIMEOUT_SECONDS = (env.SESSION_TIMEOUT_MINUTES || 60) * 60;
 const MAX_SESSION_EVENTS = env.MAX_TRANSCRIPT_CHUNKS || 100;
 
+export type SessionResourceMetadata = {
+  id: string;
+  title?: string;
+  parsedText?: string;
+};
+
 export type SessionMetadata = {
   userId: string;
   subject?: string;
   topic?: string;
   goal?: string;
   resourceIds?: string[];
+  resources?: SessionResourceMetadata[];
   createdAt: string;
 };
 
@@ -29,6 +36,26 @@ export const setSessionMetadata = async (
   const key = getMetadataKey(sessionId);
   await redisClient.set(key, JSON.stringify(metadata), {
     EX: SESSION_TIMEOUT_SECONDS,
+  });
+};
+
+export const mergeSessionResources = async (
+  sessionId: string,
+  resources?: SessionResourceMetadata[]
+): Promise<void> => {
+  if (!resources?.length) {
+    return;
+  }
+
+  const existing = await getSessionMetadata(sessionId);
+  if (!existing) {
+    return;
+  }
+
+  await setSessionMetadata(sessionId, {
+    ...existing,
+    resources,
+    resourceIds: Array.from(new Set(resources.map(resource => resource.id))),
   });
 };
 

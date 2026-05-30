@@ -1,10 +1,13 @@
 import type { Socket } from "socket.io-client";
 
+import type { SessionResourceContext } from "@/types/session-resource";
+
 type SessionStartPayload = {
   subject?: string;
   topic?: string;
   goal?: string;
   resourceIds?: string[];
+  resources?: SessionResourceContext[];
   sessionState?: Record<string, unknown>;
 };
 
@@ -65,6 +68,7 @@ type AudioChunkOptions = {
   endTimeMs?: number;
   endMessage?: string;
   sessionState?: LearningSessionPayload;
+  resources?: SessionResourceContext[];
 };
 
 export const sendAudioChunk = async (
@@ -85,6 +89,7 @@ export const sendAudioChunk = async (
       endTimeMs: options.endTimeMs,
       endMessage: options.endMessage,
       sessionState: options.sessionState,
+      resources: options.resources,
     }, (res: SocketAck) => {
       if (res?.ok) {
         resolve();
@@ -120,12 +125,14 @@ export const sendTextInput = (
   socket: Socket,
   sessionId: string,
   text: string,
-  sessionState?: LearningSessionPayload
+  sessionState?: LearningSessionPayload,
+  resources?: SessionResourceContext[]
 ) => {
   socket.emit("text:input", {
     sessionId,
     text,
     sessionState,
+    resources,
   });
 };
 

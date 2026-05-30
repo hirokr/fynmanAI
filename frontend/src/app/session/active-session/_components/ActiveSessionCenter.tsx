@@ -153,7 +153,11 @@ export default function ActiveSessionCenter() {
     const text = textInput.trim();
     const learningState = useVoiceStore.getState();
     useVoiceStore.getState().addTranscript(text, { optimistic: true });
-    sendTextInput(socket, sessionId, text, {
+    sendTextInput(
+      socket,
+      sessionId,
+      text,
+      {
       currentQuestion: learningState.currentQuestion,
       currentConceptId: learningState.currentConceptId,
       questionDepth: learningState.questionDepth,
@@ -163,7 +167,9 @@ export default function ActiveSessionCenter() {
       conversationHistory: learningState.conversationHistory,
       finalSummary: learningState.finalSummary,
       showSummaryCard: learningState.showSummaryCard,
-    });
+      },
+      learningState.sessionResources
+    );
     setTextInput("");
     setShowTextInput(false);
   };

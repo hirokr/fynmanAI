@@ -96,6 +96,7 @@ export const useVoiceRecorder = (onLevel?: (level: number) => void) => {
             startTimeMs: 0,
             endTimeMs: durationMs,
             endMessage: "user:pause",
+            resources: learningState.sessionResources,
             sessionState: {
               currentQuestion: learningState.currentQuestion,
               currentConceptId: learningState.currentConceptId,

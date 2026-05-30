@@ -1,9 +1,12 @@
 import { apiFetch } from "@/lib/apiFetch";
 
+import type { SessionResourceContext } from "@/types/session-resource";
+
 type StartSessionPayload = {
   subject?: string;
   topic?: string;
   resourceIds?: string[];
+  resources?: SessionResourceContext[];
 };
 
 type StartSessionResponse = {
