@@ -110,8 +110,8 @@ export default function SessionShellClient({ children }: SessionShellClientProps
         <main
           className={
             isActiveSession
-              ? "flex-1 flex flex-col h-[calc(100%-3.5rem)] relative"
-              : "flex-1 flex flex-col h-[calc(100%-3.5rem)] relative bg-surface-container-lowest"
+              ? "flex-1 flex flex-col min-h-0 relative"
+              : "flex-1 flex flex-col min-h-0 relative bg-surface-container-lowest"
           }
         >
           {children}

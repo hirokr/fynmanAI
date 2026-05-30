@@ -112,7 +112,10 @@ export default function ActiveSessionCenter() {
 
   const handleSendText = () => {
     if (!socket || !sessionId || !textInput.trim()) return;
-    sendTextInput(socket, sessionId, textInput.trim());
+
+    const text = textInput.trim();
+    useVoiceStore.getState().addTranscript(text, { optimistic: true });
+    sendTextInput(socket, sessionId, text);
     setTextInput("");
     setShowTextInput(false);
   };
@@ -141,7 +144,7 @@ export default function ActiveSessionCenter() {
   }, [handleMicClick, handleStopClick, handleKeyboardClick]);
 
   return (
-    <section className="h-[calc(100%-3.5rem)] flex flex-col items-center relative">
+    <section className="flex-1 min-h-0 flex flex-col items-center relative w-full">
       <SessionStatusBadge
         sessionState={statusState}
         statusLabel={statusLabel}

@@ -78,7 +78,7 @@ export default function AIAvatar({
   }, [progress, waveformLevel, visibleCount, isRecording]);
 
   return (
-    <div className="mt-24 flex w-full flex-col">
+    <div className="mt-8 flex w-full flex-col">
       <div className="mx-auto flex h-18 w-18 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-surface-container-high shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
         <Image
           src={aiAvatarUrl}
@@ -89,7 +89,7 @@ export default function AIAvatar({
         />
       </div>
 
-      <div className="mt-4 w-full">
+      <div className="mb-10 w-full">
         <div
           className="flex h-36 w-full items-end"
           style={{ gap: "2px" }}

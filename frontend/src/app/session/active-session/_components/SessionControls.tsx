@@ -20,7 +20,7 @@ export default function SessionControls({
   const stopDisabled = controlsDisabled || !isRecording;
 
   return (
-    <div className="absolute -bottom-15 w-full hidden md:flex justify-center">
+    <div className="absolute bottom-6 w-full hidden md:flex justify-center">
       <div className="flex items-center gap-8 bg-surface-container-highest/50 backdrop-blur-md px-8 py-4 rounded-full border border-outline-varian">
         <button
           className={`material-symbols-outlined transition-colors ${
