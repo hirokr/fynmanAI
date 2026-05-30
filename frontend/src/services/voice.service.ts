@@ -5,6 +5,7 @@ type SessionStartPayload = {
   topic?: string;
   goal?: string;
   resourceIds?: string[];
+  sessionState?: Record<string, unknown>;
 };
 
 type SessionStartResponse = {
@@ -18,6 +19,18 @@ type SessionStartResponse = {
 type SocketAck = {
   ok?: boolean;
   error?: string;
+};
+
+type LearningSessionPayload = {
+  currentQuestion?: string | null;
+  currentConceptId?: string | null;
+  questionDepth?: number;
+  failedAttempts?: number;
+  detectedGaps?: string[];
+  masteredConcepts?: string[];
+  conversationHistory?: { role: "user" | "assistant"; content: string }[];
+  finalSummary?: Record<string, unknown> | null;
+  showSummaryCard?: boolean;
 };
 
 export const startSession = (
@@ -51,6 +64,7 @@ type AudioChunkOptions = {
   startTimeMs?: number;
   endTimeMs?: number;
   endMessage?: string;
+  sessionState?: LearningSessionPayload;
 };
 
 export const sendAudioChunk = async (
@@ -70,6 +84,7 @@ export const sendAudioChunk = async (
       startTimeMs: options.startTimeMs,
       endTimeMs: options.endTimeMs,
       endMessage: options.endMessage,
+      sessionState: options.sessionState,
     }, (res: SocketAck) => {
       if (res?.ok) {
         resolve();
@@ -81,25 +96,55 @@ export const sendAudioChunk = async (
   });
 };
 
+export const pauseUserSession = (
+  socket: Socket,
+  sessionId: string,
+  sessionState?: LearningSessionPayload
+) =>
+  new Promise<void>((resolve, reject) => {
+    socket.emit(
+      "user:pause",
+      { sessionId, sessionState },
+      (res: SocketAck) => {
+      if (res?.ok) {
+        resolve();
+        return;
+      }
+
+      reject(new Error(res?.error || "Failed to pause user session"));
+      }
+    );
+  });
+
 export const sendTextInput = (
   socket: Socket,
   sessionId: string,
-  text: string
+  text: string,
+  sessionState?: LearningSessionPayload
 ) => {
   socket.emit("text:input", {
     sessionId,
     text,
+    sessionState,
   });
 };
 
-export const endUserSession = (socket: Socket, sessionId: string) =>
+export const endUserSession = (
+  socket: Socket,
+  sessionId: string,
+  sessionState?: LearningSessionPayload
+) =>
   new Promise<void>((resolve, reject) => {
-    socket.emit("user:end", { sessionId }, (res: SocketAck) => {
+    socket.emit(
+      "user:end",
+      { sessionId, sessionState },
+      (res: SocketAck) => {
       if (res?.ok) {
         resolve();
         return;
       }
 
       reject(new Error(res?.error || "Failed to end user session"));
-    });
+      }
+    );
   });

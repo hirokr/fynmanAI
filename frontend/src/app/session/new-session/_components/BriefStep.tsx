@@ -11,13 +11,14 @@ interface BriefStepProps {
 
 export default function BriefStep({ onReset }: BriefStepProps) {
   const router = useRouter();
-  const { accessToken, refreshSession } = useAuth();
+  const { accessToken } = useAuth();
   const {
     resourceIds,
     subject,
     topic,
     setSubject,
     setTopic,
+    resetLearningSessionState,
   } = useVoiceStore();
   const [beginLoading, setBeginLoading] = useState(false);
   const [beginError, setBeginError] = useState<string | null>(null);
@@ -32,6 +33,7 @@ export default function BriefStep({ onReset }: BriefStepProps) {
     setBeginError(null);
 
     try {
+      resetLearningSessionState();
       await startSessionApi({
         token: accessToken,
         payload: {
@@ -40,7 +42,6 @@ export default function BriefStep({ onReset }: BriefStepProps) {
           resourceIds: resourceIds.length ? resourceIds : undefined,
         },
       });
-      await refreshSession();
       router.push("/session/active-session");
     } catch (error) {
       setBeginError(

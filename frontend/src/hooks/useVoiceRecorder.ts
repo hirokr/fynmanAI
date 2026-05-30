@@ -83,6 +83,8 @@ export const useVoiceRecorder = (onLevel?: (level: number) => void) => {
         const startedAt = startTimeRef.current ?? Date.now();
 
         if (audioBlob.size > 0) {
+          const learningState = useVoiceStore.getState();
+
           console.log("Sending full audio", {
             sessionId,
             bytes: audioBlob.size,
@@ -93,7 +95,18 @@ export const useVoiceRecorder = (onLevel?: (level: number) => void) => {
             mimeType: "audio/webm",
             startTimeMs: 0,
             endTimeMs: durationMs,
-            endMessage: "user:end",
+            endMessage: "user:pause",
+            sessionState: {
+              currentQuestion: learningState.currentQuestion,
+              currentConceptId: learningState.currentConceptId,
+              questionDepth: learningState.questionDepth,
+              failedAttempts: learningState.failedAttempts,
+              detectedGaps: learningState.detectedGaps,
+              masteredConcepts: learningState.masteredConcepts,
+              conversationHistory: learningState.conversationHistory,
+              finalSummary: learningState.finalSummary,
+              showSummaryCard: learningState.showSummaryCard,
+            },
           });
         }
       } catch (error) {

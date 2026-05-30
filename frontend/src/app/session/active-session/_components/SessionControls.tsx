@@ -5,6 +5,7 @@ interface SessionControlsProps {
   isRecording: boolean;
   micLoading: boolean;
   hasAiResponded: boolean;
+  endLoading: boolean;
 }
 
 export default function SessionControls({
@@ -14,6 +15,7 @@ export default function SessionControls({
   isRecording,
   micLoading,
   hasAiResponded,
+  endLoading,
 }: SessionControlsProps) {
   const controlsDisabled = !hasAiResponded;
   const micDisabled = controlsDisabled || micLoading;

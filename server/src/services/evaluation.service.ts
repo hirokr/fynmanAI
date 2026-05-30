@@ -28,7 +28,7 @@ type PromptModule = {
   endPrompt: string;
 };
 
-const promptModuleUrl = new URL('../../prompts.ts', import.meta.url).href;
+const promptModuleUrl = new URL('../../modifiedprompt.ts', import.meta.url).href;
 let promptModulePromise: Promise<PromptModule> | null = null;
 
 const loadPrompts = async (): Promise<PromptModule> => {
@@ -51,11 +51,29 @@ type FinalEvaluationPayload = {
 };
 
 type RealtimeFeedbackPayload = {
-  questions: string[];
+  question: string;
   clarifications: string[];
   detected_gaps: string[];
   topic_drift: boolean;
   citations: string[];
+};
+
+type LearningConversationEntry = {
+  role: 'user' | 'assistant';
+  content: string;
+};
+
+type LearningSessionState = {
+  currentQuestion?: string | null;
+  currentConceptId?: string | null;
+  questionDepth?: number;
+  failedAttempts?: number;
+  detectedGaps?: string[];
+  masteredConcepts?: string[];
+  conversationHistory?: LearningConversationEntry[];
+  finalSummary?: unknown;
+  showSummaryCard?: boolean;
+  triggerMasteryFallback?: boolean;
 };
 
 type CitationPayload = {
@@ -93,15 +111,8 @@ type EvaluationRecord = {
 };
 
 const extractJson = (value: string): Record<string, unknown> | null => {
-  const first = value.indexOf('{');
-  const last = value.lastIndexOf('}');
-  if (first === -1 || last === -1 || last <= first) {
-    return null;
-  }
-
-  const candidate = value.slice(first, last + 1);
   try {
-    return JSON.parse(candidate) as Record<string, unknown>;
+    return JSON.parse(value) as Record<string, unknown>;
   } catch {
     return null;
   }
@@ -152,6 +163,89 @@ const asRecord = (value: unknown): Record<string, unknown> =>
     ? (value as Record<string, unknown>)
     : {};
 
+const normalizeSessionState = (state?: LearningSessionState) => ({
+  currentQuestion: state?.currentQuestion ?? null,
+  currentConceptId: state?.currentConceptId ?? null,
+  questionDepth: state?.questionDepth ?? 0,
+  failedAttempts: state?.failedAttempts ?? 0,
+  detectedGaps: coerceStringArray(state?.detectedGaps),
+  masteredConcepts: coerceStringArray(state?.masteredConcepts),
+  conversationHistory: Array.isArray(state?.conversationHistory)
+    ? state!.conversationHistory!
+        .filter(
+          entry =>
+            entry &&
+            (entry.role === 'user' || entry.role === 'assistant') &&
+            typeof entry.content === 'string'
+        )
+        .slice(-12)
+    : [],
+  finalSummary: state?.finalSummary ?? null,
+  showSummaryCard: Boolean(state?.showSummaryCard),
+  triggerMasteryFallback: Boolean(state?.triggerMasteryFallback),
+});
+
+const formatSessionState = (state?: LearningSessionState): string =>
+  JSON.stringify(normalizeSessionState(state), null, 2);
+
+const getLatestUserMessage = (state?: LearningSessionState): string => {
+  const history = normalizeSessionState(state).conversationHistory;
+  for (let index = history.length - 1; index >= 0; index -= 1) {
+    const entry = history[index];
+    if (entry.role === 'user' && entry.content.trim()) {
+      return entry.content.trim();
+    }
+  }
+
+  return '';
+};
+
+const buildConceptAttemptsSummary = (state?: LearningSessionState): string => {
+  const normalized = normalizeSessionState(state);
+  return JSON.stringify(
+    {
+      currentQuestion: normalized.currentQuestion,
+      currentConceptId: normalized.currentConceptId,
+      questionDepth: normalized.questionDepth,
+      failedAttempts: normalized.failedAttempts,
+      detectedGaps: normalized.detectedGaps,
+      masteredConcepts: normalized.masteredConcepts,
+      conversationTurns: normalized.conversationHistory.length,
+      triggerMasteryFallback: normalized.triggerMasteryFallback,
+    },
+    null,
+    2
+  );
+};
+
+const parseRealtimeFeedback = (raw: string): RealtimeFeedbackPayload | null => {
+  const parsed = extractJson(raw);
+  if (!parsed) {
+    return null;
+  }
+
+  const questionFromArray = coerceStringArray(parsed.questions)[0] || '';
+  const question =
+    typeof parsed.question === 'string' ? parsed.question.trim() : questionFromArray.trim();
+  if (!question) {
+    return null;
+  }
+
+  if (Array.isArray(parsed.question)) {
+    return null;
+  }
+
+  const payload = {
+    question,
+    clarifications: coerceStringArray(parsed.clarifications),
+    detected_gaps: coerceStringArray(parsed.detected_gaps),
+    topic_drift: coerceBoolean(parsed.topic_drift),
+    citations: coerceStringArray(parsed.citations),
+  };
+
+  return payload;
+};
+
 const parseFinalEvaluation = (raw: string): FinalEvaluationPayload | null => {
   const parsed = extractJson(raw);
   if (!parsed) {
@@ -178,23 +272,6 @@ const parseFinalEvaluation = (raw: string): FinalEvaluationPayload | null => {
   return payload;
 };
 
-const parseRealtimeFeedback = (raw: string): RealtimeFeedbackPayload | null => {
-  const parsed = extractJson(raw);
-  if (!parsed) {
-    return null;
-  }
-
-  const payload = {
-    questions: coerceStringArray(parsed.questions),
-    clarifications: coerceStringArray(parsed.clarifications),
-    detected_gaps: coerceStringArray(parsed.detected_gaps),
-    topic_drift: coerceBoolean(parsed.topic_drift),
-    citations: coerceStringArray(parsed.citations),
-  };
-
-  return payload.questions.length ? payload : null;
-};
-
 const truncateText = (value: string, maxLength: number): string => {
   const trimmed = value.replace(/\s+/g, ' ').trim();
   if (trimmed.length <= maxLength) {
@@ -205,13 +282,10 @@ const truncateText = (value: string, maxLength: number): string => {
 };
 
 const fallbackRealtimeFeedback = (raw: string): RealtimeFeedbackPayload => {
-  const question = truncateText(raw, 500);
-
   return {
-    questions: [
-      question ||
-        'Can you explain the core idea again and connect it to the learning resource?',
-    ],
+    question:
+      truncateText(raw, 500) ||
+      'Can you explain the core idea again and connect it to the learning resource?',
     clarifications: [],
     detected_gaps: [],
     topic_drift: false,
@@ -277,76 +351,99 @@ const logLlmRequest = (params: {
   sessionId?: string;
   messages: ChatMessage[];
   contextCount: number;
+  sessionState?: LearningSessionState;
 }) => {
   logger.info('LLM request payload', {
     purpose: params.purpose,
     sessionId: params.sessionId,
     contextCount: params.contextCount,
     messages: params.messages,
+    currentQuestion: params.sessionState?.currentQuestion ?? null,
+    questionDepth: params.sessionState?.questionDepth ?? 0,
+    failedAttempts: params.sessionState?.failedAttempts ?? 0,
+    detectedGapsCount: params.sessionState?.detectedGaps?.length ?? 0,
+    masteredConceptsCount: params.sessionState?.masteredConcepts?.length ?? 0,
+    historyLength: params.sessionState?.conversationHistory?.length ?? 0,
   });
 };
 
 const buildRealtimeMessages = (params: {
-  transcript: string;
   context: RetrievedContextChunk[];
   subject?: string;
   topic?: string;
   goal?: string;
   rubric: string[];
   systemPrompt: string;
+  sessionState?: LearningSessionState;
 }): ChatMessage[] => {
   const contextBlock = formatContext(params.context);
   const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
   const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
+  const sessionStateBlock = formatSessionState({
+    ...params.sessionState,
+    triggerMasteryFallback:
+      (params.sessionState?.failedAttempts ?? 0) >= 5 ||
+      Boolean(params.sessionState?.triggerMasteryFallback),
+  });
+  const latestUserMessage = getLatestUserMessage(params.sessionState);
 
   return [
     {
       role: 'system',
-      content: `${params.systemPrompt}\nReturn valid JSON only.`,
+      content:
+        `${params.systemPrompt}\n` +
+        'Return valid JSON only.\n' +
+        'Response schema: {"question": string, "clarifications": string[], "detected_gaps": string[], "topic_drift": boolean, "citations": string[] }.\n' +
+        'Never return arrays of questions. Merge internal options into one best question.',
     },
     {
       role: 'user',
       content:
         `Subject/Topic: ${scope || 'unspecified'}\n` +
         goalBlock +
+        `Current user message: ${latestUserMessage || 'none'}\n` +
+        `Session memory:\n${sessionStateBlock}\n\n` +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
-        `Recent transcript:\n${params.transcript}\n\nRetrieved context:\n${contextBlock}\n\n` +
+        `Retrieved context:\n${contextBlock}\n\n` +
         `Available citation ids: ${citationIds || 'none'}\n\n` +
-        'Return JSON with keys: questions (1-3 strings), clarifications (0-2 strings), ' +
+        'Return JSON with keys: question (single string), clarifications (0-2 strings), ' +
         'detected_gaps (0-4 strings), topic_drift (boolean), citations (citation ids used). ' +
-        'Ask questions only. Do not teach, solve, explain, or add text outside JSON.',
+        'Ask exactly one question only. Do not teach, solve, explain, or add text outside JSON. ' +
+        'If failedAttempts is 5 or more, trigger mastery fallback behavior in the answer.',
     },
   ];
 };
 
 const buildFinalMessages = (params: {
-  transcript: string;
-  context: RetrievedContextChunk[];
   subject?: string;
   topic?: string;
   goal?: string;
   rubric: string[];
   systemPrompt: string;
+  sessionState?: LearningSessionState;
 }): ChatMessage[] => {
-  const contextBlock = formatContext(params.context);
   const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
-  const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
+  const sessionStateBlock = formatSessionState(params.sessionState);
+  const conceptAttemptsSummary = buildConceptAttemptsSummary(params.sessionState);
 
   return [
     {
       role: 'system',
-      content: `${params.systemPrompt}\nReturn valid JSON only.`,
+      content:
+        `${params.systemPrompt}\n` +
+        'Return valid JSON only.\n' +
+        'Do not use markdown. Do not include code fences. Do not include transcript text.',
     },
     {
       role: 'user',
       content:
         `Subject/Topic: ${scope || 'unspecified'}\n` +
         goalBlock +
+        `Session memory:\n${sessionStateBlock}\n\n` +
+        `Concept attempts summary:\n${conceptAttemptsSummary}\n\n` +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
-        `Full transcript:\n${params.transcript}\n\nRetrieved context:\n${contextBlock}\n\n` +
-        `Available citation ids: ${citationIds || 'none'}\n\n` +
         'Return JSON with keys: summary, strengths, weaknesses, missed_concepts, ' +
         'follow_up, confidence_score (0-100), topic_drift (true/false), cited_evidence. ' +
         'cited_evidence must contain citation ids that support the evaluation. ' +
@@ -362,22 +459,29 @@ const buildStartMessages = (params: {
   context: RetrievedContextChunk[];
   rubric: string[];
   systemPrompt: string;
+  sessionState?: LearningSessionState;
 }): ChatMessage[] => {
   const scope = [params.subject, params.topic].filter(Boolean).join(' / ');
   const goalBlock = params.goal ? `Learning goal: ${params.goal}\n` : '';
   const contextBlock = formatContext(params.context);
   const citationIds = params.context.map(chunk => chunk.citationId).join(', ');
+  const sessionStateBlock = formatSessionState(params.sessionState);
 
   return [
     {
       role: 'system',
-      content: params.systemPrompt,
+      content:
+        `${params.systemPrompt}\n` +
+        'Return valid JSON only.\n' +
+        'Response schema: {"question": string, "clarifications": string[], "detected_gaps": string[], "topic_drift": boolean, "citations": string[] }.\n' +
+        'Never return questions arrays.',
     },
     {
       role: 'user',
       content:
         `Subject/Topic: ${scope || 'unspecified'}\n` +
         goalBlock +
+        `Session memory:\n${sessionStateBlock}\n\n` +
         `Rubric:\n${formatRubric(params.rubric)}\n\n` +
         `Retrieved context:\n${contextBlock}\n\n` +
         `Available citation ids: ${citationIds || 'none'}\n\n` +
@@ -392,6 +496,7 @@ export const generateSessionStartResponse = async (params: {
   topic?: string;
   goal?: string;
   resourceIds?: string[];
+  sessionState?: LearningSessionState;
 }) => {
   const contextQuery = [params.topic, params.subject, params.goal]
     .filter(Boolean)
@@ -413,21 +518,26 @@ export const generateSessionStartResponse = async (params: {
     context,
     rubric: getDomainRubric(params.subject),
     systemPrompt: startPrompt,
+    sessionState: params.sessionState,
   });
 
   logLlmRequest({
     purpose: 'start',
     messages,
     contextCount: context.length,
+    sessionState: params.sessionState,
   });
 
   const completion = await generateChatCompletion(
     messages,
-    { purpose: 'realtime', temperature: 0.3, maxTokens: 180 }
+    { purpose: 'default', temperature: 0.3, maxTokens: 180 }
   );
 
+  const parsed = parseRealtimeFeedback(completion.content);
+  const structured = parsed || fallbackRealtimeFeedback(completion.content);
+
   return {
-    content: completion.content,
+    content: JSON.stringify({ question: structured.question }),
     provider: completion.provider,
     model: completion.model,
     context,
@@ -443,14 +553,16 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
     : [];
   const citedEvidence = coerceStringArray(metadata.citedEvidence);
   const rubric = coerceStringArray(metadata.rubric);
-  const rawContent =
-    typeof metadata.rawContent === 'string' ? metadata.rawContent : evaluation.content;
 
   if (evaluation.type === 'ROLLING') {
     const followUp = asRecord(evaluation.followUp);
     const parsed = parseRealtimeFeedback(evaluation.content);
     const persistedFallback: RealtimeFeedbackPayload = {
-      questions: coerceStringArray(followUp.questions),
+      question:
+        typeof followUp.question === 'string'
+          ? followUp.question
+          : coerceStringArray(followUp.questions)[0] ||
+            'Can you explain the core idea again and connect it to the learning resource?',
       clarifications: coerceStringArray(followUp.clarifications),
       detected_gaps: coerceStringArray(evaluation.weaknesses),
       topic_drift: Boolean(evaluation.topicDrift),
@@ -458,7 +570,7 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
     };
     const structured: RealtimeFeedbackPayload =
       parsed ||
-      (persistedFallback.questions.length
+      (persistedFallback.question.trim()
         ? persistedFallback
         : fallbackRealtimeFeedback(evaluation.content));
 
@@ -468,7 +580,7 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
       citations,
       citedEvidence,
       rubric,
-      rawContent,
+      rawContent: JSON.stringify(structured),
       analytics: metadata.analytics,
     };
   }
@@ -496,7 +608,7 @@ export const formatEvaluationForClient = <T extends EvaluationRecord>(
     citations,
     citedEvidence,
     rubric,
-    rawContent,
+    rawContent: JSON.stringify(structured),
     analytics: metadata.analytics,
   };
 };
@@ -528,17 +640,18 @@ export const generateRealtimeFeedback = async (params: {
   resourceIds?: string[];
   transcriptOverride?: string;
   goal?: string;
+  sessionState?: LearningSessionState;
 }) => {
-  const transcript = params.transcriptOverride
-    ? params.transcriptOverride
-    : await getTranscriptWindowText(params.sessionId);
+  const latestUserMessage = getLatestUserMessage(params.sessionState);
+  const userMessage =
+    latestUserMessage || params.transcriptOverride || (await getTranscriptWindowText(params.sessionId));
 
-  if (!transcript.trim()) {
+  if (!userMessage.trim() && !params.sessionState?.conversationHistory?.length) {
     return null;
   }
 
   const context = await retrieveContext({
-    transcript,
+    transcript: userMessage,
     subject: params.subject,
     topic: params.topic,
     resourceIds: params.resourceIds,
@@ -547,13 +660,13 @@ export const generateRealtimeFeedback = async (params: {
   const rubric = getDomainRubric(params.subject);
   const { realTimePrompt } = await loadPrompts();
   const messages = buildRealtimeMessages({
-    transcript,
     context,
     subject: params.subject,
     topic: params.topic,
     goal: params.goal,
     rubric,
     systemPrompt: realTimePrompt,
+    sessionState: params.sessionState,
   });
 
   logLlmRequest({
@@ -561,6 +674,7 @@ export const generateRealtimeFeedback = async (params: {
     sessionId: params.sessionId,
     messages,
     contextCount: context.length,
+    sessionState: params.sessionState,
   });
 
   const completion = await generateChatCompletion(
@@ -572,7 +686,7 @@ export const generateRealtimeFeedback = async (params: {
   const contextTexts = getContextTexts(context);
   const citations = getCitations(context);
   const transcriptAnalytics = analyzeTranscriptQuality({
-    transcript,
+    transcript: userMessage,
     context: contextTexts,
     subject: params.subject,
     topic: params.topic,
@@ -585,7 +699,7 @@ export const generateRealtimeFeedback = async (params: {
       content: JSON.stringify(structured),
       weaknesses: structured.detected_gaps,
       followUp: {
-        questions: structured.questions,
+        question: structured.question,
         clarifications: structured.clarifications,
       },
       topicDrift: structured.topic_drift,
@@ -636,21 +750,25 @@ export const generateFinalEvaluation = async (params: {
   resourceIds?: string[];
   transcriptOverride?: string;
   goal?: string;
+  sessionState?: LearningSessionState;
 }) => {
   if (env.ENABLE_FINAL_EVALUATION === false) {
     return null;
   }
 
-  const transcript = params.transcriptOverride
-    ? params.transcriptOverride
-    : await getSessionTranscriptText(params.sessionId);
-
-  if (!transcript.trim()) {
+  const sessionMemory = normalizeSessionState(params.sessionState);
+  if (!sessionMemory.conversationHistory.length && !sessionMemory.currentQuestion) {
     return null;
   }
 
   const context = await retrieveContext({
-    transcript,
+    transcript: [
+      sessionMemory.currentQuestion,
+      ...sessionMemory.conversationHistory.map(entry => entry.content),
+    ]
+      .filter(Boolean)
+      .slice(-12)
+      .join(' \n'),
     subject: params.subject,
     topic: params.topic,
     resourceIds: params.resourceIds,
@@ -659,13 +777,21 @@ export const generateFinalEvaluation = async (params: {
   const rubric = getDomainRubric(params.subject);
   const { endPrompt } = await loadPrompts();
   const messages = buildFinalMessages({
-    transcript,
-    context,
     subject: params.subject,
     topic: params.topic,
     goal: params.goal,
     rubric,
     systemPrompt: endPrompt,
+    sessionState: params.sessionState,
+  });
+
+  logger.info('Final evaluation session memory snapshot', {
+    sessionId: params.sessionId,
+    historyLength: params.sessionState?.conversationHistory?.length ?? 0,
+    masteredConceptsCount: params.sessionState?.masteredConcepts?.length ?? 0,
+    detectedGapsCount: params.sessionState?.detectedGaps?.length ?? 0,
+    failedAttempts: params.sessionState?.failedAttempts ?? 0,
+    questionDepth: params.sessionState?.questionDepth ?? 0,
   });
 
   logLlmRequest({
@@ -673,11 +799,12 @@ export const generateFinalEvaluation = async (params: {
     sessionId: params.sessionId,
     messages,
     contextCount: context.length,
+    sessionState: params.sessionState,
   });
 
   const completion = await generateChatCompletion(
     messages,
-    { purpose: 'final', temperature: 0.3 }
+    { purpose: 'final', temperature: 0.2, maxTokens: 750 }
   );
 
   const parsed = parseFinalEvaluation(completion.content);
@@ -685,7 +812,7 @@ export const generateFinalEvaluation = async (params: {
   const contextTexts = getContextTexts(context);
   const citations = getCitations(context);
   const transcriptAnalytics = analyzeTranscriptQuality({
-    transcript,
+    transcript: sessionMemory.conversationHistory.map(entry => entry.content).join(' '),
     context: contextTexts,
     subject: params.subject,
     topic: params.topic,
@@ -742,7 +869,10 @@ export const generateFinalEvaluation = async (params: {
     },
   });
 
-  return formatEvaluationForClient(evaluation);
+  return {
+    ...formatEvaluationForClient(evaluation),
+    rawContent: JSON.stringify(structured),
+  };
 };
 
 export const getLatestFinalEvaluation = async (sessionId: string) =>

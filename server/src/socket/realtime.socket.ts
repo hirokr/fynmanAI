@@ -33,6 +33,20 @@ const getTokenFromSocket = (socket: Socket): string | null => {
 
 export const registerRealtimeSocket = (io: Server) => {
   const realtimeAnalysisTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  const sessionMemoryMap = new Map<string, SocketLearningSessionState>();
+
+  type SocketLearningSessionState = {
+    currentQuestion?: string | null;
+    currentConceptId?: string | null;
+    questionDepth?: number;
+    failedAttempts?: number;
+    detectedGaps?: string[];
+    masteredConcepts?: string[];
+    conversationHistory?: { role: 'user' | 'assistant'; content: string }[];
+    finalSummary?: unknown;
+    showSummaryCard?: boolean;
+    triggerMasteryFallback?: boolean;
+  };
 
   io.use(async (socket, next) => {
     try {
@@ -68,14 +82,137 @@ export const registerRealtimeSocket = (io: Server) => {
     });
   };
 
+  const normalizeState = (state?: SocketLearningSessionState): SocketLearningSessionState => ({
+    currentQuestion: state?.currentQuestion ?? null,
+    currentConceptId: state?.currentConceptId ?? null,
+    questionDepth: state?.questionDepth ?? 0,
+    failedAttempts: state?.failedAttempts ?? 0,
+    detectedGaps: Array.isArray(state?.detectedGaps) ? state.detectedGaps.filter(Boolean) : [],
+    masteredConcepts: Array.isArray(state?.masteredConcepts) ? state.masteredConcepts.filter(Boolean) : [],
+    conversationHistory: Array.isArray(state?.conversationHistory)
+      ? state.conversationHistory.filter(
+          entry =>
+            entry &&
+            (entry.role === 'user' || entry.role === 'assistant') &&
+            typeof entry.content === 'string' &&
+            entry.content.trim().length > 0
+        )
+      : [],
+    finalSummary: state?.finalSummary ?? null,
+    showSummaryCard: Boolean(state?.showSummaryCard),
+    triggerMasteryFallback: Boolean(state?.triggerMasteryFallback),
+  });
+
+  const mergeSessionMemory = (
+    sessionId: string,
+    snapshot?: SocketLearningSessionState
+  ) => {
+    const current = normalizeState(sessionMemoryMap.get(sessionId));
+    const incoming = normalizeState(snapshot);
+    const mergedHistory = [...(current.conversationHistory || []), ...(incoming.conversationHistory || [])].slice(-12);
+    const mergedGaps = Array.from(new Set([...(current.detectedGaps || []), ...(incoming.detectedGaps || [])]));
+    const mergedMastered = Array.from(new Set([...(current.masteredConcepts || []), ...(incoming.masteredConcepts || [])]));
+
+    const merged: SocketLearningSessionState = {
+      ...current,
+      ...incoming,
+      conversationHistory: mergedHistory,
+      detectedGaps: mergedGaps,
+      masteredConcepts: mergedMastered,
+      failedAttempts: Math.max(current.failedAttempts || 0, incoming.failedAttempts || 0),
+      questionDepth: Math.max(current.questionDepth || 0, incoming.questionDepth || 0),
+    };
+
+    sessionMemoryMap.set(sessionId, merged);
+    return merged;
+  };
+
+  const updateFromUserText = (
+    sessionId: string,
+    text: string,
+    snapshot?: SocketLearningSessionState
+  ) => {
+    const memory = mergeSessionMemory(sessionId, snapshot);
+    const trimmed = text.trim().toLowerCase();
+    const failureSignals = [
+      "i don't know",
+      'i do not know',
+      'not sure',
+      'please explain',
+      'i am not sure',
+      'i dont know',
+    ];
+
+    const repeatedConfusion =
+      memory.conversationHistory
+        ?.filter(entry => entry.role === 'user')
+        .slice(-3)
+        .map(entry => entry.content.trim().toLowerCase())
+        .every(entry => entry === trimmed) || false;
+
+    const userFailedConcept =
+      !trimmed ||
+      failureSignals.some(signal => trimmed.includes(signal)) ||
+      repeatedConfusion;
+
+    const nextFailedAttempts = userFailedConcept
+      ? (memory.failedAttempts || 0) + 1
+      : 0;
+
+    const updated: SocketLearningSessionState = {
+      ...memory,
+      conversationHistory: [
+        ...(memory.conversationHistory || []),
+        { role: 'user' as const, content: text.trim() },
+      ].slice(-12),
+      failedAttempts: nextFailedAttempts,
+      triggerMasteryFallback: nextFailedAttempts >= 5,
+    };
+
+    sessionMemoryMap.set(sessionId, updated);
+    return updated;
+  };
+
+  const updateFromAiResponse = (
+    sessionId: string,
+    response: { question?: string; detected_gaps?: string[] },
+    phase: 'start' | 'realtime'
+  ) => {
+    const memory = mergeSessionMemory(sessionId);
+    const currentQuestion = response.question?.trim() || memory.currentQuestion || null;
+    const detectedGaps = Array.from(new Set([...(memory.detectedGaps || []), ...(response.detected_gaps || [])]));
+    const hasGaps = detectedGaps.length > 0;
+    const masteredConcepts = new Set(memory.masteredConcepts || []);
+
+    if (!hasGaps && memory.currentConceptId && (memory.questionDepth || 0) >= 1) {
+      masteredConcepts.add(memory.currentConceptId);
+    }
+
+    const updated: SocketLearningSessionState = {
+      ...memory,
+      currentQuestion,
+      detectedGaps,
+      masteredConcepts: Array.from(masteredConcepts),
+      failedAttempts: hasGaps ? (memory.failedAttempts || 0) + 1 : 0,
+      questionDepth: phase === 'start' ? 1 : (memory.questionDepth || 0) + (hasGaps ? 0 : 1),
+      triggerMasteryFallback: hasGaps && (memory.failedAttempts || 0) + 1 >= 5,
+    };
+
+    sessionMemoryMap.set(sessionId, updated);
+    return updated;
+  };
+
   const generateAndEmitRealtimeResponse = async (params: {
     sessionId: string;
     userId: string;
+    sessionState?: SocketLearningSessionState;
   }) => {
     const session = await getSessionById(params.sessionId);
     if (!session || session.userId !== params.userId) {
       return null;
     }
+
+    const mergedState = mergeSessionMemory(params.sessionId, params.sessionState);
 
     const evaluation = await generateRealtimeFeedback({
       sessionId: params.sessionId,
@@ -83,9 +220,24 @@ export const registerRealtimeSocket = (io: Server) => {
       topic: session.topic || undefined,
       resourceIds: session.resources.map(item => item.resourceId),
       goal: session.goal || undefined,
+      sessionState: mergedState,
     });
 
     if (evaluation?.rawContent) {
+      if (evaluation.structured) {
+        const structured = evaluation.structured as {
+          question?: string;
+          detected_gaps?: string[];
+        };
+        updateFromAiResponse(
+          params.sessionId,
+          {
+            question: structured.question,
+            detected_gaps: structured.detected_gaps || [],
+          },
+          'realtime'
+        );
+      }
       emitLlmResponse(params.sessionId, 'realtime', evaluation.rawContent);
     }
 
@@ -105,6 +257,7 @@ export const registerRealtimeSocket = (io: Server) => {
   const scheduleRealtimeResponse = (params: {
     sessionId: string;
     userId: string;
+    sessionState?: SocketLearningSessionState;
   }) => {
     if (realtimeAnalysisTimers.has(params.sessionId)) {
       return;
@@ -140,12 +293,15 @@ export const registerRealtimeSocket = (io: Server) => {
 
       clearScheduledRealtimeResponse(payload.sessionId);
       await endSession(payload.sessionId);
+      const memory = mergeSessionMemory(payload.sessionId, payload.sessionState);
+
       const evaluation = await generateFinalEvaluation({
         sessionId: payload.sessionId,
         subject: session.subject || undefined,
         topic: session.topic || undefined,
         resourceIds: session.resources.map(item => item.resourceId),
         goal: session.goal || undefined,
+        sessionState: memory,
       });
 
       if (evaluation?.rawContent) {
@@ -156,6 +312,33 @@ export const registerRealtimeSocket = (io: Server) => {
     } catch (error) {
       logger.error(`Realtime session end failed: ${String(error)}`);
       cb?.({ ok: false, error: 'Failed to end session' });
+    }
+  };
+
+  const handlePauseSession = async (socket: Socket, payload: any, cb?: any) => {
+    try {
+      if (!payload?.sessionId) {
+        cb?.({ ok: false, error: 'sessionId is required' });
+        return;
+      }
+
+      const session = await getSessionById(payload.sessionId);
+      if (!session || session.userId !== socket.data.userId) {
+        cb?.({ ok: false, error: 'Session not found' });
+        return;
+      }
+
+      clearScheduledRealtimeResponse(payload.sessionId);
+      await generateAndEmitRealtimeResponse({
+        sessionId: payload.sessionId,
+        userId: socket.data.userId,
+        sessionState: payload.sessionState,
+      });
+
+      cb?.({ ok: true });
+    } catch (error) {
+      logger.error(`Realtime session pause failed: ${String(error)}`);
+      cb?.({ ok: false, error: 'Failed to pause session' });
     }
   };
 
@@ -179,6 +362,15 @@ export const registerRealtimeSocket = (io: Server) => {
           topic: session.topic || undefined,
           goal: session.goal || undefined,
           resourceIds,
+          sessionState: payload?.sessionState,
+        });
+        const parsedStart = JSON.parse(startResponse.content) as { question?: string };
+        mergeSessionMemory(session.id, {
+          ...payload?.sessionState,
+          currentQuestion: parsedStart.question || null,
+          questionDepth: 1,
+          failedAttempts: 0,
+          triggerMasteryFallback: false,
         });
         emitLlmResponse(session.id, 'start', startResponse.content);
         cb?.({ ok: true, session });
@@ -190,6 +382,10 @@ export const registerRealtimeSocket = (io: Server) => {
 
     socket.on('session:end', (payload, cb) =>
       handleEndSession(socket, payload, cb)
+    );
+
+    socket.on('user:pause', (payload, cb) =>
+      handlePauseSession(socket, payload, cb)
     );
 
     socket.on('user:end', (payload, cb) =>
@@ -228,15 +424,20 @@ export const registerRealtimeSocket = (io: Server) => {
           endTimeMs: payload?.endTimeMs,
         });
 
+        const memory = updateFromUserText(sessionId, transcript.text, payload?.sessionState);
+
         io.to(sessionId).emit('transcript:chunk', {
           sessionId,
           chunk,
         });
 
-        scheduleRealtimeResponse({
-          sessionId,
-          userId: socket.data.userId,
-        });
+        if (payload?.endMessage !== 'user:pause' && payload?.endMessage !== 'user:end') {
+          scheduleRealtimeResponse({
+            sessionId,
+            userId: socket.data.userId,
+            sessionState: memory,
+          });
+        }
 
         cb?.({ ok: true, chunk });
       } catch (error) {
@@ -275,6 +476,8 @@ export const registerRealtimeSocket = (io: Server) => {
           endTimeMs: payload?.endTimeMs,
         });
 
+        const memory = updateFromUserText(sessionId, text, payload?.sessionState);
+
         io.to(sessionId).emit('transcript:chunk', {
           sessionId,
           chunk,
@@ -283,6 +486,7 @@ export const registerRealtimeSocket = (io: Server) => {
         scheduleRealtimeResponse({
           sessionId,
           userId: socket.data.userId,
+          sessionState: memory,
         });
 
         cb?.({ ok: true, chunk });

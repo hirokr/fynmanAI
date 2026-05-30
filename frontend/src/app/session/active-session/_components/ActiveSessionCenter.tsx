@@ -11,7 +11,11 @@ import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { useVoiceStore } from "@/store/useVoiceStore";
 import { destroySocket } from "@/lib/socket/socket";
 import { useAuth } from "@/context/auth/AuthContext";
-import { endUserSession, sendTextInput } from "@/services/voice.service";
+import {
+  endUserSession,
+  pauseUserSession,
+  sendTextInput,
+} from "@/services/voice.service";
 
 export default function ActiveSessionCenter() {
   const { accessToken } = useAuth();
@@ -29,12 +33,31 @@ export default function ActiveSessionCenter() {
     sessionId,
     isRecording,
     isProcessing,
+    isEndingSession,
     hasAiResponded,
     transcripts,
+    finalSummary,
     setIsRecording,
     setIsProcessing,
+    setIsEndingSession,
     resetSessionState,
   } = useVoiceStore();
+
+  const buildSessionStateSnapshot = () => {
+    const state = useVoiceStore.getState();
+
+    return {
+      currentQuestion: state.currentQuestion,
+      currentConceptId: state.currentConceptId,
+      questionDepth: state.questionDepth,
+      failedAttempts: state.failedAttempts,
+      detectedGaps: state.detectedGaps,
+      masteredConcepts: state.masteredConcepts,
+      conversationHistory: state.conversationHistory,
+      finalSummary: state.finalSummary,
+      showSummaryCard: state.showSummaryCard,
+    };
+  };
   const pendingTranscriptCountRef = useRef(0);
   const statusLabel = !connected
     ? "Connecting"
@@ -99,12 +122,26 @@ export default function ActiveSessionCenter() {
         return;
       }
 
-      await endUserSession(socket, sessionId);
+      await pauseUserSession(socket, sessionId, buildSessionStateSnapshot());
     } catch (error) {
       console.error("Failed to end user session", error);
       setIsProcessing(false);
     }
   }, [sessionId, socket, stopRecording, transcripts.length]);
+
+  const handleSessionEndClick = useCallback(async () => {
+    if (!socket || !sessionId) {
+      return;
+    }
+
+    try {
+      setIsEndingSession(true);
+      await endUserSession(socket, sessionId, buildSessionStateSnapshot());
+    } catch (error) {
+      console.error("Failed to finalize session", error);
+      setIsEndingSession(false);
+    }
+  }, [sessionId, setIsEndingSession, socket]);
 
   const handleKeyboardClick = useCallback(() => {
     setShowTextInput((prev) => !prev);
@@ -114,8 +151,19 @@ export default function ActiveSessionCenter() {
     if (!socket || !sessionId || !textInput.trim()) return;
 
     const text = textInput.trim();
+    const learningState = useVoiceStore.getState();
     useVoiceStore.getState().addTranscript(text, { optimistic: true });
-    sendTextInput(socket, sessionId, text);
+    sendTextInput(socket, sessionId, text, {
+      currentQuestion: learningState.currentQuestion,
+      currentConceptId: learningState.currentConceptId,
+      questionDepth: learningState.questionDepth,
+      failedAttempts: learningState.failedAttempts,
+      detectedGaps: learningState.detectedGaps,
+      masteredConcepts: learningState.masteredConcepts,
+      conversationHistory: learningState.conversationHistory,
+      finalSummary: learningState.finalSummary,
+      showSummaryCard: learningState.showSummaryCard,
+    });
     setTextInput("");
     setShowTextInput(false);
   };
@@ -145,6 +193,19 @@ export default function ActiveSessionCenter() {
 
   return (
     <section className="flex-1 min-h-0 flex flex-col items-center relative w-full">
+      <div className="absolute right-4 top-4 z-20 md:right-6 md:top-6">
+        <button
+          type="button"
+          onClick={handleSessionEndClick}
+          disabled={!sessionReady || !socket || !sessionId || isEndingSession}
+          className="inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-surface-container-high/80 px-4 py-2 text-body-md text-on-surface shadow-lg backdrop-blur-md transition hover:border-rose-400 hover:text-rose-200 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className={`material-symbols-outlined text-[18px] ${isEndingSession ? "animate-spin" : ""}`}>
+            {isEndingSession ? "progress_activity" : "power_settings_new"}
+          </span>
+        </button>
+      </div>
+
       <SessionStatusBadge
         sessionState={statusState}
         statusLabel={statusLabel}
@@ -200,6 +261,7 @@ export default function ActiveSessionCenter() {
         isRecording={isRecording}
         micLoading={isProcessing}
         hasAiResponded={hasAiResponded}
+        endLoading={isEndingSession}
       />
     </section>
   );

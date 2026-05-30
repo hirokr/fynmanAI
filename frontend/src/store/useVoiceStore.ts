@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { Socket } from "socket.io-client";
 
 type ChatMessage = {
@@ -8,6 +9,34 @@ type ChatMessage = {
   timestamp: number;
 };
 
+type FinalSummary = {
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  missed_concepts: string[];
+  follow_up: string[];
+  confidence_score: number;
+  topic_drift: boolean;
+  cited_evidence: string[];
+};
+
+type LearningConversationEntry = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+type LearningSessionState = {
+  currentQuestion: string | null;
+  currentConceptId: string | null;
+  questionDepth: number;
+  failedAttempts: number;
+  detectedGaps: string[];
+  masteredConcepts: string[];
+  conversationHistory: LearningConversationEntry[];
+  finalSummary: FinalSummary | null;
+  showSummaryCard: boolean;
+};
+
 type State = {
   socket: Socket | null;
   sessionId: string | null;
@@ -15,9 +44,13 @@ type State = {
   sessionReady: boolean;
   isRecording: boolean;
   isProcessing: boolean;
+  isEndingSession: boolean;
   hasAiResponded: boolean;
   transcripts: string[];
   aiFeedback: string | null;
+  finalSummary: FinalSummary | null;
+  showSummaryCard: boolean;
+} & LearningSessionState & {
   messages: ChatMessage[];
   resourceIds: string[];
   subject: string;
@@ -30,8 +63,22 @@ type State = {
   setSessionReady: (v: boolean) => void;
   setIsRecording: (v: boolean) => void;
   setIsProcessing: (v: boolean) => void;
+  setIsEndingSession: (v: boolean) => void;
   setHasAiResponded: (v: boolean) => void;
   setAiFeedback: (text: string) => void;
+  setFinalSummary: (summary: FinalSummary | null) => void;
+  setShowSummaryCard: (show: boolean) => void;
+  setCurrentQuestion: (question: string | null) => void;
+  setCurrentConceptId: (conceptId: string | null) => void;
+  setQuestionDepth: (depth: number) => void;
+  incrementFailedAttempts: () => void;
+  resetFailedAttempts: () => void;
+  mergeDetectedGaps: (gaps: string[]) => void;
+  setMasteredConcepts: (concepts: string[]) => void;
+  addMasteredConcept: (conceptId: string | null) => void;
+  addConversationEntry: (entry: LearningConversationEntry) => void;
+  setConversationHistory: (history: LearningConversationEntry[]) => void;
+  resetLearningSessionState: () => void;
   addResourceId: (id: string) => void;
   setResourceIds: (ids: string[]) => void;
   setSubject: (value: string) => void;
@@ -49,16 +96,85 @@ const createMessage = (role: ChatMessage["role"], content: string): ChatMessage 
   timestamp: Date.now(),
 });
 
-export const useVoiceStore = create<State>((set) => ({
+const uniqueStrings = (values: string[]) => Array.from(new Set(values.filter(Boolean)));
+
+const parseJsonContent = (content: string): Record<string, unknown> | null => {
+  try {
+    return JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+};
+
+const extractJsonContent = (content: string) => {
+  const fencedMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim();
+  }
+
+  const objectMatch = content.match(/\{[\s\S]*\}/);
+  if (objectMatch?.[0]) {
+    return objectMatch[0].trim();
+  }
+
+  return null;
+};
+
+const extractAssistantText = (content: string) => {
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const directParsed = parseJsonContent(trimmed);
+  if (directParsed && typeof directParsed.question === "string" && directParsed.question.trim()) {
+    return directParsed.question.trim();
+  }
+
+  const extractedJson = extractJsonContent(trimmed);
+  if (extractedJson) {
+    const parsed = parseJsonContent(extractedJson);
+    if (parsed && typeof parsed.question === "string" && parsed.question.trim()) {
+      return parsed.question.trim();
+    }
+  }
+
+  const questionMatch = trimmed.match(/"question"\s*:\s*"([^"]+)"/i);
+  if (questionMatch?.[1]?.trim()) {
+    return questionMatch[1].trim();
+  }
+
+  return trimmed;
+};
+
+const createInitialLearningState = (): LearningSessionState => ({
+  currentQuestion: null,
+  currentConceptId: null,
+  questionDepth: 0,
+  failedAttempts: 0,
+  detectedGaps: [],
+  masteredConcepts: [],
+  conversationHistory: [],
+  finalSummary: null,
+  showSummaryCard: false,
+});
+
+const normalizeEntryContent = (content: string) => extractAssistantText(content);
+
+export const useVoiceStore = create<State>()(
+  persist(
+    (set, get) => ({
   socket: null,
   sessionId: null,
   connected: false,
   sessionReady: false,
   isRecording: false,
   isProcessing: false,
+  isEndingSession: false,
   hasAiResponded: false,
   transcripts: [],
   aiFeedback: null,
+  ...createInitialLearningState(),
   messages: [],
   resourceIds: [],
   subject: "",
@@ -82,12 +198,18 @@ export const useVoiceStore = create<State>((set) => ({
         latestMessage.content === content &&
         state.transcripts.at(-1) === content;
 
+      if (isDuplicateEcho) {
+        return state;
+      }
+
       return {
         transcripts: [...state.transcripts, content],
         messages:
-          isOptimistic || !isDuplicateEcho
-            ? [...state.messages, createMessage("user", content)]
-            : state.messages,
+          [...state.messages, createMessage("user", content)],
+        conversationHistory: [
+          ...state.conversationHistory,
+          { role: "user", content },
+        ],
       };
     });
   },
@@ -95,12 +217,75 @@ export const useVoiceStore = create<State>((set) => ({
   setSessionReady: (sessionReady) => set({ sessionReady }),
   setIsRecording: (isRecording) => set({ isRecording }),
   setIsProcessing: (isProcessing) => set({ isProcessing }),
+  setIsEndingSession: (isEndingSession) => set({ isEndingSession }),
   setHasAiResponded: (hasAiResponded) => set({ hasAiResponded }),
   setAiFeedback: (aiFeedback) =>
+    set((state) => {
+      const normalized = normalizeEntryContent(aiFeedback);
+
+      if (!normalized) {
+        return state;
+      }
+
+      return {
+        aiFeedback: normalized,
+        messages: [...state.messages, createMessage("ai", normalized)],
+        conversationHistory: [
+          ...state.conversationHistory,
+          { role: "assistant", content: normalized },
+        ],
+      };
+    }),
+  setFinalSummary: (finalSummary) => set({ finalSummary }),
+  setShowSummaryCard: (showSummaryCard) => set({ showSummaryCard }),
+  setCurrentQuestion: (currentQuestion) => set({ currentQuestion }),
+  setCurrentConceptId: (currentConceptId) => set({ currentConceptId }),
+  setQuestionDepth: (questionDepth) => set({ questionDepth }),
+  incrementFailedAttempts: () =>
+    set((state) => ({ failedAttempts: state.failedAttempts + 1 })),
+  resetFailedAttempts: () => set({ failedAttempts: 0 }),
+  mergeDetectedGaps: (gaps) =>
     set((state) => ({
-      aiFeedback,
-      messages: [...state.messages, createMessage("ai", aiFeedback)],
+      detectedGaps: uniqueStrings([...state.detectedGaps, ...gaps]),
     })),
+  setMasteredConcepts: (masteredConcepts) =>
+    set({ masteredConcepts: uniqueStrings(masteredConcepts) }),
+  addMasteredConcept: (conceptId) =>
+    set((state) => {
+      if (!conceptId || state.masteredConcepts.includes(conceptId)) {
+        return state;
+      }
+
+      return {
+        masteredConcepts: [...state.masteredConcepts, conceptId],
+      };
+    }),
+  addConversationEntry: (entry) =>
+    set((state) => ({
+      conversationHistory: [
+        ...state.conversationHistory,
+        {
+          role: entry.role,
+          content: normalizeEntryContent(entry.content),
+        },
+      ],
+    })),
+  setConversationHistory: (conversationHistory) =>
+    set({ conversationHistory }),
+  resetLearningSessionState: () =>
+    set({
+      sessionId: null,
+      connected: false,
+      sessionReady: false,
+      isRecording: false,
+      isProcessing: false,
+      isEndingSession: false,
+      hasAiResponded: false,
+      ...createInitialLearningState(),
+      transcripts: [],
+      aiFeedback: null,
+      messages: [],
+    }),
   addResourceId: (id) =>
     set((state) =>
       state.resourceIds.includes(id)
@@ -117,12 +302,43 @@ export const useVoiceStore = create<State>((set) => ({
       sessionReady: false,
       isRecording: false,
       isProcessing: false,
+      isEndingSession: false,
       hasAiResponded: false,
       transcripts: [],
       aiFeedback: null,
+      ...createInitialLearningState(),
       messages: [],
       resourceIds: [],
       subject: "",
       topic: "",
     }),
-}));
+    }),
+    {
+      name: "fymen-learning-session",
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        sessionId: state.sessionId,
+        sessionReady: state.sessionReady,
+        isRecording: state.isRecording,
+        isProcessing: state.isProcessing,
+        isEndingSession: state.isEndingSession,
+        hasAiResponded: state.hasAiResponded,
+        transcripts: state.transcripts,
+        aiFeedback: state.aiFeedback,
+        finalSummary: state.finalSummary,
+        showSummaryCard: state.showSummaryCard,
+        currentQuestion: state.currentQuestion,
+        currentConceptId: state.currentConceptId,
+        questionDepth: state.questionDepth,
+        failedAttempts: state.failedAttempts,
+        detectedGaps: state.detectedGaps,
+        masteredConcepts: state.masteredConcepts,
+        conversationHistory: state.conversationHistory,
+        messages: state.messages,
+        resourceIds: state.resourceIds,
+        subject: state.subject,
+        topic: state.topic,
+      }),
+    }
+  )
+);
