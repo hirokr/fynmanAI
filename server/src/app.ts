@@ -21,6 +21,7 @@ import {
   createRateLimitMiddleware,
   rateLimitPresets,
 } from '#src/middlewares/rate-limit.middleware.ts';
+import  pingRoutes from './routes/ping.route.ts';
 
 const app = express();
 app.use(helmet());
@@ -85,6 +86,8 @@ app.use('/api/health', healthRoutes);
 app.get('/api', (req, res) => {
   sendApiSuccess(res, { message: 'Tryora API is running!' });
 });
+
+app.get('/api/ping', pingRoutes);
 
 app.use('/api/auth', createRateLimitMiddleware(rateLimitPresets.auth));
 app.use('/api/parser', createRateLimitMiddleware(rateLimitPresets.upload));
