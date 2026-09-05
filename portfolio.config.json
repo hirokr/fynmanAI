@@ -1,0 +1,13 @@
+{
+  "slug": "fynmanai",
+  "title": "Feynman AI",
+  "tagline": "An AI examiner that grades how well you actually understand what you studied",
+  "problem": "The Feynman technique works by explaining a concept out loud in your own words, but self-study tools grade recall (quizzes, flashcards), not whether an explanation is actually grounded in the source material or has real gaps.",
+  "solution": "Built a real-time speaking-session app: ingest resources (text, URL, PDF/DOCX/PPTX/TXT, OCR'd images), chunk and embed them into Qdrant, then stream live transcription over WebSocket while the user explains a topic out loud. A strict \"examiner, not tutor\" LLM prompt runs rolling analysis every 20-30 seconds, asks probing questions grounded in retrieved context, and never just gives the answer. Ends in a mastery report with a confidence score, missed concepts, and per-session/aggregate analytics.",
+  "stack": ["TypeScript", "Next.js", "Express", "Socket.IO", "PostgreSQL", "Prisma", "Redis", "BullMQ", "Qdrant", "Groq (Whisper)", "OpenRouter"],
+  "featured": true,
+  "links": {
+    "github": "https://github.com/hirokr/fynmanAI"
+  },
+  "updatedAt": "2026-09-05"
+}
